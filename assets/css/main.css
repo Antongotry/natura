@@ -971,9 +971,18 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	/* ========== CATALOG DROPDOWN IN MOBILE MENU ========== */
 	
-	/* Отступ между Каталог и другими пунктами */
+	/* Отступ между Каталог и другими пунктами - такой же как между обычными пунктами */
 	.site-header__menu-item--catalog {
-		margin-bottom: 2.564vw;
+		margin-bottom: 0;
+	}
+	
+	/* Небольшой отступ после dropdown категорий перед следующими пунктами */
+	.site-header__catalog-dropdown {
+		margin-bottom: 0;
+	}
+	
+	.site-header__menu-item--catalog + .site-header__separator {
+		margin-top: 0;
 	}
 	
 	/* Catalog toggle button */
