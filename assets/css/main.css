@@ -1031,6 +1031,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 	
 	/* Catalog dropdown items (subcategories) */
+	.site-header__catalog-item {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	
 	.site-header__catalog-item a {
 		font-family: 'Inter Tight', sans-serif !important;
 		font-weight: 600 !important;
@@ -1040,17 +1046,26 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		letter-spacing: -0.03em !important;
 		vertical-align: middle !important;
 		color: rgba(48, 48, 48, 0.4) !important;
-		background-color: rgba(48, 48, 48, 0.4) !important;
+		background-color: transparent !important;
 		text-decoration: none !important;
 		display: block;
-		padding: 8px 12px;
-		border-radius: 4px;
+		padding: 0;
+		border: none !important;
+		border-radius: 0 !important;
 	}
 	
 	.site-header__catalog-item a:hover,
 	.site-header__catalog-item a:focus-visible {
-		color: #303030 !important;
-		background-color: rgba(48, 48, 48, 0.2) !important;
+		color: rgba(48, 48, 48, 0.4) !important;
+		background-color: transparent !important;
+	}
+	
+	/* Active category */
+	.site-header__catalog-item a:active,
+	.site-header__mobile-menu .site-header__catalog-item.is-active a,
+	.site-header__mobile-menu .site-header__catalog-item.current-cat a {
+		color: rgba(48, 48, 48, 0.4) !important;
+		background-color: transparent !important;
 	}
 	
 	/* ========== END CATALOG DROPDOWN ========== */
