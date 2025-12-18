@@ -1,5 +1,5 @@
 #!/bin/bash
-# Автоматический деплой: push в GitHub + деплой через SFTP
+# Автоматический деплой: push в GitHub + деплой через SFTP с полной синхронизацией
 # Использование: ./deploy-auto.sh "описание коммита"
 
 GREEN='\033[0;32m'
@@ -27,16 +27,19 @@ echo -e "${GREEN}✅ Изменения запушены в GitHub${NC}"
 
 # 3. Проверяем наличие SFTP credentials
 if [ -z "$HOSTINGER_SFTP_HOST" ] || [ -z "$HOSTINGER_SFTP_USER" ] || [ -z "$HOSTINGER_SFTP_PASS" ]; then
-    echo -e "${YELLOW}⚠️  SFTP credentials не установлены. Используй:${NC}"
-    echo "export HOSTINGER_SFTP_HOST='твой-хост'"
+    echo -e "${YELLOW}⚠️  SFTP credentials не установлены.${NC}"
+    echo -e "${YELLOW}Установи их один раз:${NC}"
+    echo ""
+    echo "export HOSTINGER_SFTP_HOST='твой-хост.hostingersite.com'"
     echo "export HOSTINGER_SFTP_USER='твой-логин'"
     echo "export HOSTINGER_SFTP_PASS='твой-пароль'"
-    echo -e "${GREEN}✅ GitHub Actions автоматически задеплоит через ~1 минуту${NC}"
+    echo ""
+    echo -e "${GREEN}Или используй GitHub Actions для автоматического деплоя${NC}"
     exit 0
 fi
 
-# 4. Деплой через SFTP
-echo -e "${YELLOW}📤 Деплою через SFTP...${NC}"
+# 4. Деплой через SFTP с полной синхронизацией
+echo -e "${YELLOW}📤 Деплою через SFTP (полная синхронизация)...${NC}"
 
 if ! command -v lftp &> /dev/null; then
     echo -e "${RED}❌ lftp не установлен. Устанавливаю...${NC}"
@@ -48,18 +51,19 @@ if ! command -v lftp &> /dev/null; then
     fi
 fi
 
+# Используем mirror с --delete для удаления файлов, которых нет в репозитории
 lftp -c "
 set ftp:ssl-allow no
 set sftp:auto-confirm yes
 open -u ${HOSTINGER_SFTP_USER},${HOSTINGER_SFTP_PASS} sftp://${HOSTINGER_SFTP_HOST}
 cd /wp-content/themes/natura/
-mirror -R --delete --verbose --exclude-glob .git* --exclude-glob .DS_Store --exclude-glob .github .
+mirror -R --delete --verbose --exclude-glob .git* --exclude-glob .DS_Store --exclude-glob .github --exclude-glob deploy*.sh .
 bye
 "
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Деплой успешен!${NC}"
+    echo -e "${GREEN}✅ Деплой успешен! Все файлы синхронизированы.${NC}"
 else
-    echo -e "${RED}❌ Ошибка деплоя через SFTP. GitHub Actions задеплоит автоматически.${NC}"
+    echo -e "${RED}❌ Ошибка деплоя через SFTP${NC}"
+    exit 1
 fi
-
