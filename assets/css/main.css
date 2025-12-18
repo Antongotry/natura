@@ -968,6 +968,82 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		display: none !important;
 	}
 
+	/* ========== CATALOG DROPDOWN IN MOBILE MENU ========== */
+	
+	/* Catalog toggle button */
+	.site-header__catalog-toggle {
+		display: flex !important;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 2.564vw;
+		width: 100%;
+		padding: 0;
+		border: none;
+		background: transparent;
+		cursor: pointer;
+		font-family: 'Inter Tight', sans-serif;
+		font-weight: 600;
+		font-size: 8.718vw;
+		line-height: 100%;
+		letter-spacing: -0.03em;
+		color: #303030;
+		text-align: left;
+	}
+	
+	/* Catalog arrow icon */
+	.site-header__catalog-arrow {
+		width: 8.718vw;
+		height: 8.718vw;
+		object-fit: contain;
+		transition: transform 0.3s ease;
+		flex-shrink: 0;
+	}
+	
+	/* Arrow points right by default (rotated 180deg because SVG points left) */
+	.site-header__catalog-toggle[aria-expanded="false"] .site-header__catalog-arrow {
+		transform: rotate(180deg);
+	}
+	
+	/* Arrow points up when expanded */
+	.site-header__catalog-toggle[aria-expanded="true"] .site-header__catalog-arrow {
+		transform: rotate(90deg);
+	}
+	
+	/* Catalog dropdown list */
+	.site-header__catalog-dropdown {
+		display: none;
+		flex-direction: column;
+		gap: 2.564vw;
+		list-style: none;
+		margin: 0;
+		padding: 3.59vw 0 0 0;
+	}
+	
+	/* Show dropdown when expanded */
+	.site-header__catalog-toggle[aria-expanded="true"] + .site-header__catalog-dropdown {
+		display: flex;
+	}
+	
+	/* Catalog dropdown items (subcategories) */
+	.site-header__catalog-item a {
+		font-family: 'Inter Tight', sans-serif !important;
+		font-weight: 600 !important;
+		font-size: 3.59vw !important;
+		line-height: 100% !important;
+		letter-spacing: -0.03em !important;
+		color: rgba(48, 48, 48, 0.4) !important;
+		text-decoration: none;
+		display: block;
+		padding: 0;
+	}
+	
+	.site-header__catalog-item a:hover,
+	.site-header__catalog-item a:focus-visible {
+		color: #303030 !important;
+	}
+	
+	/* ========== END CATALOG DROPDOWN ========== */
+
 	.site-header__mobile-menu .site-header__menu-item a:hover,
 	.site-header__mobile-menu .site-header__menu-item a:focus-visible {
 		color: #303030;
@@ -1008,19 +1084,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		margin-left: 0 !important;
 	}
 
-	/* Иконка только для активных пунктов */
+	/* Убираем стрелки у активных пунктов */
 	.site-header__mobile-menu .site-header__menu-item.is-active a::after,
 	.site-header__mobile-menu .site-header__menu-item.current-menu-item a::after {
-		content: '' !important;
-		display: inline-block !important;
-		width: 9.067vw;
-		height: 9.067vw;
-		margin-left: 2.667vw;
-		background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/arrow_back_24dp_202020_fill1_wght400_grad0_opsz24-1.svg');
-		background-repeat: no-repeat;
-		background-position: center;
-		background-size: contain;
-		flex-shrink: 0;
+		content: none !important;
+		display: none !important;
 	}
 
 	.site-header__mobile-contacts {
