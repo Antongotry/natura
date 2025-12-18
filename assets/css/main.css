@@ -999,14 +999,14 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		flex-shrink: 0;
 	}
 	
-	/* Arrow points right by default (rotated 180deg because SVG points left) */
+	/* Arrow points right by default (SVG points left, so rotate 180deg) */
 	.site-header__catalog-toggle[aria-expanded="false"] .site-header__catalog-arrow {
 		transform: rotate(180deg);
 	}
 	
 	/* Arrow points up when expanded */
 	.site-header__catalog-toggle[aria-expanded="true"] .site-header__catalog-arrow {
-		transform: rotate(90deg);
+		transform: rotate(-90deg);
 	}
 	
 	/* Catalog dropdown list */
@@ -1016,7 +1016,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		gap: 2.564vw;
 		list-style: none;
 		margin: 0;
-		padding: 3.59vw 0 0 0;
+		padding: 4.103vw 0 0 0;
 	}
 	
 	/* Show dropdown when expanded */
@@ -1028,11 +1028,13 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.site-header__catalog-item a {
 		font-family: 'Inter Tight', sans-serif !important;
 		font-weight: 600 !important;
+		font-style: normal !important;
 		font-size: 3.59vw !important;
 		line-height: 100% !important;
 		letter-spacing: -0.03em !important;
+		vertical-align: middle !important;
 		color: rgba(48, 48, 48, 0.4) !important;
-		text-decoration: none;
+		text-decoration: none !important;
 		display: block;
 		padding: 0;
 	}
