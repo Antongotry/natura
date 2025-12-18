@@ -32,18 +32,16 @@ get_header( 'shop' ); ?>
 		</div>
 	</section>
 
-	<!-- Mobile Filter Button (sticky, bottom left) -->
+	<!-- Mobile Filter Button (sticky, left side, egg-shaped) -->
 	<button type="button" class="shop-filter-mobile-button" data-shop-filter-open aria-label="<?php esc_attr_e( 'Відкрити фільтри', 'natura' ); ?>">
-		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M4 6H20M4 12H20M4 18H20" stroke="#303030" stroke-width="2" stroke-linecap="round"/>
-		</svg>
-		<span class="shop-filter-mobile-button__text">Фільтри</span>
+		<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/game_13602763-1.svg" alt="" class="shop-filter-mobile-button__icon">
 	</button>
 
-	<!-- Mobile Filter Drawer (slides from right) -->
+	<!-- Mobile Filter Drawer (slides from left, centered) -->
 	<div class="shop-filter-drawer" data-shop-filter-drawer>
 		<div class="shop-filter-drawer__overlay" data-shop-filter-close></div>
-		<div class="shop-filter-drawer__content">
+		<div class="shop-filter-drawer__wrapper">
+			<div class="shop-filter-drawer__content">
 			<div class="shop-filter-drawer__header">
 				<h2 class="shop-filter-drawer__title"><?php esc_html_e( 'Фільтри', 'natura' ); ?></h2>
 				<button type="button" class="shop-filter-drawer__close" data-shop-filter-close aria-label="<?php esc_attr_e( 'Закрити фільтри', 'natura' ); ?>">
@@ -101,6 +99,7 @@ get_header( 'shop' ); ?>
 				<button type="button" class="shop-filter-drawer__reset" data-filter-reset><?php esc_html_e( 'Скинути фільтри', 'natura' ); ?></button>
 				<button type="button" class="shop-filter-drawer__apply" data-filter-apply><?php esc_html_e( 'Застосувати', 'natura' ); ?></button>
 			</div>
+		</div>
 		</div>
 	</div>
 
