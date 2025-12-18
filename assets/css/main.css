@@ -920,7 +920,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		display: flex !important;
 		align-items: center;
 		justify-content: flex-start;
-		color: #3030304D !important;
+		color: #303030 !important;
 		font-family: var(--font-family-base) !important;
 		font-weight: 500 !important;
 		font-style: normal !important;
@@ -944,7 +944,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		border: none !important;
 		border-radius: 0 !important;
 		background-color: transparent !important;
-		color: #3030304D !important;
+		color: #303030 !important;
 		font-size: 9.067vw !important;
 		line-height: 100% !important;
 		font-weight: 500 !important;
