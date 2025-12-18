@@ -152,32 +152,10 @@
 				<nav class="site-header__nav" aria-label="<?php esc_attr_e('Основное меню', 'natura'); ?>">
 					<ul class="site-header__menu">
 						<?php
-						// Get product categories for dropdown
-						$mobile_menu_categories = get_terms(array(
-							'taxonomy' => 'product_cat',
-							'hide_empty' => true,
-							'parent' => 0,
-							'exclude' => get_option('default_product_cat'),
-							'orderby' => 'menu_order',
-							'order' => 'ASC',
-						));
+						$catalog_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : (function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : home_url('/catalog'));
 						?>
-						<!-- Каталог - first item with dropdown -->
-						<li class="site-header__menu-item site-header__menu-item--catalog">
-							<button type="button" class="site-header__catalog-toggle" data-catalog-toggle aria-expanded="false">
-								<span>Каталог</span>
-								<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/arrow_back_24dp_202020_fill1_wght400_grad0_opsz24-1.svg" alt="" class="site-header__catalog-arrow">
-							</button>
-							<?php if (!empty($mobile_menu_categories) && !is_wp_error($mobile_menu_categories)) : ?>
-							<ul class="site-header__catalog-dropdown">
-								<?php foreach ($mobile_menu_categories as $cat) : ?>
-								<li class="site-header__catalog-item">
-									<a href="<?php echo esc_url(get_term_link($cat)); ?>"><?php echo esc_html($cat->name); ?></a>
-								</li>
-								<?php endforeach; ?>
-							</ul>
-							<?php endif; ?>
-						</li>
+						<!-- Каталог - first item, simple link -->
+						<li class="site-header__menu-item"><a href="<?php echo esc_url($catalog_url); ?>">Каталог</a></li>
 						<li class="site-header__separator" aria-hidden="true"></li>
 						<!-- Головна - second item -->
 						<li class="site-header__menu-item"><a href="<?php echo esc_url(home_url('/')); ?>">Головна</a></li>

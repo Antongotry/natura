@@ -2277,24 +2277,11 @@ const updateCartCountGlobal = () => {
 		}
 	};
 
-	// Mobile menu catalog dropdown toggle
-	const initMobileCatalogDropdown = () => {
-		const catalogToggle = document.querySelector('[data-catalog-toggle]');
-		
-		if (catalogToggle) {
-			catalogToggle.addEventListener('click', () => {
-				const isExpanded = catalogToggle.getAttribute('aria-expanded') === 'true';
-				catalogToggle.setAttribute('aria-expanded', !isExpanded);
-			});
-		}
-	};
-
 	document.addEventListener('DOMContentLoaded', () => {
 		const lenis = initLenis();
 		initHeaderScroll();
 		initHamburgerMenu();
 		initMenuDropdown();
-		initMobileCatalogDropdown();
 		initSearch();
 		initHeroAnimation();
 		initCategoriesCarousel();
