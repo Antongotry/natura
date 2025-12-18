@@ -3348,28 +3348,10 @@ const initShopFilterDrawer = () => {
 		}
 	});
 
-	// Фильтр по цене
-	const priceApplyButton = filterDrawer.querySelector('[data-price-filter-apply]');
-	if (priceApplyButton) {
-		priceApplyButton.addEventListener('click', () => {
-			const minPrice = document.getElementById('filter-price-min')?.value;
-			const maxPrice = document.getElementById('filter-price-max')?.value;
-			
-			if (minPrice || maxPrice) {
-				const url = new URL(window.location.href);
-				if (minPrice) url.searchParams.set('min_price', minPrice);
-				if (maxPrice) url.searchParams.set('max_price', maxPrice);
-				window.location.href = url.toString();
-			}
-		});
-	}
-
 	// Сброс фильтров
 	const resetButton = filterDrawer.querySelector('[data-filter-reset]');
 	if (resetButton) {
 		resetButton.addEventListener('click', () => {
-			document.getElementById('filter-price-min').value = '';
-			document.getElementById('filter-price-max').value = '';
 			const url = new URL(window.location.href);
 			url.searchParams.delete('min_price');
 			url.searchParams.delete('max_price');
@@ -3381,16 +3363,8 @@ const initShopFilterDrawer = () => {
 	const applyButton = filterDrawer.querySelector('[data-filter-apply]');
 	if (applyButton) {
 		applyButton.addEventListener('click', () => {
-			const minPrice = document.getElementById('filter-price-min')?.value;
-			const maxPrice = document.getElementById('filter-price-max')?.value;
-			
-			const url = new URL(window.location.href);
-			if (minPrice) url.searchParams.set('min_price', minPrice);
-			else url.searchParams.delete('min_price');
-			if (maxPrice) url.searchParams.set('max_price', maxPrice);
-			else url.searchParams.delete('max_price');
-			
-			window.location.href = url.toString();
+			// Просто закрываем панель, фильтры применяются через клики по категориям
+			closeFilter();
 		});
 	}
 };

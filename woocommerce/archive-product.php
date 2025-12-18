@@ -81,19 +81,6 @@ get_header( 'shop' ); ?>
 						</ul>
 					<?php endif; ?>
 				</div>
-
-				<!-- Price Filter -->
-				<div class="shop-filter-section">
-					<h3 class="shop-filter-section__title"><?php esc_html_e( 'Ціна', 'natura' ); ?></h3>
-					<div class="shop-filter-price">
-						<div class="shop-filter-price__inputs">
-							<input type="number" class="shop-filter-price__input" placeholder="Від" min="0" id="filter-price-min">
-							<span class="shop-filter-price__separator">—</span>
-							<input type="number" class="shop-filter-price__input" placeholder="До" min="0" id="filter-price-max">
-						</div>
-						<button type="button" class="shop-filter-price__apply" data-price-filter-apply><?php esc_html_e( 'Застосувати', 'natura' ); ?></button>
-					</div>
-				</div>
 			</div>
 			<div class="shop-filter-drawer__footer">
 				<button type="button" class="shop-filter-drawer__reset" data-filter-reset><?php esc_html_e( 'Скинути фільтри', 'natura' ); ?></button>
