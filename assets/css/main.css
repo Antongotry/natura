@@ -3197,10 +3197,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		top: 50%;
 		transform: translateY(-50%);
 		z-index: 999999;
-		width: 60px;
-		height: 80px;
+		width: 44px;
+		height: 56px;
 		/* Egg shape: rounded right, extends left off screen */
-		border-radius: 0 30px 30px 0;
+		border-radius: 0 22px 22px 0;
 		background-color: rgba(255, 255, 255, 0.9);
 		border: 1px solid rgba(48, 48, 48, 0.2);
 		border-left: none;
@@ -3221,8 +3221,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 
 	.shop-filter-mobile-button__icon {
-		width: 24px;
-		height: 24px;
+		width: 20px;
+		height: 20px;
 		flex-shrink: 0;
 		object-fit: contain;
 	}
