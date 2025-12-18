@@ -984,7 +984,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		list-style: none;
 		margin: 0;
 		padding: 2.667vw 0 0 0;
-		gap: 2.133vw;
+		gap: 2.564vw;
 	}
 
 	.site-header__catalog-toggle[aria-expanded="true"] + .site-header__catalog-dropdown {
@@ -1153,19 +1153,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		margin-left: 0 !important;
 	}
 
-	/* Иконка только для активных пунктов */
+	/* Убираем стрелку у активных пунктов */
 	.site-header__mobile-menu .site-header__menu-item.is-active a::after,
 	.site-header__mobile-menu .site-header__menu-item.current-menu-item a::after {
-		content: '' !important;
-		display: inline-block !important;
-		width: 9.067vw;
-		height: 9.067vw;
-		margin-left: 2.667vw;
-		background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/arrow_back_24dp_202020_fill1_wght400_grad0_opsz24-1.svg');
-		background-repeat: no-repeat;
-		background-position: center;
-		background-size: contain;
-		flex-shrink: 0;
+		display: none !important;
 	}
 
 	.site-header__mobile-contacts {
