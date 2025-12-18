@@ -1,0 +1,3371 @@
+// Глобальные функции для работы с корзиной и уведомлениями
+const showCartNotification = (productImage) => {
+	console.log('[showCartNotification] Вызвана функция, productImage:', productImage);
+	const notification = document.querySelector('[data-cart-notification]');
+	const notificationImage = document.querySelector('[data-cart-notification-image]');
+	const cartButton = document.querySelector('[data-mini-cart-open]');
+	
+	console.log('[showCartNotification] notification:', notification);
+	console.log('[showCartNotification] notificationImage:', notificationImage);
+	
+	if (!notification) {
+		console.error('[showCartNotification] Элемент уведомления не найден в DOM!');
+		return;
+	}
+
+	// Устанавливаем изображение товара
+	if (notificationImage) {
+		if (productImage) {
+			notificationImage.src = productImage;
+			notificationImage.style.display = 'block';
+			notificationImage.alt = 'Товар';
+			console.log('[showCartNotification] Изображение установлено:', productImage);
+		} else {
+			notificationImage.style.display = 'none';
+			console.log('[showCartNotification] Изображение товара не найдено');
+		}
+	}
+
+	// Проверяем, мобильная ли версия
+	const isMobile = window.innerWidth <= 1025;
+	
+	// Вычисляем позицию кнопки корзины и позиционируем уведомление
+	// Для position: fixed используем координаты относительно viewport (getBoundingClientRect)
+	if (isMobile) {
+		// В мобильной версии не устанавливаем позицию через JS - CSS полностью контролирует позиционирование
+		// Убираем все инлайн стили, чтобы CSS медиа-запрос работал
+		notification.style.top = '';
+		notification.style.right = '';
+		notification.style.left = '';
+		notification.style.bottom = '';
+		
+		console.log('[showCartNotification] Мобильная версия - позиция контролируется CSS');
+	} else if (cartButton) {
+		const cartButtonRect = cartButton.getBoundingClientRect();
+		
+		// Позиционируем уведомление справа от кнопки корзины, немного ниже
+		// Для fixed позиционирования используем координаты viewport напрямую
+		const notificationTop = cartButtonRect.bottom + 10; // 10px отступ снизу от кнопки
+		const notificationRight = window.innerWidth - cartButtonRect.right;
+		
+		notification.style.top = notificationTop + 'px';
+		notification.style.right = notificationRight + 'px';
+		notification.style.left = 'auto';
+		notification.style.bottom = 'auto';
+		
+		console.log('[showCartNotification] Позиция установлена:', {
+			top: notificationTop,
+			right: notificationRight,
+			cartButtonRect: cartButtonRect
+		});
+	} else {
+		// Fallback: позиционируем в правом верхнем углу
+		notification.style.top = '80px';
+		notification.style.right = '20px';
+		notification.style.left = 'auto';
+		notification.style.bottom = 'auto';
+		console.log('[showCartNotification] Кнопка корзины не найдена, используется fallback позиция');
+	}
+
+	// Показываем уведомление
+	notification.classList.add('is-visible');
+	
+	console.log('[showCartNotification] Уведомление показано');
+
+	// Скрываем через 3 секунды
+	setTimeout(() => {
+		notification.classList.remove('is-visible');
+		console.log('[showCartNotification] Уведомление скрыто');
+	}, 3000);
+};
+
+// Глобальная функция обновления счетчика корзины
+const updateCartCountGlobal = () => {
+	const cartCountElements = document.querySelectorAll('[data-cart-count]');
+	if (!cartCountElements || cartCountElements.length === 0) {
+		return;
+	}
+
+	if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+		jQuery.ajax({
+			type: 'POST',
+			url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+			dataType: 'json',
+			success: function(response) {
+				if (response && response.fragments) {
+					const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
+					                    response.fragments['.widget_shopping_cart_content'] ||
+					                    Object.values(response.fragments).find(fragment => 
+					                    	typeof fragment === 'string' && fragment.includes('cart_item')
+					                    );
+					
+					if (cartContent) {
+						const tempDiv = document.createElement('div');
+						tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+						const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, .woocommerce-mini-cart-item');
+						let totalQuantity = 0;
+						
+						cartItems.forEach(item => {
+							const quantityElement = item.querySelector('.quantity, .mini-cart-item__quantity-value, .woocommerce-mini-cart-item__quantity');
+							if (quantityElement) {
+								const quantityText = quantityElement.textContent.trim();
+								const quantity = parseInt(quantityText) || 0;
+								totalQuantity += quantity;
+							}
+						});
+						
+						if (totalQuantity > 0) {
+							cartCountElements.forEach(element => {
+								element.textContent = totalQuantity;
+								element.style.display = 'flex';
+							});
+						} else {
+							cartCountElements.forEach(element => {
+								element.textContent = '0';
+								element.style.display = 'none';
+							});
+						}
+					} else {
+						cartCountElements.forEach(element => {
+							element.textContent = '0';
+							element.style.display = 'none';
+						});
+					}
+				}
+			},
+			error: function() {
+				cartCountElements.forEach(element => {
+					element.textContent = '0';
+					element.style.display = 'none';
+				});
+			}
+		});
+	}
+};
+
+// Глобальный обработчик события added_to_cart (работает на всех страницах)
+// Регистрируем после загрузки DOM и jQuery
+(function registerCartNotificationHandler() {
+	const registerHandler = () => {
+		if (typeof jQuery === 'undefined') {
+			console.log('[registerCartNotificationHandler] jQuery еще не загружен, повторная попытка через 100ms');
+			setTimeout(registerHandler, 100);
+			return;
+		}
+		
+		console.log('[registerCartNotificationHandler] Регистрируем обработчик added_to_cart');
+		
+		// Проверяем наличие элемента уведомления в DOM
+		const notification = document.querySelector('[data-cart-notification]');
+		console.log('[registerCartNotificationHandler] Элемент уведомления в DOM:', notification);
+		
+		// Удаляем старый обработчик, если он был
+		jQuery(document.body).off('added_to_cart.cartNotification');
+		
+		// Регистрируем новый обработчик с namespace для избежания конфликтов
+		jQuery(document.body).on('added_to_cart.cartNotification', function(event, fragments, cart_hash, button) {
+			console.log('[added_to_cart.cartNotification] Событие сработало!', { button, fragments, cart_hash });
+			
+			// Обновляем счетчик корзины
+			updateCartCountGlobal();
+			
+			// Получаем изображение товара из фрагментов или кнопки
+			let productImage = '';
+			if (button) {
+				console.log('[added_to_cart.cartNotification] Ищем изображение для кнопки:', button);
+				
+				// Пробуем найти изображение в карточке товара
+				const productCard = button.closest('.product-card, li.product, .product');
+				if (productCard) {
+					const img = productCard.querySelector('.product-card__image-wrapper img, .woocommerce-loop-product__link img, .product-card__image img, img.attachment-woocommerce_thumbnail, img.wp-post-image');
+					if (img) {
+						productImage = img.src || img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+						console.log('[added_to_cart.cartNotification] Найдено изображение в карточке:', productImage);
+					}
+				}
+				
+				// Если не нашли, пробуем найти по data-product-id
+				if (!productImage && button.getAttribute('data-product_id')) {
+					const productId = button.getAttribute('data-product_id');
+					const productElement = document.querySelector(`[data-product-id="${productId}"], .product[data-product-id="${productId}"], li.product[data-product-id="${productId}"]`);
+					if (productElement) {
+						const img = productElement.querySelector('.product-card__image-wrapper img, .woocommerce-loop-product__link img, img.attachment-woocommerce_thumbnail, img.wp-post-image');
+						if (img) {
+							productImage = img.src || img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+							console.log('[added_to_cart.cartNotification] Найдено изображение по product-id:', productImage);
+						}
+					}
+				}
+				
+				// Если все еще не нашли, пробуем найти в результатах поиска
+				if (!productImage) {
+					const searchResult = button.closest('.site-header__search-result-item');
+					if (searchResult) {
+						const img = searchResult.querySelector('.site-header__search-result-image');
+						if (img) {
+							productImage = img.src || img.getAttribute('src');
+							console.log('[added_to_cart.cartNotification] Найдено изображение в результатах поиска:', productImage);
+						}
+					}
+				}
+			}
+			
+			// Показываем уведомление
+			console.log('[added_to_cart.cartNotification] Вызываем showCartNotification с изображением:', productImage);
+			showCartNotification(productImage);
+		});
+		
+		jQuery(document.body).off('removed_from_cart.cartNotification');
+		jQuery(document.body).on('removed_from_cart.cartNotification', function() {
+			updateCartCountGlobal();
+		});
+		
+		jQuery(document.body).off('updated_cart_totals.cartNotification');
+		jQuery(document.body).on('updated_cart_totals.cartNotification', function() {
+			updateCartCountGlobal();
+		});
+		
+		console.log('[registerCartNotificationHandler] Обработчики зарегистрированы');
+	};
+	
+	// Пробуем зарегистрировать сразу
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', registerHandler);
+	} else {
+		registerHandler();
+	}
+})();
+
+// Проверка наличия элемента уведомления при загрузке страницы
+(function checkNotificationElement() {
+	const check = () => {
+		const notification = document.querySelector('[data-cart-notification]');
+		if (notification) {
+			console.log('[checkNotificationElement] Элемент уведомления найден в DOM:', notification);
+			console.log('[checkNotificationElement] Родительский элемент:', notification.parentElement);
+			console.log('[checkNotificationElement] Computed styles:', {
+				display: window.getComputedStyle(notification).display,
+				position: window.getComputedStyle(notification).position,
+				zIndex: window.getComputedStyle(notification).zIndex
+			});
+		} else {
+			console.warn('[checkNotificationElement] Элемент уведомления НЕ найден в DOM!');
+			console.warn('[checkNotificationElement] Это нормально, если вы на главной странице или /sales');
+		}
+	};
+	
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', check);
+	} else {
+		check();
+	}
+})();
+
+(function () {
+	'use strict';
+
+	const initHeaderScroll = () => {
+		const header = document.querySelector('[data-header]');
+		if (!header) {
+			return;
+		}
+
+		const stickyOffset = 1;
+
+		const toggleState = () => {
+			if (window.scrollY > stickyOffset) {
+				header.classList.add('site-header--scrolled');
+			} else {
+				header.classList.remove('site-header--scrolled');
+			}
+		};
+
+		toggleState();
+		window.addEventListener('scroll', toggleState, { passive: true });
+	};
+
+	const initHamburgerMenu = () => {
+		const hamburger = document.querySelector('[data-hamburger]');
+		const mobileMenu = document.querySelector('[data-mobile-menu]');
+		const header = document.querySelector('[data-header]');
+
+		if (!hamburger || !mobileMenu || !header) {
+			return;
+		}
+
+		const menuItems = mobileMenu.querySelectorAll('.site-header__menu-item');
+
+		// Определение активного пункта меню
+		const setActiveMenuItem = () => {
+			const currentUrl = window.location.href;
+			const currentPath = window.location.pathname;
+			const currentHash = window.location.hash;
+
+			// Сначала убираем все активные классы
+			menuItems.forEach((item) => {
+				item.classList.remove('is-active');
+			});
+
+			// Если есть хеш, ищем соответствующий пункт меню
+			if (currentHash) {
+				menuItems.forEach((item) => {
+					const link = item.querySelector('a');
+					if (!link) {
+						return;
+					}
+
+					const linkUrl = link.getAttribute('href');
+					const linkHash = new URL(linkUrl, window.location.origin).hash;
+
+					if (linkHash && currentHash === linkHash) {
+						item.classList.add('is-active');
+					}
+				});
+				return;
+			}
+
+			// Если хеша нет, проверяем путь
+			menuItems.forEach((item) => {
+				const link = item.querySelector('a');
+				if (!link) {
+					return;
+				}
+
+				const linkUrl = link.getAttribute('href');
+				const linkPath = new URL(linkUrl, window.location.origin).pathname;
+				const linkHash = new URL(linkUrl, window.location.origin).hash;
+
+				// Проверка для главной страницы (только если нет хеша)
+				if (linkPath === '/' && currentPath === '/' && !linkHash) {
+					item.classList.add('is-active');
+					return;
+				}
+
+				// Проверка для обычных ссылок
+				if (linkPath !== '/' && currentPath === linkPath && !linkHash) {
+					item.classList.add('is-active');
+					return;
+				}
+			});
+		};
+
+		// Устанавливаем активный пункт при загрузке
+		setActiveMenuItem();
+
+		// Обновляем при изменении хэша (для якорных ссылок)
+		window.addEventListener('hashchange', setActiveMenuItem);
+
+		// Обновляем при скролле (для определения видимой секции)
+		let scrollTimeout;
+		window.addEventListener('scroll', () => {
+			clearTimeout(scrollTimeout);
+			scrollTimeout = setTimeout(() => {
+				// Обновляем только если меню открыто
+				if (mobileMenu.classList.contains('is-active')) {
+					setActiveMenuItem();
+				}
+			}, 100);
+		}, { passive: true });
+
+		let scrollPosition = 0;
+
+		const toggleMenu = (e) => {
+			if (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+			}
+
+			const isActive = mobileMenu.classList.contains('is-active');
+
+			if (isActive) {
+				mobileMenu.classList.remove('is-active');
+				header.classList.remove('site-header--menu-open');
+				document.body.style.overflow = '';
+				document.body.style.position = '';
+				document.body.style.top = '';
+				document.body.style.width = '';
+				document.documentElement.style.overflow = '';
+				// Восстанавливаем позицию скролла
+				requestAnimationFrame(() => {
+					window.scrollTo(0, scrollPosition);
+				});
+			} else {
+				// Сохраняем текущую позицию скролла
+				scrollPosition = window.pageYOffset || document.documentElement.scrollTop || window.scrollY;
+				
+				mobileMenu.classList.add('is-active');
+				header.classList.add('site-header--menu-open');
+				document.body.style.overflow = 'hidden';
+				document.body.style.position = 'fixed';
+				document.body.style.top = `-${scrollPosition}px`;
+				document.body.style.width = '100%';
+				document.documentElement.style.overflow = 'hidden';
+			}
+
+			return false;
+		};
+
+		hamburger.addEventListener('click', toggleMenu);
+		hamburger.addEventListener('touchstart', toggleMenu);
+
+		// Закрытие меню при клике на ссылку
+		// Используем делегирование событий для правильной работы с модальными окнами
+		mobileMenu.addEventListener('click', (e) => {
+			const link = e.target.closest('.site-header__menu-item a');
+			if (!link) {
+				return;
+			}
+			
+			const href = link.getAttribute('href');
+			
+			// Для модальных окон - закрываем меню после их открытия
+			if (link.hasAttribute('data-payment-modal-open') || 
+			    link.hasAttribute('data-collaboration-modal-open') || 
+			    link.hasAttribute('data-feedback-modal-open')) {
+				setTimeout(() => {
+					mobileMenu.classList.remove('is-active');
+					header.classList.remove('site-header--menu-open');
+					document.body.style.overflow = '';
+					document.body.style.position = '';
+					document.body.style.top = '';
+					document.body.style.width = '';
+					document.documentElement.style.overflow = '';
+					requestAnimationFrame(() => {
+						window.scrollTo(0, scrollPosition);
+					});
+				}, 150);
+				return; // Не блокируем открытие модального окна
+			}
+			
+			// Функция закрытия меню
+			const closeMenu = () => {
+				mobileMenu.classList.remove('is-active');
+				header.classList.remove('site-header--menu-open');
+				document.body.style.overflow = '';
+				document.body.style.position = '';
+				document.body.style.top = '';
+				document.body.style.width = '';
+				document.documentElement.style.overflow = '';
+				requestAnimationFrame(() => {
+					window.scrollTo(0, scrollPosition);
+				});
+				setActiveMenuItem();
+			};
+			
+			// Для якорных ссылок используем ту же логику, что и в десктопном меню
+			if (href && href.startsWith('#')) {
+				const targetId = href.substring(1);
+				const targetElement = document.getElementById(targetId);
+				
+				if (targetElement) {
+					e.preventDefault();
+					e.stopPropagation();
+					
+					// Используем сохраненную позицию скролла (которая была сохранена при открытии меню)
+					const savedScrollPosition = scrollPosition;
+					
+					// Закрываем меню
+					mobileMenu.classList.remove('is-active');
+					header.classList.remove('site-header--menu-open');
+					document.body.style.overflow = '';
+					document.body.style.position = '';
+					document.body.style.top = '';
+					document.body.style.width = '';
+					document.documentElement.style.overflow = '';
+					
+					// Восстанавливаем позицию скролла и затем скроллим к цели
+					// Используем двойной requestAnimationFrame для гарантированного восстановления
+					requestAnimationFrame(() => {
+						window.scrollTo(0, savedScrollPosition);
+						
+						requestAnimationFrame(() => {
+							// Дополнительная задержка для полного восстановления скролла
+							setTimeout(() => {
+								// Теперь скроллим к цели
+								// Проверяем, что Lenis доступен и работает
+								if (window.lenisInstance && typeof window.lenisInstance.scrollTo === 'function') {
+									try {
+										window.lenisInstance.scrollTo(targetElement, {
+											offset: -100,
+											duration: 1.5,
+											easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+										});
+									} catch (err) {
+										// Если Lenis не работает, используем fallback
+										const headerHeight = header.offsetHeight || 0;
+										const targetRect = targetElement.getBoundingClientRect();
+										const targetPosition = targetRect.top + window.pageYOffset - headerHeight - 100;
+										window.scrollTo({
+											top: Math.max(0, targetPosition),
+											behavior: 'smooth'
+										});
+									}
+								} else {
+									// Fallback для обычного скролла
+									const headerHeight = header.offsetHeight || 0;
+									const targetRect = targetElement.getBoundingClientRect();
+									const targetPosition = targetRect.top + window.pageYOffset - headerHeight - 100;
+									window.scrollTo({
+										top: Math.max(0, targetPosition),
+										behavior: 'smooth'
+									});
+								}
+								
+								// Обновляем URL
+								if (history.pushState) {
+									history.pushState(null, null, href);
+								}
+								
+								setActiveMenuItem();
+							}, 400);
+						});
+					});
+				} else {
+					// Если элемент не найден, просто закрываем меню
+					closeMenu();
+				}
+			} else if (href && !href.startsWith('javascript:')) {
+				// Для обычных ссылок закрываем сразу
+				closeMenu();
+			}
+		});
+
+		// Закрытие меню при нажатии ESC
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && mobileMenu.classList.contains('is-active')) {
+				mobileMenu.classList.remove('is-active');
+				header.classList.remove('site-header--menu-open');
+				document.body.style.overflow = '';
+				document.body.style.position = '';
+				document.body.style.top = '';
+				document.body.style.width = '';
+				document.documentElement.style.overflow = '';
+				// Восстанавливаем позицию скролла
+				window.scrollTo(0, scrollPosition);
+			}
+		});
+
+		// Инициализация выпадающего меню каталога
+		const catalogToggle = mobileMenu.querySelector('[data-catalog-toggle]');
+		const subcategoryToggles = mobileMenu.querySelectorAll('[data-subcategory-toggle]');
+
+		if (catalogToggle) {
+			catalogToggle.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const isExpanded = catalogToggle.getAttribute('aria-expanded') === 'true';
+				catalogToggle.setAttribute('aria-expanded', !isExpanded);
+			});
+		}
+
+		subcategoryToggles.forEach((toggle) => {
+			toggle.setAttribute('aria-expanded', 'false');
+			toggle.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+				toggle.setAttribute('aria-expanded', !isExpanded);
+			});
+		});
+	};
+
+	const initHeroAnimation = () => {
+		const hero = document.querySelector('.hero');
+		if (!hero) {
+			return;
+		}
+
+		const reveal = entries => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					hero.classList.add('hero--visible');
+				}
+			});
+		};
+
+		const observer = new IntersectionObserver(reveal, {
+			root: null,
+			rootMargin: '-20% 0px',
+			threshold: 0.1,
+		});
+
+		observer.observe(hero);
+	};
+
+	// Универсальная функция для разбиения текста на слова с сохранением всей HTML структуры
+	const splitTextIntoWords = (element, wordClass = 'hero__title-word') => {
+		const wordElements = [];
+		
+		// Используем TreeWalker для обхода только текстовых узлов
+		const walker = document.createTreeWalker(
+			element,
+			NodeFilter.SHOW_TEXT,
+			{
+				acceptNode: function(node) {
+					// Принимаем все текстовые узлы, включая те, что содержат только пробелы
+					// Это важно для сохранения пробелов между словами
+					return NodeFilter.FILTER_ACCEPT;
+				}
+			}
+		);
+
+		const textNodes = [];
+		let node;
+		
+		// Собираем все текстовые узлы (собираем сначала, потом обрабатываем)
+		while (node = walker.nextNode()) {
+			textNodes.push(node);
+		}
+
+		// Обрабатываем каждый текстовый узел
+		textNodes.forEach((textNode) => {
+			const text = textNode.textContent;
+			const parent = textNode.parentNode;
+			
+			// Разбиваем текст на слова с сохранением пробелов
+			// Используем регулярное выражение, которое захватывает пробелы как отдельные элементы
+			const parts = text.split(/(\s+)/);
+			
+			// Создаем фрагмент для новых узлов
+			const fragment = document.createDocumentFragment();
+			
+			parts.forEach((part) => {
+				if (part === '') {
+					// Пустая строка - пропускаем
+					return;
+				} else if (/^\s+$/.test(part)) {
+					// Только пробелы - создаем текстовый узел для сохранения пробелов
+					fragment.appendChild(document.createTextNode(part));
+				} else {
+					// Слова (с возможными пробелами по краям) - оборачиваем в span
+					const span = document.createElement('span');
+					span.className = wordClass;
+					span.textContent = part;
+					span.setAttribute('aria-hidden', 'true');
+					fragment.appendChild(span);
+					wordElements.push(span);
+				}
+			});
+
+			// Заменяем текстовый узел на фрагмент с новыми узлами
+			parent.replaceChild(fragment, textNode);
+		});
+
+		return wordElements;
+	};
+
+	// Универсальная функция для анимации текста
+	const animateTextTitle = (selector, containerSelector = null, wordClass = 'hero__title-word') => {
+		const title = document.querySelector(selector);
+		if (!title) {
+			return;
+		}
+
+		// Определяем базовый класс для добавления --initialized
+		const getBaseClass = (element) => {
+			// Для span элементов внутри заголовков используем класс родителя
+			if (element.tagName === 'SPAN' && element.parentElement) {
+				const parentClasses = element.parentElement.className.split(' ').filter(c => c && !c.includes('--initialized'));
+				for (const cls of parentClasses) {
+					// Ищем основной класс заголовка (например, collaboration__title, но не collaboration__title-word)
+					if (cls.includes('__title') && !cls.includes('__title-') && !cls.includes('__title-word')) {
+						return cls;
+					}
+				}
+				// Если не нашли в родителе, проверяем дедушку (для случаев вроде collaboration__title)
+				if (element.parentElement.parentElement) {
+					const grandparentClasses = element.parentElement.parentElement.className.split(' ').filter(c => c && !c.includes('--initialized'));
+					for (const cls of grandparentClasses) {
+						if (cls.includes('__title') && !cls.includes('__title-') && !cls.includes('__title-word')) {
+							return cls;
+						}
+					}
+				}
+			}
+			
+			const classes = element.className.split(' ').filter(c => c && !c.includes('--initialized'));
+			// Ищем класс, который соответствует паттерну заголовка
+			for (const cls of classes) {
+				if (cls.includes('__title') && !cls.includes('__title-') && !cls.includes('__title-word')) {
+					return cls;
+				}
+			}
+			// Если не нашли, берем первый класс
+			return classes[0] || null;
+		};
+
+		const baseClass = getBaseClass(title);
+		
+		// Fallback: показываем заголовок через 3 секунды, если анимация не запустилась
+		const fallbackTimeout = setTimeout(() => {
+			if (baseClass) {
+				// Для span элементов добавляем класс к родителю, для остальных - к самому элементу
+				if (title.tagName === 'SPAN' && title.parentElement) {
+					if (!title.parentElement.classList.contains(baseClass + '--initialized')) {
+						title.parentElement.classList.add(baseClass + '--initialized');
+					}
+				} else {
+					if (!title.classList.contains(baseClass + '--initialized')) {
+						title.classList.add(baseClass + '--initialized');
+					}
+				}
+			}
+		}, 3000);
+
+		// Fallback: если GSAP не загружен, показываем заголовок без анимации
+		if (typeof gsap === 'undefined') {
+			clearTimeout(fallbackTimeout);
+			if (baseClass) {
+				// Для span элементов добавляем класс к родителю, для остальных - к самому элементу
+				if (title.tagName === 'SPAN' && title.parentElement) {
+					title.parentElement.classList.add(baseClass + '--initialized');
+				} else {
+					title.classList.add(baseClass + '--initialized');
+				}
+			}
+			return;
+		}
+
+		// Находим родительский блок для отслеживания видимости
+		const parentBlock = title.closest('section') || title.parentElement;
+		if (!parentBlock) {
+			clearTimeout(fallbackTimeout);
+			if (baseClass) {
+				// Для span элементов добавляем класс к родителю, для остальных - к самому элементу
+				if (title.tagName === 'SPAN' && title.parentElement) {
+					title.parentElement.classList.add(baseClass + '--initialized');
+				} else {
+					title.classList.add(baseClass + '--initialized');
+				}
+			}
+			return;
+		}
+
+		// Флаг, чтобы анимация запускалась только один раз
+		let hasAnimated = false;
+
+		// Функция запуска анимации
+		const initAnimation = () => {
+			if (hasAnimated) {
+				return;
+			}
+			hasAnimated = true;
+			clearTimeout(fallbackTimeout);
+
+			try {
+				// Убеждаемся что контейнер видим (если указан)
+				if (containerSelector) {
+					gsap.set(containerSelector, { opacity: 1 });
+				}
+
+				// Разбиваем текст на слова
+				const wordElements = splitTextIntoWords(title, wordClass);
+
+				// Проверяем что слова были созданы
+				if (!wordElements || wordElements.length === 0) {
+					// Если не удалось разбить на слова, показываем заголовок без анимации
+					if (baseClass) {
+						// Для span элементов добавляем класс к родителю, для остальных - к самому элементу
+						if (title.tagName === 'SPAN' && title.parentElement) {
+							title.parentElement.classList.add(baseClass + '--initialized');
+						} else {
+							title.classList.add(baseClass + '--initialized');
+						}
+					}
+					return;
+				}
+
+				// Устанавливаем начальное состояние - слова невидимы
+				gsap.set(wordElements, { opacity: 0 });
+				// Показываем заголовок после установки начального состояния
+				if (baseClass) {
+					// Для span элементов добавляем класс к родителю, для остальных - к самому элементу
+					if (title.tagName === 'SPAN' && title.parentElement) {
+						title.parentElement.classList.add(baseClass + '--initialized');
+					} else {
+						title.classList.add(baseClass + '--initialized');
+					}
+				}
+				// Небольшая задержка перед началом анимации для предотвращения мерцания
+				requestAnimationFrame(() => {
+					// Анимация появления слов
+					gsap.to(wordElements, {
+						opacity: 1,
+						duration: 2,
+						ease: "sine.out",
+						stagger: 0.1,
+					});
+				});
+			} catch (error) {
+				// В случае ошибки показываем заголовок с простой анимацией
+				if (baseClass) {
+					// Для span элементов добавляем класс к родителю, для остальных - к самому элементу
+					if (title.tagName === 'SPAN' && title.parentElement) {
+						title.parentElement.classList.add(baseClass + '--initialized');
+					} else {
+						title.classList.add(baseClass + '--initialized');
+					}
+				}
+				if (typeof gsap !== 'undefined') {
+					gsap.from(title, {
+						opacity: 0,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+				}
+			}
+		};
+
+		// Используем Intersection Observer для отслеживания видимости
+		const observerOptions = {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0.1 // Запускаем когда видно хотя бы 10% элемента
+		};
+
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					initAnimation();
+					// Отключаем observer после запуска анимации
+					observer.unobserve(entry.target);
+				}
+			});
+		}, observerOptions);
+
+		// Начинаем наблюдение за родительским блоком
+		observer.observe(parentBlock);
+	};
+
+	const initHeroTitleAnimation = () => {
+		// Hero заголовок анимируется сразу, так как он виден при загрузке
+		const title = document.querySelector('.hero__title');
+		if (!title) {
+			return;
+		}
+
+		// Fallback: показываем заголовок через 3 секунды, если анимация не запустилась
+		const fallbackTimeout = setTimeout(() => {
+			if (!title.classList.contains('hero__title--initialized')) {
+				title.classList.add('hero__title--initialized');
+			}
+		}, 3000);
+
+		if (typeof gsap === 'undefined') {
+			// Если GSAP не загружен, показываем заголовок без анимации
+			clearTimeout(fallbackTimeout);
+			title.classList.add('hero__title--initialized');
+			return;
+		}
+
+		const initAnimation = () => {
+			try {
+				clearTimeout(fallbackTimeout);
+				gsap.set('.hero__top', { opacity: 1 });
+				const wordElements = splitTextIntoWords(title, 'hero__title-word');
+				if (!wordElements || wordElements.length === 0) {
+					// Если не удалось разбить на слова, показываем заголовок без анимации
+					title.classList.add('hero__title--initialized');
+					return;
+				}
+				// Устанавливаем начальное состояние - слова невидимы
+				gsap.set(wordElements, { opacity: 0 });
+				// Показываем заголовок после установки начального состояния
+				title.classList.add('hero__title--initialized');
+				// Небольшая задержка перед началом анимации для предотвращения мерцания
+				requestAnimationFrame(() => {
+					// Анимация появления слов
+					gsap.to(wordElements, {
+						opacity: 1,
+						duration: 2,
+						ease: "sine.out",
+						stagger: 0.1,
+					});
+				});
+			} catch (error) {
+				clearTimeout(fallbackTimeout);
+				// В случае ошибки показываем заголовок с простой анимацией
+				title.classList.add('hero__title--initialized');
+				if (typeof gsap !== 'undefined') {
+					gsap.from(title, {
+						opacity: 0,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+				}
+			}
+		};
+
+		initAnimation();
+	};
+
+	const initCategoriesCarouselTitleAnimation = () => {
+		animateTextTitle('.home-categories-carousel__title span[aria-hidden="true"]', null, 'home-categories-carousel__title-word');
+	};
+
+	const initInsightsTitleAnimation = () => {
+		// Анимируем desktop версию
+		animateTextTitle('.insights__title-desktop[aria-hidden="true"]', null, 'insights__title-word');
+		// Анимируем mobile версию
+		animateTextTitle('.insights__title-mobile[aria-hidden="true"]', null, 'insights__title-word');
+	};
+
+	const initCollaborationTitleAnimation = () => {
+		animateTextTitle('.collaboration__title span[aria-hidden="true"]', null, 'collaboration__title-word');
+	};
+
+	const initAssortmentTitleAnimation = () => {
+		animateTextTitle('.assortment__title span[aria-hidden="true"]', null, 'assortment__title-word');
+	};
+
+	const initTrustedTitleAnimation = () => {
+		animateTextTitle('.trusted__title span[aria-hidden="true"]', null, 'trusted__title-word');
+	};
+
+	const initPaymentTitleAnimation = () => {
+		animateTextTitle('.payment__title span[aria-hidden="true"]', null, 'payment__title-word');
+	};
+
+	const initFaqTitleAnimation = () => {
+		animateTextTitle('.faq__title span[aria-hidden="true"]', null, 'faq__title-word');
+	};
+
+	const initCategoriesCarousel = () => {
+		const sections = document.querySelectorAll('[data-module="categories-carousel"]');
+
+		if (!sections.length || typeof Swiper === 'undefined') {
+			return;
+		}
+
+		const updateArrowIcon = (button, mode = 'default') => {
+			if (!button) {
+				return;
+			}
+
+			const icon = button.querySelector('img');
+			if (!icon) {
+				return;
+			}
+
+			const defaultSrc = icon.dataset.iconDefault;
+			const hoverSrc = icon.dataset.iconHover;
+
+			if (mode === 'hover' && hoverSrc) {
+				if (icon.src !== hoverSrc) {
+					icon.src = hoverSrc;
+				}
+			} else if (defaultSrc && icon.src !== defaultSrc) {
+				icon.src = defaultSrc;
+			}
+		};
+
+		const handlePointerEnter = (event) => {
+			const button = event.currentTarget;
+			if (button.classList.contains('is-disabled')) {
+				return;
+			}
+			updateArrowIcon(button, 'hover');
+		};
+
+		const handlePointerLeave = (event) => {
+			updateArrowIcon(event.currentTarget, 'default');
+		};
+
+		sections.forEach((section) => {
+			const swiperEl = section.querySelector('[data-swiper]');
+			const prevButton = section.querySelector('[data-carousel-prev]');
+			const nextButton = section.querySelector('[data-carousel-next]');
+
+			if (!swiperEl) {
+				return;
+			}
+
+			const swiper = new Swiper(swiperEl, {
+				slidesPerView: 1,
+				spaceBetween: 0,
+				loop: false,
+				speed: 450,
+				watchOverflow: true,
+				watchSlidesProgress: true,
+				allowTouchMove: true,
+				resistance: true,
+				resistanceRatio: 0,
+				preventClicks: true,
+				preventClicksPropagation: true,
+				navigation: {
+					prevEl: prevButton,
+					nextEl: nextButton,
+					disabledClass: 'is-disabled',
+				},
+				pagination: {
+					el: section.querySelector('.home-categories-carousel__pagination'),
+					clickable: true,
+					type: 'bullets',
+				},
+				breakpoints: {
+					320: {
+						slidesPerView: 1.2,
+						spaceBetween: (window.innerWidth * 2.667) / 100,
+					},
+					1026: {
+						slidesPerView: 4.1,
+						spaceBetween: (window.innerWidth * 1.042) / 100,
+						slidesOffsetBefore: 0,
+					},
+				},
+				on: {
+					init: function() {
+						if (prevButton) {
+							prevButton.addEventListener('mouseenter', handlePointerEnter);
+							prevButton.addEventListener('mouseleave', handlePointerLeave);
+							prevButton.addEventListener('focus', handlePointerEnter);
+							prevButton.addEventListener('blur', handlePointerLeave);
+						}
+						if (nextButton) {
+							nextButton.addEventListener('mouseenter', handlePointerEnter);
+							nextButton.addEventListener('mouseleave', handlePointerLeave);
+							nextButton.addEventListener('focus', handlePointerEnter);
+							nextButton.addEventListener('blur', handlePointerLeave);
+						}
+					},
+				},
+			});
+		});
+	};
+
+	const initScrollTopButton = () => {
+		const buttons = document.querySelectorAll('[data-scroll-top]');
+
+		if (!buttons.length) {
+			return;
+		}
+
+		const scrollToTop = () => {
+			window.scrollTo({
+				top: 0,
+				behavior: 'smooth',
+			});
+		};
+
+		buttons.forEach((button) => {
+			button.addEventListener('click', scrollToTop);
+		});
+	};
+
+	const initTrustedCarousels = () => {
+		// CSS анимация marquee - не требует JS инициализации
+		// Анимация управляется через CSS, пауза при наведении тоже через CSS
+		return;
+	};
+
+	const initPaymentModal = () => {
+		const modal = document.querySelector('[data-payment-modal]');
+		const openButtons = document.querySelectorAll('[data-payment-modal-open]');
+		
+		// Обработка ссылок с data-payment-modal-open
+		openButtons.forEach((button) => {
+			button.addEventListener('click', (e) => {
+				if (button.tagName === 'A') {
+					e.preventDefault();
+				}
+			});
+		});
+		const closeButtons = document.querySelectorAll('[data-payment-modal-close]');
+		const accordionItems = document.querySelectorAll('[data-accordion-item]');
+		const paymentSection = document.querySelector('.payment');
+
+		if (!modal) {
+			return;
+		}
+
+		// Open modal
+		openButtons.forEach((button) => {
+			button.addEventListener('click', (e) => {
+				e.preventDefault();
+				modal.classList.add('is-active');
+				if (paymentSection) {
+					paymentSection.classList.add('is-modal-open');
+				}
+			});
+		});
+
+		// Close modal
+		closeButtons.forEach((button) => {
+			button.addEventListener('click', () => {
+				modal.classList.remove('is-active');
+				if (paymentSection) {
+					paymentSection.classList.remove('is-modal-open');
+				}
+			});
+		});
+
+		// Close on ESC
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && modal.classList.contains('is-active')) {
+				modal.classList.remove('is-active');
+				if (paymentSection) {
+					paymentSection.classList.remove('is-modal-open');
+				}
+			}
+		});
+
+		// Accordion - работает точно так же, как FAQ аккордеон
+		accordionItems.forEach((item) => {
+			const header = item.querySelector('.payment-modal__accordion-header');
+			const toggle = item.querySelector('.payment-modal__accordion-toggle');
+			const arrow = item.querySelector('.payment-modal__accordion-arrow');
+
+			if (!header || !toggle || !arrow) {
+				return;
+			}
+
+			const handleClick = (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+
+				const isActive = item.classList.contains('is-active');
+
+				// Закрываем все другие элементы
+				accordionItems.forEach((accItem) => {
+					if (accItem !== item && accItem.classList.contains('is-active')) {
+						const accArrow = accItem.querySelector('.payment-modal__accordion-arrow');
+						accItem.classList.remove('is-active');
+						if (accArrow) {
+							accArrow.src = 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg';
+						}
+					}
+				});
+
+				// Переключаем текущий элемент
+				if (isActive) {
+					item.classList.remove('is-active');
+					arrow.src = 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg';
+				} else {
+					item.classList.add('is-active');
+					arrow.src = 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/2v.svg';
+				}
+			};
+
+			// Обработчик для всего header - точно так же, как в FAQ
+			header.addEventListener('click', handleClick);
+			toggle.addEventListener('click', handleClick);
+		});
+	};
+
+	const initCollaborationModal = () => {
+		const modal = document.querySelector('[data-collaboration-modal]');
+		const openButtons = document.querySelectorAll('[data-collaboration-modal-open]');
+		const closeButtons = document.querySelectorAll('[data-collaboration-modal-close]');
+
+		if (!modal) {
+			return;
+		}
+
+		// Open modal
+		openButtons.forEach((button) => {
+			button.addEventListener('click', (e) => {
+				e.preventDefault();
+				modal.classList.add('is-active');
+				document.body.style.overflow = 'hidden';
+			});
+		});
+
+		// Close modal
+		closeButtons.forEach((button) => {
+			button.addEventListener('click', () => {
+				modal.classList.remove('is-active');
+				document.body.style.overflow = '';
+			});
+		});
+
+		// Close on ESC
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && modal.classList.contains('is-active')) {
+				modal.classList.remove('is-active');
+				document.body.style.overflow = '';
+			}
+		});
+	};
+
+	const initFeedbackModal = () => {
+		const modal = document.querySelector('[data-feedback-modal]');
+		const openButtons = document.querySelectorAll('[data-feedback-modal-open]');
+		const closeButtons = document.querySelectorAll('[data-feedback-modal-close]');
+
+		if (!modal) {
+			return;
+		}
+
+		// Open modal
+		openButtons.forEach((button) => {
+			button.addEventListener('click', (e) => {
+				e.preventDefault();
+				modal.classList.add('is-active');
+				document.body.style.overflow = 'hidden';
+			});
+		});
+
+		// Close modal
+		closeButtons.forEach((button) => {
+			button.addEventListener('click', () => {
+				modal.classList.remove('is-active');
+				document.body.style.overflow = '';
+			});
+		});
+
+		// Close on ESC
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && modal.classList.contains('is-active')) {
+				modal.classList.remove('is-active');
+				document.body.style.overflow = '';
+			}
+		});
+	};
+
+	const initFAQAccordion = () => {
+		const accordionItems = document.querySelectorAll('[data-faq-item]');
+
+		if (!accordionItems.length) {
+			return;
+		}
+
+		accordionItems.forEach((item) => {
+			const header = item.querySelector('.faq__accordion-header');
+			const toggle = item.querySelector('.faq__accordion-toggle');
+			const arrow = item.querySelector('.faq__accordion-arrow');
+
+			if (!header || !toggle || !arrow) {
+				return;
+			}
+
+			const handleClick = (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+
+				const isActive = item.classList.contains('is-active');
+
+				// Закрываем все другие элементы
+				accordionItems.forEach((accItem) => {
+					if (accItem !== item && accItem.classList.contains('is-active')) {
+						const accArrow = accItem.querySelector('.faq__accordion-arrow');
+						accItem.classList.remove('is-active');
+						if (accArrow) {
+							accArrow.src = 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg';
+						}
+					}
+				});
+
+				// Переключаем текущий элемент
+				if (isActive) {
+					item.classList.remove('is-active');
+					arrow.src = 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg';
+				} else {
+					item.classList.add('is-active');
+					arrow.src = 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/2v.svg';
+				}
+			};
+
+			// Обработчик для всего header
+			header.addEventListener('click', handleClick);
+			toggle.addEventListener('click', handleClick);
+		});
+	};
+
+	let lenisInstance = null;
+
+	const initLenis = () => {
+		if (typeof Lenis === 'undefined') {
+			return null;
+		}
+
+		lenisInstance = new Lenis({
+			autoRaf: true,
+			lerp: 0.08, // ↓ чем меньше, тем плавнее (0.05–0.1 = комфортно)
+			smoothWheel: true, // колесо мыши тоже плавное
+			smoothTouch: true  // плавность для тачскрола (на мобилке)
+		});
+
+		// Сохраняем в window для доступа из других функций
+		window.lenisInstance = lenisInstance;
+
+		return lenisInstance;
+	};
+
+	const initSmoothAnchorScroll = (lenis) => {
+		if (!lenis) {
+			return;
+		}
+
+		// Обработчик для всех якорных ссылок
+		const handleAnchorClick = (e) => {
+			const link = e.currentTarget;
+			const href = link.getAttribute('href');
+			
+			// Проверяем, что это якорная ссылка на текущей странице
+			if (!href || !href.startsWith('#')) {
+				return;
+			}
+
+			// Исключаем ссылки с data-атрибутами для модалок
+			if (link.hasAttribute('data-payment-modal-open') || 
+			    link.hasAttribute('data-collaboration-modal-open') || 
+			    link.hasAttribute('data-feedback-modal-open')) {
+				return;
+			}
+
+			const targetId = href.substring(1);
+			const targetElement = document.getElementById(targetId);
+			
+			if (!targetElement) {
+				return;
+			}
+
+			// Предотвращаем стандартное поведение
+			e.preventDefault();
+
+			// Плавный скролл через Lenis
+			lenis.scrollTo(targetElement, {
+				offset: -100, // Отступ сверху (можно настроить)
+				duration: 1.5, // Длительность анимации
+				easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) // Плавная easing функция
+			});
+
+			// Обновляем URL без перезагрузки страницы
+			if (history.pushState) {
+				history.pushState(null, null, href);
+			}
+		};
+
+		// Находим все якорные ссылки в меню (и десктопном, и мобильном)
+		const menuLinks = document.querySelectorAll('.site-header__menu a[href^="#"], .site-footer__link[href^="#"]');
+		menuLinks.forEach(link => {
+			// Проверяем, не находится ли ссылка в мобильном меню
+			const isMobileMenuLink = link.closest('[data-mobile-menu]');
+			if (!isMobileMenuLink) {
+				// Для десктопного меню используем стандартный обработчик
+				link.addEventListener('click', handleAnchorClick);
+			}
+			// Для мобильного меню обработчик уже есть в initHamburgerMenu
+		});
+	};
+
+	const initInsightsPreview = () => {
+		// Disable animation on mobile devices
+		if (window.innerWidth <= 1025) {
+			return;
+		}
+
+		const insightsList = document.querySelector('.insights-list');
+		if (!insightsList) {
+			return;
+		}
+
+		// Ищем preview вне table (прямой дочерний элемент insights-list)
+		let preview = insightsList.querySelector(':scope > .insights-list__preview');
+		
+		if (!preview) {
+			// Если не нашли, берем последний
+			const allPreviews = insightsList.querySelectorAll('.insights-list__preview');
+			if (allPreviews.length === 0) {
+				return;
+			}
+			preview = allPreviews[allPreviews.length - 1];
+		}
+		
+		if (!preview) {
+			return;
+		}
+
+		const rows = insightsList.querySelectorAll('.insights-list__row');
+		if (!rows || rows.length === 0) {
+			return;
+		}
+
+		const previewImgs = preview.querySelectorAll('img');
+		if (!previewImgs || previewImgs.length === 0) {
+			return;
+		}
+
+		// Инициализируем два img
+		const img1 = previewImgs[0];
+		const img2 = previewImgs.length > 1 ? previewImgs[1] : previewImgs[0];
+		let currentImg = img1;
+		let nextImg = img2;
+		let isVisible = false;
+		let mouseX = 0;
+		let mouseY = 0;
+		let currentX = 0;
+		let currentY = 0;
+		let rafId = null;
+		let currentImageUrl = '';
+		let isChanging = false; // Флаг для предотвращения множественных вызовов
+
+		// Вычисляем размеры и offset (курсор по центру)
+		const getOffset = () => {
+			const width = parseFloat(getComputedStyle(preview).width);
+			const height = width * 0.75;
+			return {
+				x: width / 2,
+				y: height / 2
+			};
+		};
+
+		let offset = getOffset();
+
+		// Плавное следование за курсором
+		const updatePosition = () => {
+			if (!isVisible) {
+				rafId = null;
+				return;
+			}
+
+			// Быстрая и плавная реакция
+			const targetX = mouseX - offset.x;
+			const targetY = mouseY - offset.y;
+			
+			currentX += (targetX - currentX) * 0.25;
+			currentY += (targetY - currentY) * 0.25;
+
+			preview.style.transform = `translate3d(${Math.round(currentX)}px, ${Math.round(currentY)}px, 0)`;
+
+			rafId = requestAnimationFrame(updatePosition);
+		};
+
+		// Плавная смена изображения через два img элемента
+		const changeImage = (newUrl) => {
+			if (!newUrl || currentImageUrl === newUrl || isChanging) {
+				return;
+			}
+
+			isChanging = true;
+
+			// Определяем какое изображение сейчас видимо
+			let visibleImg, hiddenImg;
+			if (currentImg.classList.contains('is-visible')) {
+				visibleImg = currentImg;
+				hiddenImg = nextImg;
+			} else {
+				visibleImg = nextImg;
+				hiddenImg = currentImg;
+			}
+
+			// Если это уже то же изображение, которое сейчас загружено, просто переключаемся
+			if (hiddenImg.src === newUrl && hiddenImg.complete && hiddenImg.naturalHeight !== 0) {
+				doImageChange();
+				return;
+			}
+			
+			// Сначала устанавливаем src в скрытый элемент
+			hiddenImg.src = '';
+			hiddenImg.src = newUrl; // Перезагружаем для гарантии
+			
+			// Проверяем, загружено ли изображение
+			if (hiddenImg.complete && hiddenImg.naturalHeight !== 0 && hiddenImg.src === newUrl) {
+				// Изображение уже загружено
+				doImageChange();
+			} else {
+				// Ждем загрузки изображения
+				const onLoad = () => {
+					hiddenImg.removeEventListener('load', onLoad);
+					hiddenImg.removeEventListener('error', onError);
+					doImageChange();
+				};
+				
+				const onError = () => {
+					hiddenImg.removeEventListener('load', onLoad);
+					hiddenImg.removeEventListener('error', onError);
+					doImageChange(); // Все равно показываем
+				};
+				
+				hiddenImg.addEventListener('load', onLoad);
+				hiddenImg.addEventListener('error', onError);
+			}
+
+			function doImageChange() {
+				// Убеждаемся что новое изображение готово
+				if (!hiddenImg.src || hiddenImg.src === '') {
+					hiddenImg.src = newUrl;
+				}
+				
+				// Скрываем текущее изображение (fade out)
+				visibleImg.classList.remove('is-visible');
+				
+				// Принудительно перерисовываем для запуска анимации
+				void visibleImg.offsetWidth;
+				
+				// После половины времени fade out начинаем fade in
+				setTimeout(() => {
+					// Убеждаемся что старое изображение скрыто
+					visibleImg.classList.remove('is-visible');
+					
+					// Показываем новое изображение (fade in)
+					hiddenImg.classList.add('is-visible');
+					
+					// Принудительно перерисовываем
+					void hiddenImg.offsetWidth;
+					
+					currentImageUrl = newUrl;
+					
+					// Обновляем ссылки после переключения
+					if (visibleImg === currentImg) {
+						currentImg = nextImg;
+						nextImg = visibleImg;
+					} else {
+						nextImg = currentImg;
+						currentImg = visibleImg;
+					}
+					
+					isChanging = false;
+				}, 200); // Задержка для плавного перехода (половина времени transition)
+			}
+		};
+
+		// Показ превью при ховере на ряд
+		rows.forEach((row) => {
+			const previewUrl = row.dataset.preview;
+			if (!previewUrl) {
+				return;
+			}
+
+			const handleMouseEnter = (e) => {
+				// Обновляем offset на случай ресайза
+				offset = getOffset();
+				
+				// Устанавливаем начальную позицию сразу
+				mouseX = e.clientX;
+				mouseY = e.clientY;
+				currentX = mouseX - offset.x;
+				currentY = mouseY - offset.y;
+				
+				preview.style.transform = `translate3d(${Math.round(currentX)}px, ${Math.round(currentY)}px, 0)`;
+
+				// Показываем preview
+				if (!isVisible) {
+					isVisible = true;
+					preview.classList.add('is-visible');
+					
+					// Загружаем первое изображение
+					currentImg.src = previewUrl;
+					currentImageUrl = previewUrl;
+					
+					// Показываем изображение сразу
+					currentImg.classList.add('is-visible');
+				} else {
+					// Если уже видим, меняем изображение с анимацией
+					if (previewUrl !== currentImageUrl && !isChanging) {
+						changeImage(previewUrl);
+					}
+				}
+
+				// Запускаем анимацию
+				if (!rafId) {
+					rafId = requestAnimationFrame(updatePosition);
+				}
+			};
+
+			const handleMouseLeave = () => {
+				isVisible = false;
+				preview.classList.remove('is-visible');
+				currentImg.classList.remove('is-visible');
+				nextImg.classList.remove('is-visible');
+				
+				if (rafId) {
+					cancelAnimationFrame(rafId);
+					rafId = null;
+				}
+			};
+
+			const handleMouseMove = (e) => {
+				mouseX = e.clientX;
+				mouseY = e.clientY;
+
+				if (!rafId && isVisible) {
+					rafId = requestAnimationFrame(updatePosition);
+				}
+			};
+
+			row.addEventListener('mouseenter', handleMouseEnter);
+			row.addEventListener('mouseleave', handleMouseLeave);
+			row.addEventListener('mousemove', handleMouseMove);
+		});
+	};
+
+	const initParallax = (lenis) => {
+		const collaborationBackground = document.querySelector('.collaboration__background');
+		const assortmentBackground = document.querySelector('.assortment__background');
+		
+		const parallaxElements = [];
+		
+		// Collaboration background - работает на всех устройствах
+		if (collaborationBackground) {
+			parallaxElements.push(collaborationBackground);
+		}
+		
+		// Assortment background - только на десктопе (ширина > 768px)
+		if (assortmentBackground) {
+			if (window.innerWidth > 768) {
+				parallaxElements.push(assortmentBackground);
+			} else {
+				// На мобильных сбрасываем transform
+				assortmentBackground.style.transform = 'translate3d(0, 0, 0)';
+			}
+		}
+		
+		if (!parallaxElements.length) {
+			return;
+		}
+
+		const updateParallax = (scroll) => {
+			const scrolled = scroll !== undefined ? scroll : window.pageYOffset;
+			const windowHeight = window.innerHeight;
+
+			parallaxElements.forEach(element => {
+				// Для assortment__background на мобильных не применяем parallax
+				if (element.classList.contains('assortment__background') && window.innerWidth <= 768) {
+					element.style.transform = 'translate3d(0, 0, 0)';
+					return;
+				}
+				
+				// Получаем контейнер изображения (родительский элемент)
+				const container = element.parentElement;
+				if (!container) return;
+
+				const containerRect = container.getBoundingClientRect();
+				const containerTop = containerRect.top + window.pageYOffset;
+				const containerHeight = containerRect.height;
+				const containerBottom = containerTop + containerHeight;
+
+				// Проверяем, виден ли контейнер в viewport
+				if (scrolled + windowHeight > containerTop && scrolled < containerBottom) {
+					// Вычисляем прогресс скролла относительно контейнера (0 = контейнер вверху, 1 = контейнер внизу)
+					const scrollProgress = (scrolled - containerTop + windowHeight) / (containerHeight + windowHeight);
+					
+					// Параллакс-коэффициент (скорость движения изображения внутри контейнера)
+					// 0.11 = изображение движется медленнее скролла, создавая эффект глубины (еще слабее на 25%)
+					const parallaxSpeed = 0.11;
+					
+					// Максимальное смещение (в процентах от высоты контейнера)
+					// Изображение будет двигаться вверх/вниз внутри контейнера
+					const maxOffset = containerHeight * parallaxSpeed;
+					
+					// Вычисляем смещение: от -maxOffset до +maxOffset
+					// Когда контейнер в центре экрана, offset = 0
+					const offset = (scrollProgress - 0.5) * maxOffset * 2;
+					
+					// Применяем transform только к изображению, контейнер остается на месте
+					element.style.transform = `translate3d(0, ${offset}px, 0)`;
+				} else {
+					// Сбрасываем позицию для элементов вне видимой области
+					element.style.transform = 'translate3d(0, 0, 0)';
+				}
+			});
+		};
+
+		// Если Lenis доступен, используем его событие scroll
+		if (lenis) {
+			lenis.on('scroll', (e) => {
+				updateParallax(e.scroll);
+			});
+		} else {
+			// Fallback на обычный scroll, если Lenis не загружен
+			let ticking = false;
+			const requestTick = () => {
+				if (!ticking) {
+					window.requestAnimationFrame(() => {
+						updateParallax();
+						ticking = false;
+					});
+					ticking = true;
+				}
+			};
+			window.addEventListener('scroll', requestTick, { passive: true });
+		}
+
+		window.addEventListener('load', () => updateParallax());
+		
+		let resizeTimeout;
+		window.addEventListener('resize', () => {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => {
+				// При изменении размера окна пересчитываем список элементов для parallax
+				// (assortment__background должен быть только на десктопе)
+				const collaborationBackground = document.querySelector('.collaboration__background');
+				const assortmentBackground = document.querySelector('.assortment__background');
+				
+				// Очищаем массив и пересоздаем
+				parallaxElements.length = 0;
+				
+				if (collaborationBackground) {
+					parallaxElements.push(collaborationBackground);
+				}
+				
+				if (assortmentBackground && window.innerWidth > 768) {
+					parallaxElements.push(assortmentBackground);
+				} else if (assortmentBackground && window.innerWidth <= 768) {
+					// Сбрасываем transform для assortment__background на мобильных
+					assortmentBackground.style.transform = 'translate3d(0, 0, 0)';
+				}
+				
+				// Обновляем parallax после изменения размера
+				updateParallax();
+			}, 100);
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => updateParallax(), 100);
+		}, { passive: true });
+
+		// Первоначальная инициализация
+		updateParallax();
+	};
+
+	// Инициализация анимации заголовка сразу при готовности DOM
+	document.addEventListener('DOMContentLoaded', () => {
+		initHeroTitleAnimation();
+	});
+
+	// Предотвращение layout shift при загрузке изображений в карточках товаров
+	const preventProductCardLayoutShift = () => {
+		const productCards = document.querySelectorAll('.product-card');
+		if (productCards.length === 0) {
+			return;
+		}
+
+		productCards.forEach((card) => {
+			const imageWrapper = card.querySelector('.product-card__image-wrapper');
+			if (!imageWrapper) {
+				return;
+			}
+
+			const img = imageWrapper.querySelector('img');
+			if (img) {
+				// Если изображение уже загружено
+				if (img.complete && img.naturalHeight !== 0) {
+					imageWrapper.style.minHeight = imageWrapper.offsetHeight + 'px';
+				} else {
+					// Устанавливаем минимальную высоту до загрузки
+					const computedStyle = window.getComputedStyle(imageWrapper);
+					const height = computedStyle.height;
+					if (height && height !== 'auto') {
+						imageWrapper.style.minHeight = height;
+					}
+
+					// После загрузки изображения
+					img.addEventListener('load', () => {
+						imageWrapper.style.minHeight = '';
+					}, { once: true });
+				}
+			}
+		});
+	};
+
+	const initMenuDropdown = () => {
+		const dropdownWrappers = document.querySelectorAll('.site-header__dropdown-wrapper');
+		
+		dropdownWrappers.forEach((wrapper) => {
+			const dropdown = wrapper.querySelector('[data-menu-dropdown-content]');
+			const trigger = wrapper.querySelector('[data-menu-dropdown]');
+			
+			if (!dropdown || !trigger) {
+				return;
+			}
+
+			// Отключение кликов на кнопке
+			trigger.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+			});
+
+			// Управление через hover - открытие при наведении на wrapper
+			wrapper.addEventListener('mouseenter', () => {
+				dropdown.style.opacity = '1';
+				dropdown.style.visibility = 'visible';
+				dropdown.style.transform = 'translateY(0)';
+			});
+
+			// Закрытие при уводе мыши
+			wrapper.addEventListener('mouseleave', () => {
+				dropdown.style.opacity = '0';
+				dropdown.style.visibility = 'hidden';
+				dropdown.style.transform = 'translateY(-10px)';
+			});
+		});
+	};
+
+	const initSearch = () => {
+		const searchInput = document.querySelector('.site-header__search-input');
+		const searchResults = document.querySelector('[data-search-results]');
+		const searchForm = document.querySelector('.site-header__search-form');
+		const searchButton = document.querySelector('.site-header__search-button');
+		const searchClear = document.querySelector('.site-header__search-clear');
+		
+		if (!searchInput || !searchResults || !searchForm) {
+			return;
+		}
+
+		let searchTimeout;
+		let currentRequest = null;
+
+		// Функция для обновления видимости кнопок
+		const updateSearchButtons = () => {
+			const hasText = searchInput.value.trim().length > 0;
+			if (searchButton) {
+				if (hasText) {
+					searchButton.classList.add('has-text');
+				} else {
+					searchButton.classList.remove('has-text');
+				}
+			}
+			if (searchClear) {
+				searchClear.style.display = hasText ? 'flex' : 'none';
+			}
+		};
+
+		// Функция для возврата элемента результатов поиска в оригинальное место
+		const returnSearchResultsToOriginal = () => {
+			if (searchResults.hasAttribute('data-original-parent') && searchResults.parentElement === document.body) {
+				const searchWrapper = document.querySelector('.site-header__search-wrapper');
+				if (searchWrapper) {
+					searchWrapper.appendChild(searchResults);
+					searchResults.removeAttribute('data-original-parent');
+					// Убираем класс когда элемент возвращен в оригинальное место
+					searchResults.classList.remove('site-header__search-results--in-body');
+				}
+			}
+		};
+
+		// Обработчик очистки поля поиска
+		if (searchClear) {
+			searchClear.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				searchInput.value = '';
+				searchInput.focus();
+				updateSearchButtons();
+				searchResults.classList.remove('is-visible');
+				searchResults.innerHTML = '';
+				returnSearchResultsToOriginal();
+				if (currentRequest) {
+					currentRequest.abort();
+				}
+			});
+		}
+
+		const performSearch = (query) => {
+			if (currentRequest) {
+				currentRequest.abort();
+			}
+
+			if (query.length < 2) {
+				searchResults.classList.remove('is-visible');
+				searchResults.innerHTML = '';
+				returnSearchResultsToOriginal();
+				return;
+			}
+
+			// AJAX запрос для поиска
+			const ajaxUrl = (typeof naturaSearch !== 'undefined' && naturaSearch.ajax_url) ? naturaSearch.ajax_url : '/wp-admin/admin-ajax.php';
+			const nonce = (typeof naturaSearch !== 'undefined' && naturaSearch.nonce) ? naturaSearch.nonce : '';
+			
+			currentRequest = jQuery.ajax({
+				url: ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'natura_product_search',
+					query: query,
+					nonce: nonce
+				},
+				success: function(response) {
+					if (response.success && response.data) {
+						displaySearchResults(response.data);
+					} else {
+						searchResults.classList.remove('is-visible');
+						searchResults.innerHTML = '';
+						returnSearchResultsToOriginal();
+					}
+				},
+				error: function() {
+					searchResults.classList.remove('is-visible');
+					searchResults.innerHTML = '';
+					returnSearchResultsToOriginal();
+				}
+			});
+		};
+
+		const positionSearchResults = () => {
+			// Для мобильной версии перемещаем элемент в body чтобы выйти из stacking context хедера (для iOS Safari)
+			if (window.innerWidth <= 1025 && searchForm && searchResults.classList.contains('is-visible')) {
+				// Перемещаем в body если еще не там
+				if (searchResults.parentElement !== document.body) {
+					document.body.appendChild(searchResults);
+					searchResults.setAttribute('data-original-parent', '');
+					// Добавляем класс для сохранения стилей когда элемент в body
+					searchResults.classList.add('site-header__search-results--in-body');
+				}
+				
+				const searchFormRect = searchForm.getBoundingClientRect();
+				// Позиционируем относительно viewport
+				searchResults.style.position = 'fixed';
+				searchResults.style.top = (searchFormRect.bottom + 1.282 * window.innerWidth / 100) + 'px';
+				searchResults.style.left = searchFormRect.left + 'px';
+				searchResults.style.right = 'auto';
+				searchResults.style.bottom = 'auto';
+				searchResults.style.width = searchFormRect.width + 'px';
+				searchResults.style.zIndex = '1000007';
+			} else {
+				// Для десктопа возвращаем в оригинальное место если был перемещен
+				returnSearchResultsToOriginal();
+				// Для десктопа используем стандартное позиционирование
+				searchResults.style.position = '';
+				searchResults.style.top = '';
+				searchResults.style.left = '';
+				searchResults.style.right = '';
+				searchResults.style.bottom = '';
+				searchResults.style.width = '';
+				searchResults.style.zIndex = '';
+				searchResults.style.webkitTransform = '';
+				searchResults.style.transform = '';
+				searchResults.style.willChange = '';
+			}
+		};
+
+		const displaySearchResults = (products) => {
+			if (!products || products.length === 0) {
+				// Показываем сообщение об отсутствии результатов
+				const query = searchInput.value.trim();
+				if (query.length >= 2) {
+					searchResults.innerHTML = '<div class="site-header__search-result-empty">Товарів з такою назвою не знайдено</div>';
+					searchResults.classList.add('is-visible');
+					setTimeout(positionSearchResults, 0);
+				} else {
+					searchResults.classList.remove('is-visible');
+					searchResults.innerHTML = '';
+					returnSearchResultsToOriginal();
+				}
+				return;
+			}
+
+			let html = '';
+			products.forEach((product) => {
+				const image = product.image || '';
+				const title = product.title || '';
+				const unit = product.unit || 'шт';
+				const price = product.price || '';
+				const productId = product.id || '';
+				const permalink = product.permalink || '#';
+
+				// Обрезаем название до 2 слов
+				const titleWords = title.split(' ');
+				let displayTitle = title;
+				if (titleWords.length > 2) {
+					displayTitle = titleWords.slice(0, 2).join(' ') + '...';
+				}
+
+				// Для мобильной версии используем простую иконку корзины
+				const isMobile = window.innerWidth <= 1025;
+				const cartButtonHtml = isMobile 
+					? `<button type="button" class="site-header__search-result-cart-button" data-product_id="${productId}" aria-label="Додати в кошик: ${title}">
+							<div class="site-header__search-result-cart-icon-wrapper">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="site-header__search-result-cart-icon">
+									<path d="M7 18C5.9 18 5.01 18.9 5.01 20C5.01 21.1 5.9 22 7 22C8.1 22 9 21.1 9 20C9 18.9 8.1 18 7 18ZM1 2V4H3L6.6 11.59L5.25 14.04C5.09 14.32 5 14.65 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.28 15 7.17 14.89 7.17 14.75L7.2 14.66L8.1 13H15.55C16.3 13 16.96 12.59 17.3 11.97L20.88 5.5C20.96 5.34 21 5.17 21 5C21 4.45 20.55 4 20 4H5.21L4.27 2H1V2ZM17 18C15.9 18 15.01 18.9 15.01 20C15.01 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18Z" fill="white"/>
+								</svg>
+							</div>
+						</button>`
+					: `<div class="site-header__search-result-actions">
+							<div class="product-card__button-wrapper">
+								<a href="${permalink}?add-to-cart=${productId}" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="${productId}" data-product_sku="" aria-label="Додати в кошик: ${title}" rel="nofollow" role="button">Додати в кошик</a>
+								<div class="product-card__quantity-wrapper quantity-wrapper" data-product-id="${productId}" style="display: none;">
+									<button type="button" class="quantity-button quantity-button--minus" aria-label="Зменшити кількість">
+										<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/minus-bas.svg" alt="" class="quantity-button__icon quantity-button__icon--default">
+										<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/minus-hover.svg" alt="" class="quantity-button__icon quantity-button__icon--hover">
+									</button>
+									<div class="quantity-input-wrapper">
+										<input type="number" class="input-text qty text product-card__quantity-input" name="quantity" value="1" min="1" step="1" data-product-id="${productId}">
+										<span class="quantity-unit">${unit}</span>
+									</div>
+									<button type="button" class="quantity-button quantity-button--plus" aria-label="Збільшити кількість">
+										<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/plus-bas.svg" alt="" class="quantity-button__icon quantity-button__icon--default">
+										<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/plus-hover.svg" alt="" class="quantity-button__icon quantity-button__icon--hover">
+									</button>
+								</div>
+							</div>
+						</div>`;
+
+				html += `
+					<div class="site-header__search-result-item">
+						<img src="${image}" alt="${title}" class="site-header__search-result-image">
+						<div class="site-header__search-result-content">
+							<div class="site-header__search-result-title-wrapper">
+								<span class="site-header__search-result-title">${displayTitle}</span><span class="site-header__search-result-unit">(${unit})</span>
+							</div>
+							<div class="site-header__search-result-price">${price}</div>
+						</div>
+						${cartButtonHtml}
+					</div>
+				`;
+			});
+
+			searchResults.innerHTML = html;
+			searchResults.classList.add('is-visible');
+			setTimeout(positionSearchResults, 0);
+
+			// Проверяем корзину для товаров в результатах поиска
+			if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+				jQuery.ajax({
+					type: 'POST',
+					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+					dataType: 'json',
+					success: function(response) {
+						if (!response || !response.fragments) {
+							return;
+						}
+						
+						// Парсим HTML фрагментов для получения списка товаров в корзине
+						const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
+						                    response.fragments['.widget_shopping_cart_content'] ||
+						                    Object.values(response.fragments).find(fragment => 
+						                    	typeof fragment === 'string' && fragment.includes('cart_item')
+						                    );
+						
+						if (!cartContent) {
+							return;
+						}
+						
+						// Создаем временный элемент для парсинга
+						const tempDiv = document.createElement('div');
+						tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+						
+						// Находим все товары в корзине
+						const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, [data-product-id]');
+						const cartProductIds = new Set();
+						
+						cartItems.forEach(item => {
+							const productId = item.getAttribute('data-product-id') || 
+							                 item.querySelector('[data-product-id]')?.getAttribute('data-product-id') ||
+							                 item.querySelector('[data-product_id]')?.getAttribute('data-product_id');
+							if (productId) {
+								cartProductIds.add(productId);
+							}
+						});
+						
+						// Показываем quantity-wrapper для товаров в корзине
+						searchResults.querySelectorAll('.site-header__search-result-item').forEach(item => {
+							const buttonWrapper = item.querySelector('.product-card__button-wrapper');
+							if (!buttonWrapper) {
+								return;
+							}
+							
+							const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
+							const productId = addToCartButton?.getAttribute('data-product_id') || 
+							                 addToCartButton?.getAttribute('data-product-id');
+							
+							if (productId && cartProductIds.has(productId)) {
+								const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
+								if (quantityWrapper) {
+									// Скрываем кнопку
+									if (addToCartButton) {
+										addToCartButton.style.display = 'none';
+									}
+									// Показываем quantity-wrapper
+									quantityWrapper.style.display = 'flex';
+									quantityWrapper.classList.add('show');
+									
+									// Инициализируем кнопки количества
+									initQuantityButtonsForCard(quantityWrapper);
+								}
+							}
+						});
+					},
+					error: function() {
+						console.log('[initSearch] Ошибка при проверке корзины для результатов поиска');
+					}
+				});
+			}
+
+			// Инициализация кнопок количества для каждого товара
+			const quantityWrappers = searchResults.querySelectorAll('.product-card__quantity-wrapper.show');
+			quantityWrappers.forEach((wrapper) => {
+				initQuantityButtonsForCard(wrapper);
+			});
+			
+			// Инициализация обработчиков для кнопок корзины в мобильной версии
+			const mobileCartButtons = searchResults.querySelectorAll('.site-header__search-result-cart-button');
+			mobileCartButtons.forEach((button) => {
+				// Убираем атрибут data-mini-cart-open чтобы избежать конфликта с обработчиком из initMiniCart
+				button.removeAttribute('data-mini-cart-open');
+				
+				// Добавляем обработчик для добавления в корзину и открытия мини-корзины
+				button.addEventListener('click', (e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					
+					const productId = button.getAttribute('data-product_id');
+					if (!productId || typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
+						return;
+					}
+					
+					// Добавляем товар в корзину
+					jQuery(document.body).trigger('adding_to_cart', [button, {}]);
+					jQuery.ajax({
+						type: 'POST',
+						url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+						data: {
+							product_id: productId,
+							quantity: 1,
+						},
+						dataType: 'json',
+						success: function(response) {
+							if (response.error && response.product_url) {
+								window.location = response.product_url;
+								return;
+							}
+							
+							// Обновляем корзину
+							if (response.fragments) {
+								jQuery.each(response.fragments, function(key, value) {
+									jQuery(key).replaceWith(value);
+								});
+							}
+							
+							// Получаем изображение товара для уведомления
+							let productImage = '';
+							const searchResultItem = button.closest('.site-header__search-result-item');
+							if (searchResultItem) {
+								const img = searchResultItem.querySelector('.site-header__search-result-image');
+								if (img) {
+									productImage = img.src || img.getAttribute('src');
+								}
+							}
+							
+							// Показываем уведомление
+							if (typeof showCartNotification === 'function') {
+								showCartNotification(productImage);
+							}
+							
+								// Открываем корзину (через data-mini-cart-open)
+								jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, button]);
+								
+								// Открываем мини-корзину после обновления фрагментов
+								// Функция для открытия мини-корзины
+								const openMiniCartNow = () => {
+									const miniCart = document.getElementById('mini-cart-sidebar');
+									if (miniCart) {
+										miniCart.classList.add('is-open');
+										document.body.classList.add('mini-cart-open');
+										console.log('[search] Товар добавлен, мини-корзина открыта');
+										return true;
+									}
+									return false;
+								};
+								
+								// Пробуем открыть сразу
+								openMiniCartNow();
+								
+								// Также пробуем через небольшие интервалы для надежности
+								setTimeout(openMiniCartNow, 100);
+								setTimeout(openMiniCartNow, 200);
+								setTimeout(openMiniCartNow, 300);
+								setTimeout(openMiniCartNow, 500);
+						},
+						error: function() {
+							console.log('[initSearch] Ошибка при добавлении товара в корзину');
+						}
+					});
+				});
+			});
+
+			// Инициализация обработчиков добавления в корзину (для десктопа)
+			const addToCartButtons = searchResults.querySelectorAll('.add_to_cart_button');
+			addToCartButtons.forEach((button) => {
+				// Убираем старые обработчики
+				const newButton = button.cloneNode(true);
+				button.parentNode.replaceChild(newButton, button);
+				
+				newButton.addEventListener('click', (e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					const productId = newButton.getAttribute('data-product_id');
+					if (productId && typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+						jQuery(document.body).trigger('adding_to_cart', [newButton, {}]);
+						jQuery.ajax({
+							type: 'POST',
+							url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+							data: {
+								product_id: productId,
+								quantity: 1,
+							},
+							dataType: 'json',
+							success: function(response) {
+								if (response.error && response.product_url) {
+									window.location = response.product_url;
+									return;
+								}
+								
+								// Обновляем корзину
+								if (response.fragments) {
+									jQuery.each(response.fragments, function(key, value) {
+										jQuery(key).replaceWith(value);
+									});
+								}
+								
+								// Показываем quantity-wrapper вместо кнопки
+								const buttonWrapper = newButton.closest('.product-card__button-wrapper');
+								if (buttonWrapper) {
+									const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper');
+									if (quantityWrapper) {
+										newButton.style.display = 'none';
+										quantityWrapper.style.display = 'flex';
+										quantityWrapper.classList.add('show');
+										initQuantityButtonsForCard(quantityWrapper);
+									}
+								}
+								
+								// Получаем изображение товара из результата поиска
+								let productImage = '';
+								const searchResultItem = newButton.closest('.site-header__search-result-item');
+								if (searchResultItem) {
+									const img = searchResultItem.querySelector('.site-header__search-result-image');
+									if (img) {
+										productImage = img.src || img.getAttribute('src');
+									}
+								}
+								
+								jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, newButton]);
+							}
+						});
+					}
+				});
+			});
+		};
+
+		// Поиск при вводе
+		searchInput.addEventListener('input', (e) => {
+			updateSearchButtons();
+			clearTimeout(searchTimeout);
+			const query = e.target.value.trim();
+			
+			searchTimeout = setTimeout(() => {
+				performSearch(query);
+			}, 300);
+		});
+
+		// Инициализация видимости кнопок при загрузке
+		updateSearchButtons();
+
+		// Закрытие при клике вне
+		document.addEventListener('click', (e) => {
+			if (!searchForm.contains(e.target) && !searchResults.contains(e.target)) {
+				searchResults.classList.remove('is-visible');
+				returnSearchResultsToOriginal();
+			}
+		});
+
+		// Предотвращение отправки формы
+		searchForm.addEventListener('submit', (e) => {
+			e.preventDefault();
+			const query = searchInput.value.trim();
+			if (query.length >= 2) {
+				const homeUrl = window.location.origin;
+				window.location.href = `${homeUrl}/?s=${encodeURIComponent(query)}&post_type=product`;
+			}
+		});
+
+		// Закрываем выпадающий список при скролле для мобильной версии
+		if (window.innerWidth <= 1025) {
+			let scrollTimeout;
+			let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+			
+			window.addEventListener('scroll', () => {
+				if (searchResults.classList.contains('is-visible')) {
+					const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+					// Проверяем, что произошел реальный скролл (не просто событие)
+					if (Math.abs(currentScrollTop - lastScrollTop) > 5) {
+						clearTimeout(scrollTimeout);
+						scrollTimeout = setTimeout(() => {
+							searchResults.classList.remove('is-visible');
+							returnSearchResultsToOriginal();
+						}, 100);
+					}
+					lastScrollTop = currentScrollTop;
+				}
+			}, { passive: true });
+			
+			// Обновляем позицию при изменении размера окна
+			let resizeTimeout;
+			window.addEventListener('resize', () => {
+				if (searchResults.classList.contains('is-visible')) {
+					clearTimeout(resizeTimeout);
+					resizeTimeout = setTimeout(positionSearchResults, 10);
+				}
+			});
+		}
+	};
+
+	document.addEventListener('DOMContentLoaded', () => {
+		const lenis = initLenis();
+		initHeaderScroll();
+		initHamburgerMenu();
+		initMenuDropdown();
+		initSearch();
+		initHeroAnimation();
+		initCategoriesCarousel();
+		initCategoriesCarouselTitleAnimation();
+		initInsightsTitleAnimation();
+		initCollaborationTitleAnimation();
+		initAssortmentTitleAnimation();
+		initTrustedTitleAnimation();
+		initPaymentTitleAnimation();
+		initFaqTitleAnimation();
+		initScrollTopButton();
+		initTrustedCarousels();
+		initPaymentModal();
+		initCollaborationModal();
+		initFeedbackModal();
+		initFAQAccordion();
+		initInsightsPreview();
+		initParallax(lenis);
+		initPromoCodeCopy();
+		initSmoothAnchorScroll(lenis);
+		initQuantityButtons();
+		initRelatedProductsCarousel();
+		initProductCardAddToCart();
+		initMiniCart();
+		preventProductCardLayoutShift();
+		checkCartForProducts();
+	});
+})();
+
+/**
+ * Инициализация кнопок количества товара
+ * Используем нативный JavaScript для надежности
+ */
+const initQuantityButtons = () => {
+	console.log('[initQuantityButtons] Функция инициализирована');
+	
+	// Функция для обработки клика
+	const handleQuantityClick = (e) => {
+		console.log('[handleQuantityClick] Клик зарегистрирован', e.target);
+		
+		// Проверяем, что клик произошел на кнопке или внутри нее
+		const clickedElement = e.target;
+		console.log('[handleQuantityClick] clickedElement:', clickedElement, 'классы:', clickedElement.className);
+		
+		let button = clickedElement;
+		
+		// Если клик был на img или другом элементе внутри кнопки, находим саму кнопку
+		if (!button.classList.contains('quantity-button--minus') && !button.classList.contains('quantity-button--plus')) {
+			button = clickedElement.closest('.quantity-button--minus, .quantity-button--plus');
+			console.log('[handleQuantityClick] Найдена кнопка через closest:', button);
+		}
+		
+		if (!button) {
+			console.log('[handleQuantityClick] Кнопка не найдена, выход');
+			return;
+		}
+		
+		console.log('[handleQuantityClick] Кнопка найдена:', button, 'классы:', button.className);
+		
+		// Находим wrapper и input
+		const wrapper = button.closest('.quantity-wrapper');
+		if (!wrapper) {
+			console.log('[handleQuantityClick] Wrapper не найден, выход');
+			return;
+		}
+		
+		console.log('[handleQuantityClick] Wrapper найден:', wrapper);
+		
+		const input = wrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+		if (!input) {
+			console.log('[handleQuantityClick] Input не найден, выход');
+			return;
+		}
+		
+		console.log('[handleQuantityClick] Input найден:', input, 'текущее значение:', input.value);
+		
+		e.preventDefault();
+		e.stopPropagation();
+		
+		const min = parseInt(input.getAttribute('min')) || 1;
+		const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
+		const step = parseInt(input.getAttribute('step')) || 1;
+		const currentVal = parseInt(input.value) || min;
+		
+		console.log('[handleQuantityClick] Параметры:', { min, max, step, currentVal });
+		
+		let newVal;
+		
+		if (button.classList.contains('quantity-button--minus')) {
+			newVal = Math.max(min, currentVal - step);
+			console.log('[handleQuantityClick] Минус: новое значение =', newVal);
+		} else {
+			newVal = max ? Math.min(max, currentVal + step) : currentVal + step;
+			console.log('[handleQuantityClick] Плюс: новое значение =', newVal);
+		}
+		
+		// Обновляем значение
+		input.value = newVal;
+		input.setAttribute('value', newVal);
+		
+		console.log('[handleQuantityClick] Значение обновлено в input:', input.value);
+		
+		// Триггерим события
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+		
+		console.log('[handleQuantityClick] События change и input отправлены');
+		
+		// Если это карточка товара, обновляем корзину через AJAX
+		if (wrapper.classList.contains('product-card__quantity-wrapper')) {
+			console.log('[handleQuantityClick] Это карточка товара, обновляем корзину');
+			const productId = wrapper.getAttribute('data-product-id');
+			if (productId && typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+				jQuery.ajax({
+					type: 'POST',
+					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+					data: {
+						product_id: productId,
+						quantity: newVal,
+					},
+					dataType: 'json',
+					success: function(response) {
+						console.log('[handleQuantityClick] AJAX успех:', response);
+						if (response.error && response.product_url) {
+							return;
+						}
+						
+						if (response.fragments) {
+							jQuery.each(response.fragments, function(key, value) {
+								jQuery(key).replaceWith(value);
+							});
+						}
+						
+						if (response.cart_hash) {
+							jQuery(document.body).trigger('wc_fragment_refresh');
+						}
+						
+						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, wrapper]);
+					},
+				});
+			}
+		} else {
+			console.log('[handleQuantityClick] Это не карточка товара (обычная страница товара)');
+		}
+	};
+	
+	// Используем делегирование событий на document
+	document.addEventListener('click', function(e) {
+		console.log('[click handler] Клик зарегистрирован на:', e.target);
+		
+		// Проверяем, что клик произошел внутри quantity-wrapper
+		const wrapper = e.target.closest('.quantity-wrapper');
+		if (!wrapper) {
+			return;
+		}
+		
+		console.log('[click handler] Wrapper найден:', wrapper);
+		
+		// Проверяем, что клик был на кнопке или внутри нее
+		const button = e.target.closest('.quantity-button--minus, .quantity-button--plus');
+		if (!button) {
+			console.log('[click handler] Кнопка не найдена внутри wrapper');
+			return;
+		}
+		
+		console.log('[click handler] Кнопка найдена, вызываем handleQuantityClick');
+		handleQuantityClick(e);
+	}, true); // Используем capture phase для раннего перехвата
+	
+	console.log('[initQuantityButtons] Обработчик событий добавлен на document');
+};
+
+const initPromoCodeCopy = () => {
+	const copyIcons = document.querySelectorAll('.sales-card__copy-icon');
+	
+	copyIcons.forEach((icon) => {
+		icon.addEventListener('click', async (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			// Ищем ближайший элемент с промокодом
+			const promoCodeElement = icon.closest('.sales-card__promo')?.querySelector('.sales-card__promo-code');
+			if (!promoCodeElement || !promoCodeElement.dataset.promoCode) {
+				return;
+			}
+			
+			const promoCode = promoCodeElement.dataset.promoCode;
+			const originalText = promoCodeElement.textContent;
+			
+			try {
+				await navigator.clipboard.writeText(promoCode);
+				
+				// Плавно скрываем текущий текст
+				promoCodeElement.style.opacity = '0';
+				promoCodeElement.style.transform = 'translateY(-5px)';
+				
+				// После завершения анимации скрытия меняем текст
+				setTimeout(() => {
+					promoCodeElement.textContent = 'Скопійовано';
+					promoCodeElement.style.opacity = '1';
+					promoCodeElement.style.transform = 'translateY(0)';
+					
+					// Возвращаем обратно через 2 секунды с плавной анимацией
+					setTimeout(() => {
+						promoCodeElement.style.opacity = '0';
+						promoCodeElement.style.transform = 'translateY(-5px)';
+						
+						setTimeout(() => {
+							promoCodeElement.textContent = originalText;
+							promoCodeElement.style.opacity = '1';
+							promoCodeElement.style.transform = 'translateY(0)';
+						}, 300);
+					}, 2000);
+				}, 300);
+			} catch (err) {
+				console.error('Помилка копіювання:', err);
+			}
+		});
+		
+		// Добавляем курсор pointer при наведении
+		icon.style.cursor = 'pointer';
+	});
+};
+
+
+/**
+ * Инициализация функционала добавления в корзину для карточек товаров
+ */
+const initProductCardAddToCart = () => {
+	const addToCartButtons = document.querySelectorAll('.product-card__button-wrapper .add_to_cart_button, .product-card__button-wrapper .ajax_add_to_cart');
+	
+	addToCartButtons.forEach((button) => {
+		// Убираем старые обработчики, если они есть
+		const newButton = button.cloneNode(true);
+		button.parentNode.replaceChild(newButton, button);
+		
+		newButton.addEventListener('click', async (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			const productId = newButton.getAttribute('data-product_id') || newButton.getAttribute('data-product-id');
+			if (!productId) {
+				// Если нет product_id, используем стандартное поведение WooCommerce
+				return;
+			}
+			
+			// Добавляем товар в корзину через WooCommerce AJAX
+			const addToCartUrl = newButton.href || newButton.getAttribute('href');
+			if (!addToCartUrl) {
+				return;
+			}
+			
+			try {
+				// Используем стандартный механизм WooCommerce для добавления в корзину
+				if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+					// Если доступен jQuery и WooCommerce AJAX
+					jQuery(document.body).trigger('adding_to_cart', [newButton, {}]);
+					
+					jQuery.ajax({
+						type: 'POST',
+						url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+						data: {
+							product_id: productId,
+							quantity: 1,
+						},
+						dataType: 'json',
+						success: function(response) {
+							if (response.error && response.product_url) {
+								window.location = response.product_url;
+								return;
+							}
+							
+							// Показываем quantity-wrapper и скрываем кнопку
+							const buttonWrapper = newButton.closest('.product-card__button-wrapper');
+							if (buttonWrapper) {
+								const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
+								if (quantityWrapper) {
+									// Скрываем кнопку
+									newButton.style.display = 'none';
+									// Показываем quantity-wrapper с плавной анимацией
+									quantityWrapper.style.display = 'flex';
+									quantityWrapper.classList.add('show');
+									
+									// Инициализируем кнопки количества
+									initQuantityButtonsForCard(quantityWrapper);
+								}
+							}
+							
+							// Обновляем корзину
+							if (response.fragments) {
+								jQuery.each(response.fragments, function(key, value) {
+									jQuery(key).replaceWith(value);
+								});
+							}
+							
+							if (response.cart_hash) {
+								jQuery(document.body).trigger('wc_fragment_refresh');
+							}
+							
+							jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, newButton]);
+						},
+						error: function() {
+							// При ошибке просто переходим по ссылке
+							window.location.href = addToCartUrl;
+						},
+					});
+				} else {
+					// Fallback: просто переходим по ссылке
+					window.location.href = addToCartUrl;
+				}
+			} catch (error) {
+				console.error('Помилка додавання товару в кошик:', error);
+				// При ошибке просто переходим по ссылке
+				window.location.href = addToCartUrl;
+			}
+		});
+	});
+};
+
+/**
+ * Проверка корзины при загрузке страницы - показываем quantity-wrapper для товаров в корзине
+ */
+const checkCartForProducts = () => {
+	if (typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
+		return;
+	}
+	
+	// Получаем все карточки товаров
+	const productCards = document.querySelectorAll('.product-card');
+	if (productCards.length === 0) {
+		return;
+	}
+	
+	// Получаем список товаров в корзине через AJAX
+	jQuery.ajax({
+		type: 'POST',
+		url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+		dataType: 'json',
+		success: function(response) {
+			if (!response || !response.fragments) {
+				return;
+			}
+			
+			// Парсим HTML фрагментов для получения списка товаров в корзине
+			const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
+			                    response.fragments['.widget_shopping_cart_content'] ||
+			                    Object.values(response.fragments).find(fragment => 
+			                    	typeof fragment === 'string' && fragment.includes('cart_item')
+			                    );
+			
+			if (!cartContent) {
+				return;
+			}
+			
+			// Создаем временный элемент для парсинга
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+			
+			// Находим все товары в корзине
+			const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, [data-product-id]');
+			const cartProductIds = new Set();
+			
+			cartItems.forEach(item => {
+				const productId = item.getAttribute('data-product-id') || 
+				                 item.querySelector('[data-product-id]')?.getAttribute('data-product-id');
+				if (productId) {
+					cartProductIds.add(productId);
+				}
+			});
+			
+			// Показываем quantity-wrapper для товаров в корзине
+			productCards.forEach(card => {
+				const buttonWrapper = card.querySelector('.product-card__button-wrapper');
+				if (!buttonWrapper) {
+					return;
+				}
+				
+				const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
+				const productId = addToCartButton?.getAttribute('data-product_id') || 
+				                 addToCartButton?.getAttribute('data-product-id');
+				
+				if (productId && cartProductIds.has(productId)) {
+					const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
+					if (quantityWrapper) {
+						// Скрываем кнопку
+						if (addToCartButton) {
+							addToCartButton.style.display = 'none';
+						}
+						// Показываем quantity-wrapper
+						quantityWrapper.style.display = 'flex';
+						quantityWrapper.classList.add('show');
+						
+						// Инициализируем кнопки количества
+						initQuantityButtonsForCard(quantityWrapper);
+					}
+				}
+			});
+		},
+		error: function() {
+			console.log('[checkCartForProducts] Ошибка при проверке корзины');
+		}
+	});
+};
+
+/**
+ * Обработка успешного добавления товара в корзину - замена кнопки на quantity-wrapper
+ */
+const handleAddToCartSuccess = (button) => {
+	if (!button) {
+		return;
+	}
+	
+	// Проверяем, что это кнопка добавления в корзину в карточке товара
+	if (!button.classList.contains('add_to_cart_button') && !button.classList.contains('ajax_add_to_cart')) {
+		return;
+	}
+	
+	// Получаем ID товара
+	const productId = button.getAttribute('data-product_id') || 
+	                  button.getAttribute('data-product-id') ||
+	                  button.getAttribute('value');
+	
+	if (!productId) {
+		return;
+	}
+	
+	// Находим обертку кнопки
+	const buttonWrapper = button.closest('.product-card__button-wrapper');
+	if (!buttonWrapper) {
+		return;
+	}
+	
+	// Находим quantity-wrapper
+	const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
+	if (!quantityWrapper) {
+		return;
+	}
+	
+	// Скрываем кнопку
+	button.style.display = 'none';
+	
+	// Показываем quantity-wrapper
+	quantityWrapper.style.display = 'flex';
+	quantityWrapper.classList.add('show');
+	
+	// Инициализируем кнопки количества
+	initQuantityButtonsForCard(quantityWrapper);
+	
+	console.log('[handleAddToCartSuccess] Кнопка заменена на quantity-wrapper для товара', productId);
+};
+
+/**
+ * Инициализация кнопок количества для карточки товара
+ */
+const initQuantityButtonsForCard = (wrapper) => {
+	const minusButton = wrapper.querySelector('.quantity-button--minus');
+	const plusButton = wrapper.querySelector('.quantity-button--plus');
+	const input = wrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+	const productId = wrapper.getAttribute('data-product-id');
+	
+	if (!minusButton || !plusButton || !input) {
+		console.log('Missing elements:', { minusButton, plusButton, input });
+		return;
+	}
+	
+	const min = parseInt(input.getAttribute('min')) || 1;
+	const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
+	const step = parseInt(input.getAttribute('step')) || 1;
+	
+	// Удаляем старые обработчики, если они есть
+	const newMinusButton = minusButton.cloneNode(true);
+	const newPlusButton = plusButton.cloneNode(true);
+	minusButton.parentNode.replaceChild(newMinusButton, minusButton);
+	plusButton.parentNode.replaceChild(newPlusButton, plusButton);
+	
+	// Функция для обновления количества в корзине через AJAX
+	const updateCartQuantity = (newQuantity) => {
+		if (newQuantity < min) {
+			input.value = min;
+			return;
+		}
+		if (max && newQuantity > max) {
+			input.value = max;
+			return;
+		}
+		
+		// Используем WooCommerce AJAX для обновления количества только если товар уже в корзине
+		if (productId && typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+			jQuery.ajax({
+				type: 'POST',
+				url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+				data: {
+					product_id: productId,
+					quantity: newQuantity,
+				},
+				dataType: 'json',
+				success: function(response) {
+					if (response.error && response.product_url) {
+						return;
+					}
+					
+					// Обновляем корзину
+					if (response.fragments) {
+						jQuery.each(response.fragments, function(key, value) {
+							jQuery(key).replaceWith(value);
+						});
+					}
+					
+					if (response.cart_hash) {
+						jQuery(document.body).trigger('wc_fragment_refresh');
+					}
+					
+					jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, wrapper]);
+				},
+			});
+		}
+	};
+	
+	// Обработчик для кнопки минус
+	newMinusButton.addEventListener('click', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		let currentValue = parseInt(input.value) || min;
+		const newValue = Math.max(min, currentValue - step);
+		input.value = newValue;
+		// Триггерим события для обновления
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+		if (productId) {
+			updateCartQuantity(newValue);
+		}
+	});
+	
+	// Обработчик для кнопки плюс
+	newPlusButton.addEventListener('click', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		let currentValue = parseInt(input.value) || min;
+		const newValue = max ? Math.min(max, currentValue + step) : currentValue + step;
+		input.value = newValue;
+		// Триггерим события для обновления
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+		if (productId) {
+			updateCartQuantity(newValue);
+		}
+	});
+	
+	// Валидация при ручном вводе
+	input.addEventListener('change', () => {
+		let value = parseInt(input.value) || min;
+		if (value < min) {
+			value = min;
+		}
+		if (max && value > max) {
+			value = max;
+		}
+		input.value = value;
+		if (productId) {
+			updateCartQuantity(value);
+		}
+	});
+};
+
+/**
+ * Инициализация мини-корзины и перехват формы добавления в корзину
+ */
+const initMiniCart = () => {
+	const miniCart = document.getElementById('mini-cart-sidebar');
+	if (!miniCart) {
+		console.log('[initMiniCart] Мини-корзина не найдена');
+		return;
+	}
+
+	console.log('[initMiniCart] Мини-корзина найдена, инициализация...');
+
+	const openCart = () => {
+		console.log('[initMiniCart] Открытие корзины');
+		miniCart.classList.add('is-open');
+		document.body.classList.add('mini-cart-open');
+	};
+
+	const updateCartCount = () => {
+		updateCartCountGlobal();
+	};
+
+	// Обработчик для открытия мини-корзины из хедера
+	const cartButtons = document.querySelectorAll('[data-mini-cart-open]');
+	cartButtons.forEach((button) => {
+		button.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			openCart();
+		});
+	});
+
+	// Обновление счетчика корзины
+	updateCartCount();
+
+	const closeCart = () => {
+		console.log('[initMiniCart] Закрытие корзины');
+		miniCart.classList.remove('is-open');
+		document.body.classList.remove('mini-cart-open');
+	};
+
+	// Обработчики закрытия
+	const closeButtons = miniCart.querySelectorAll('[data-mini-cart-close]');
+	closeButtons.forEach(button => {
+		button.addEventListener('click', closeCart);
+	});
+
+	// Закрытие по клику на overlay
+	const overlay = miniCart.querySelector('.mini-cart-sidebar__overlay');
+	if (overlay) {
+		overlay.addEventListener('click', closeCart);
+	}
+
+	// Закрытие по Escape
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && miniCart.classList.contains('is-open')) {
+			closeCart();
+		}
+	});
+
+	// Перехватываем отправку формы добавления в корзину и используем AJAX
+	if (typeof jQuery !== 'undefined') {
+		// Перехватываем форму на странице товара
+		jQuery(document).on('submit', 'form.cart', function(e) {
+			e.preventDefault();
+			
+			const $form = jQuery(this);
+			const $button = $form.find('button[type="submit"]');
+			const productId = $button.val() || $form.find('input[name="add-to-cart"]').val();
+			const quantity = $form.find('input[name="quantity"]').val() || 1;
+			
+			console.log('[initMiniCart] Перехвачена форма, productId:', productId, 'quantity:', quantity);
+			
+			if (!productId) {
+				console.log('[initMiniCart] ProductId не найден, отправка формы обычным способом');
+				return true; // Разрешаем обычную отправку
+			}
+			
+			// Блокируем кнопку
+			$button.prop('disabled', true).text('Додавання...');
+			
+			// Отправляем через AJAX
+			if (typeof wc_add_to_cart_params !== 'undefined') {
+				jQuery.ajax({
+					type: 'POST',
+					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+					data: {
+						product_id: productId,
+						quantity: quantity,
+					},
+					dataType: 'json',
+					success: function(response) {
+						console.log('[initMiniCart] AJAX успех:', response);
+						
+						$button.prop('disabled', false).text('Додати в кошик');
+						
+						if (response.error && response.product_url) {
+							window.location = response.product_url;
+							return;
+						}
+						
+						// Обновляем фрагменты
+						if (response.fragments) {
+							jQuery.each(response.fragments, function(key, value) {
+								jQuery(key).replaceWith(value);
+							});
+						}
+						
+						// Обновляем мини-корзину
+						if (response.fragments) {
+							const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+							if (cartContent) {
+								// Ищем фрагмент мини-корзины
+								jQuery.each(response.fragments, function(key, value) {
+									if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
+										jQuery(cartContent).html(value);
+									}
+								});
+							}
+						}
+						
+						// Не открываем корзину автоматически - показываем только уведомление
+						
+						// Триггерим события WooCommerce
+						if (response.cart_hash) {
+							jQuery(document.body).trigger('wc_fragment_refresh');
+						}
+						
+						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button[0]]);
+					},
+					error: function() {
+						console.log('[initMiniCart] AJAX ошибка');
+						$button.prop('disabled', false).text('Додати в кошик');
+					}
+				});
+			} else {
+				// Fallback: обычная отправка формы
+				$form.off('submit').submit();
+			}
+			
+			return false;
+		});
+
+		// Перехватываем клики на кнопки удаления товара из мини-корзины с использованием нативного addEventListener для раннего перехвата
+		document.addEventListener('click', function(e) {
+			const target = e.target;
+			const $target = jQuery(target);
+			
+			// Проверяем, что это кнопка удаления в мини-корзине
+			if (!target.matches('.remove_from_cart_button, .remove') || 
+			    !$target.closest('.mini-cart-sidebar, .widget_shopping_cart').length) {
+				return; // Не наша кнопка, пропускаем
+			}
+			
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			
+			const $button = $target;
+			const cartItemKey = $button.data('cart_item_key') || $button.attr('data-cart_item_key');
+			const $cartItem = $button.closest('.woocommerce-mini-cart-item, .mini_cart_item');
+			
+			if (!cartItemKey) {
+				console.log('[initMiniCart] cart_item_key не найден');
+				return;
+			}
+			
+			console.log('[initMiniCart] Удаление товара через AJAX, cart_item_key:', cartItemKey);
+			
+			// Блокируем элемент
+			$cartItem.css('opacity', '0.5').css('pointer-events', 'none');
+			
+			// Отправляем AJAX запрос на удаление
+			if (typeof wc_add_to_cart_params !== 'undefined') {
+				jQuery.ajax({
+					type: 'POST',
+					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'remove_from_cart'),
+					data: {
+						cart_item_key: cartItemKey
+					},
+					dataType: 'json',
+					success: function(response) {
+						console.log('[initMiniCart] Товар удален, ответ:', response);
+						
+						if (!response || !response.fragments) {
+							console.log('[initMiniCart] Нет фрагментов в ответе, обновляем через get_refreshed_fragments');
+							// Если нет фрагментов, получаем их отдельно
+							jQuery.ajax({
+								type: 'POST',
+								url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+								dataType: 'json',
+								success: function(fragmentResponse) {
+									if (fragmentResponse && fragmentResponse.fragments) {
+										const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+										if (cartContent) {
+											jQuery.each(fragmentResponse.fragments, function(key, value) {
+												if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
+													jQuery(cartContent).html(value);
+													setTimeout(() => {
+														initMiniCartQuantityButtons();
+													}, 100);
+												} else {
+													jQuery(key).replaceWith(value);
+												}
+											});
+										}
+										jQuery(document.body).trigger('removed_from_cart', [fragmentResponse.fragments, fragmentResponse.cart_hash, $button]);
+									}
+								}
+							});
+							return;
+						}
+						
+						// Обновляем содержимое корзины
+						const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+						if (cartContent) {
+							jQuery.each(response.fragments, function(key, value) {
+								if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
+									jQuery(cartContent).html(value);
+									// Переинициализируем кнопки количества после обновления
+									setTimeout(() => {
+										initMiniCartQuantityButtons();
+									}, 100);
+								} else {
+									jQuery(key).replaceWith(value);
+								}
+							});
+						}
+						
+						// Триггерим событие WooCommerce
+						jQuery(document.body).trigger('removed_from_cart', [response.fragments, response.cart_hash, $button]);
+						
+						// Обновляем счетчик корзины, если есть
+						if (response.cart_hash) {
+							jQuery(document.body).trigger('wc_fragment_refresh');
+						}
+					},
+					error: function() {
+						console.log('[initMiniCart] Ошибка при удалении товара');
+						// Восстанавливаем элемент
+						$cartItem.css('opacity', '1').css('pointer-events', 'auto');
+					}
+				});
+			} else {
+				console.log('[initMiniCart] wc_add_to_cart_params не определен');
+			}
+		}, true); // Используем capture phase для раннего перехвата
+
+		// Предотвращаем закрытие корзины при удалении товара
+		jQuery(document.body).on('removed_from_cart', function(event, fragments, cart_hash, $button) {
+			console.log('[initMiniCart] Событие removed_from_cart сработало, корзина остается открытой');
+			// Не закрываем корзину - просто обновляем содержимое
+			if (fragments) {
+				const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+				if (cartContent) {
+					jQuery.each(fragments, function(key, value) {
+						if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
+							jQuery(cartContent).html(value);
+							// Переинициализируем кнопки количества после обновления
+							setTimeout(() => {
+								initMiniCartQuantityButtons();
+							}, 100);
+						} else {
+							jQuery(key).replaceWith(value);
+						}
+					});
+				}
+			}
+		});
+
+		// Открытие корзины при добавлении товара через другие методы
+	// Обработчик для замены кнопки на quantity-wrapper после добавления в корзину
+	jQuery(document.body).on('added_to_cart', function(event, fragments, cart_hash, $button) {
+		console.log('[added_to_cart handler] Событие added_to_cart сработало');
+		
+		// Получаем элемент кнопки
+		const button = $button && $button.length ? $button[0] : (typeof $button === 'object' && $button.nodeType ? $button : null);
+		if (button) {
+			// Обрабатываем успешное добавление в корзину
+			handleAddToCartSuccess(button);
+		} else {
+			// Пытаемся найти кнопку по event target или другим способом
+			const target = event.target || event.originalEvent?.target;
+			if (target && (target.classList.contains('add_to_cart_button') || target.classList.contains('ajax_add_to_cart'))) {
+				handleAddToCartSuccess(target);
+			} else {
+				// Ищем все кнопки добавления в корзину, которые могли быть использованы
+				const allButtons = document.querySelectorAll('.add_to_cart_button.ajax_add_to_cart');
+				allButtons.forEach(btn => {
+					if (btn.classList.contains('loading') || btn.classList.contains('added')) {
+						handleAddToCartSuccess(btn);
+					}
+				});
+			}
+		}
+		
+		// Не открываем корзину автоматически - показываем только уведомление
+			
+			// Обновляем содержимое корзины через AJAX
+			if (typeof wc_add_to_cart_params !== 'undefined') {
+				jQuery.ajax({
+					type: 'POST',
+					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+					success: function(data) {
+						console.log('[initMiniCart] Фрагменты обновлены:', data);
+						if (data && data.fragments) {
+							jQuery.each(data.fragments, function(key, value) {
+								// Обновляем мини-корзину
+								if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
+									const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+									if (cartContent) {
+										jQuery(cartContent).html(value);
+									}
+								} else {
+									jQuery(key).replaceWith(value);
+								}
+							});
+						}
+					}
+				});
+			}
+		});
+
+		// Обновление корзины при изменении количества или удалении товара
+		jQuery(document.body).on('wc_fragment_refresh', function() {
+			if (typeof wc_add_to_cart_params !== 'undefined') {
+				jQuery.ajax({
+					type: 'POST',
+					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+					success: function(data) {
+						if (data && data.fragments) {
+							jQuery.each(data.fragments, function(key, value) {
+								const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+								if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
+									jQuery(cartContent).html(value);
+								} else {
+									jQuery(key).replaceWith(value);
+								}
+							});
+						}
+					}
+				});
+			}
+		});
+	} else {
+		console.log('[initMiniCart] jQuery не загружен');
+	}
+
+	// Обработчики кнопок количества
+	const handleQuantityChange = (button, delta) => {
+		if (typeof jQuery === 'undefined') return;
+		
+		// Параметры AJAX WooCommerce (fallback, если wc_add_to_cart_params недоступен)
+		const ajaxParams = window.wc_add_to_cart_params || window.wc_cart_fragments_params || {};
+		const ajaxUrlTemplate = ajaxParams.wc_ajax_url || '/?wc-ajax=%%endpoint%%';
+
+		const cartItemKey = button.getAttribute('data-cart-item-key');
+		if (!cartItemKey) return;
+
+		const quantityWrapper = button.closest('.mini-cart-item__quantity-wrapper');
+		const quantityValue = quantityWrapper.querySelector('.mini-cart-item__quantity-value');
+		const currentQuantity = parseInt(quantityValue.textContent.trim().split(' ')[0]) || 1;
+		const newQuantity = Math.max(1, currentQuantity + delta);
+
+		// Обновляем отображение
+		const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
+		quantityValue.textContent = `${newQuantity} ${unit}`;
+
+		// Обновляем количество через стандартный способ WooCommerce
+		const form = document.createElement('form');
+		form.method = 'POST';
+		form.action = ajaxUrlTemplate.toString().replace('%%endpoint%%', 'update_cart');
+		
+		const cartInput = document.createElement('input');
+		cartInput.type = 'hidden';
+		cartInput.name = 'cart[' + cartItemKey + '][qty]';
+		cartInput.value = newQuantity;
+		form.appendChild(cartInput);
+		
+		const updateInput = document.createElement('input');
+		updateInput.type = 'hidden';
+		updateInput.name = 'update_cart';
+		updateInput.value = 'Update Cart';
+		form.appendChild(updateInput);
+		
+		// Отправляем через AJAX
+		jQuery.ajax({
+			type: 'POST',
+			url: form.action,
+			data: jQuery(form).serialize(),
+			success: function() {
+				// Обновляем фрагменты
+				jQuery.ajax({
+					type: 'POST',
+					url: ajaxUrlTemplate.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+					success: function(response) {
+						if (response && response.fragments) {
+							jQuery.each(response.fragments, function(key, value) {
+								const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+								if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
+									jQuery(cartContent).html(value);
+									// Переинициализируем обработчики
+									setTimeout(initMiniCartQuantityButtons, 100);
+								} else {
+									jQuery(key).replaceWith(value);
+								}
+							});
+						}
+						jQuery(document.body).trigger('wc_fragment_refresh');
+					}
+				});
+			},
+			error: function() {
+				// Откатываем изменение при ошибке
+				const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
+				quantityValue.textContent = `${currentQuantity} ${unit}`;
+			}
+		});
+	};
+
+	const initMiniCartQuantityButtons = () => {
+		const minusButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--minus');
+		const plusButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--plus');
+
+		minusButtons.forEach(button => {
+			button.onclick = () => handleQuantityChange(button, -1);
+		});
+
+		plusButtons.forEach(button => {
+			button.onclick = () => handleQuantityChange(button, 1);
+		});
+	};
+
+	// Инициализируем кнопки при загрузке
+	initMiniCartQuantityButtons();
+
+	// Переинициализируем при обновлении корзины
+	const observer = new MutationObserver(() => {
+		setTimeout(initMiniCartQuantityButtons, 100);
+	});
+	const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+	if (cartContent) {
+		observer.observe(cartContent, { childList: true, subtree: true });
+	}
+};
+
+/**
+ * Инициализация карусели связанных товаров
+ */
+const initRelatedProductsCarousel = () => {
+	const section = document.querySelector('.single-product__related-section');
+	if (!section || typeof Swiper === 'undefined') {
+		return;
+	}
+
+	// Отключаем swiper на мобильной версии (ширина экрана <= 768px)
+	if (window.innerWidth <= 768) {
+		return;
+	}
+
+	const swiperEl = section.querySelector('[data-swiper]');
+	if (!swiperEl) {
+		return;
+	}
+
+	const container = swiperEl.closest('.container');
+	const containerWidth = container ? container.offsetWidth : window.innerWidth;
+	const slideWidth = (containerWidth - (3 * parseFloat(getComputedStyle(document.documentElement).fontSize) * 1.042)) / 4;
+	
+	const swiper = new Swiper(swiperEl, {
+		slidesPerView: 'auto',
+		spaceBetween: '1.042vw',
+		loop: false,
+		speed: 450,
+		watchOverflow: true,
+		allowTouchMove: true,
+		resistance: true,
+		resistanceRatio: 0,
+		preventClicks: true,
+		preventClicksPropagation: true,
+		breakpoints: {
+			320: {
+				slidesPerView: 1.2,
+				spaceBetween: (window.innerWidth * 2.667) / 100,
+				loop: false,
+			},
+			768: {
+				slidesPerView: 2.5,
+				spaceBetween: (window.innerWidth * 2.667) / 100,
+				loop: false,
+			},
+			1024: {
+				slidesPerView: 4,
+				spaceBetween: '1.042vw',
+				loop: false,
+			},
+		},
+	});
+};
+

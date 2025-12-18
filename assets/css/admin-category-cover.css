@@ -1,0 +1,77 @@
+.natura-category-cover-field {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.natura-category-cover-preview {
+	width: 90px;
+	height: 90px;
+	border-radius: 8px;
+	background-color: #f3f3f3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.natura-category-cover-preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.natura-category-cover-remove.is-hidden {
+	display: none;
+}
+
+/* Скрыть стандартное поле описания WordPress, чтобы не было дублирования */
+.form-field.term-description-wrap {
+	display: none !important;
+}
+
+/* Стили для редактора описания категории - видимость текста */
+#tag-description_ifr {
+	background-color: #fff !important;
+}
+
+#tag-description_ifr body {
+	color: #2c3338 !important;
+	background-color: #fff !important;
+}
+
+#tag-description_ifr body p,
+#tag-description_ifr body * {
+	color: #2c3338 !important;
+}
+
+.wp-editor-area,
+#tag-description {
+	color: #2c3338 !important;
+	background-color: #fff !important;
+}
+
+.mce-content-body {
+	color: #2c3338 !important;
+	background-color: #fff !important;
+}
+
+.mce-content-body p,
+.mce-content-body * {
+	color: #2c3338 !important;
+}
+
+/* Стили для визуального редактора TinyMCE */
+.mce-edit-area iframe {
+	background-color: #fff !important;
+}
+
+.mce-edit-area {
+	background-color: #fff !important;
+}
+
+
+
