@@ -2319,6 +2319,7 @@ const updateCartCountGlobal = () => {
 		initRelatedProductsCarousel();
 		initProductCardAddToCart();
 		initMiniCart();
+		initShopFilterDrawer();
 		preventProductCardLayoutShift();
 		checkCartForProducts();
 	});
@@ -3302,6 +3303,95 @@ const initMiniCart = () => {
 	const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
 	if (cartContent) {
 		observer.observe(cartContent, { childList: true, subtree: true });
+	}
+};
+
+/**
+ * Инициализация панели фильтров для мобильных устройств
+ */
+const initShopFilterDrawer = () => {
+	const filterDrawer = document.querySelector('[data-shop-filter-drawer]');
+	if (!filterDrawer) {
+		return;
+	}
+
+	const openFilter = () => {
+		filterDrawer.classList.add('is-open');
+		document.body.style.overflow = 'hidden';
+	};
+
+	const closeFilter = () => {
+		filterDrawer.classList.remove('is-open');
+		document.body.style.overflow = '';
+	};
+
+	// Открытие панели
+	const openButtons = document.querySelectorAll('[data-shop-filter-open]');
+	openButtons.forEach(button => {
+		button.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			openFilter();
+		});
+	});
+
+	// Закрытие панели
+	const closeButtons = filterDrawer.querySelectorAll('[data-shop-filter-close]');
+	closeButtons.forEach(button => {
+		button.addEventListener('click', closeFilter);
+	});
+
+	// Закрытие по Escape
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && filterDrawer.classList.contains('is-open')) {
+			closeFilter();
+		}
+	});
+
+	// Фильтр по цене
+	const priceApplyButton = filterDrawer.querySelector('[data-price-filter-apply]');
+	if (priceApplyButton) {
+		priceApplyButton.addEventListener('click', () => {
+			const minPrice = document.getElementById('filter-price-min')?.value;
+			const maxPrice = document.getElementById('filter-price-max')?.value;
+			
+			if (minPrice || maxPrice) {
+				const url = new URL(window.location.href);
+				if (minPrice) url.searchParams.set('min_price', minPrice);
+				if (maxPrice) url.searchParams.set('max_price', maxPrice);
+				window.location.href = url.toString();
+			}
+		});
+	}
+
+	// Сброс фильтров
+	const resetButton = filterDrawer.querySelector('[data-filter-reset]');
+	if (resetButton) {
+		resetButton.addEventListener('click', () => {
+			document.getElementById('filter-price-min').value = '';
+			document.getElementById('filter-price-max').value = '';
+			const url = new URL(window.location.href);
+			url.searchParams.delete('min_price');
+			url.searchParams.delete('max_price');
+			window.location.href = url.toString();
+		});
+	}
+
+	// Применить все фильтры
+	const applyButton = filterDrawer.querySelector('[data-filter-apply]');
+	if (applyButton) {
+		applyButton.addEventListener('click', () => {
+			const minPrice = document.getElementById('filter-price-min')?.value;
+			const maxPrice = document.getElementById('filter-price-max')?.value;
+			
+			const url = new URL(window.location.href);
+			if (minPrice) url.searchParams.set('min_price', minPrice);
+			else url.searchParams.delete('min_price');
+			if (maxPrice) url.searchParams.set('max_price', maxPrice);
+			else url.searchParams.delete('max_price');
+			
+			window.location.href = url.toString();
+		});
 	}
 };
 
