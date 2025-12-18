@@ -25,6 +25,7 @@
 	overflow-x: hidden;
 	height: 100svh;
 	min-height: 100vh;
+	border-top: 5px solid red; /* TEST: красная линия для проверки автодеплоя */
 }
 
 .hero__video {
