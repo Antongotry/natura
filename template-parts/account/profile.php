@@ -106,4 +106,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['natura_profile_nonce'
 
 
 
-

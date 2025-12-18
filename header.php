@@ -151,61 +151,24 @@
 				<div class="site-header__mobile-menu-content">
 					<nav class="site-header__nav" aria-label="<?php esc_attr_e('Основное меню', 'natura'); ?>">
 						<ul class="site-header__menu">
-							<?php
-							// Получаем категории товаров для мобильного меню
-							$mobile_menu_categories = get_terms(array(
-								'taxonomy' => 'product_cat',
-								'hide_empty' => true,
-								'parent' => 0,
-								'orderby' => 'menu_order',
-								'order' => 'ASC',
-							));
-							?>
-							<!-- Каталог первый с выпадающим списком -->
-							<li class="site-header__menu-item site-header__menu-item--has-dropdown">
-								<button type="button" class="site-header__catalog-toggle" data-catalog-toggle aria-expanded="false">
-									<span>Каталог</span>
-									<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/arrow_back_24dp_202020_fill1_wght400_grad0_opsz24-1.svg" alt="" class="site-header__catalog-arrow">
-								</button>
-								<?php if (!empty($mobile_menu_categories) && !is_wp_error($mobile_menu_categories)) : ?>
-								<ul class="site-header__catalog-dropdown">
-									<?php foreach ($mobile_menu_categories as $cat) : 
-										$cat_link = get_term_link($cat);
-										// Получаем подкатегории
-										$subcategories = get_terms(array(
-											'taxonomy' => 'product_cat',
-											'hide_empty' => true,
-											'parent' => $cat->term_id,
-											'orderby' => 'menu_order',
-											'order' => 'ASC',
-										));
-									?>
-									<li class="site-header__catalog-item<?php echo (!empty($subcategories) && !is_wp_error($subcategories)) ? ' site-header__catalog-item--has-children' : ''; ?>">
-										<?php if (!empty($subcategories) && !is_wp_error($subcategories)) : ?>
-											<button type="button" class="site-header__catalog-link" data-subcategory-toggle>
-												<span><?php echo esc_html($cat->name); ?></span>
-												<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/arrow_back_24dp_202020_fill1_wght400_grad0_opsz24-1.svg" alt="" class="site-header__subcategory-arrow">
-											</button>
-											<ul class="site-header__subcategory-dropdown">
-												<?php foreach ($subcategories as $subcat) : ?>
-												<li class="site-header__subcategory-item">
-													<a href="<?php echo esc_url(get_term_link($subcat)); ?>"><?php echo esc_html($subcat->name); ?></a>
-												</li>
-												<?php endforeach; ?>
-											</ul>
-										<?php else : ?>
-											<a href="<?php echo esc_url($cat_link); ?>" class="site-header__catalog-link"><?php echo esc_html($cat->name); ?></a>
-										<?php endif; ?>
-									</li>
-									<?php endforeach; ?>
-								</ul>
-								<?php endif; ?>
-							</li>
-							<!-- Остальные пункты меню -->
 							<li class="site-header__menu-item"><a href="<?php echo esc_url(home_url('/')); ?>">Головна</a></li>
-							<li class="site-header__menu-item"><a href="#feedback" data-feedback-modal-open>Відгук</a></li>
+							<li class="site-header__separator" aria-hidden="true"></li>
+							<?php
+							$catalog_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : (function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : home_url('/catalog'));
+							?>
+							<li class="site-header__menu-item"><a class="site-header__catalog" href="<?php echo esc_url($catalog_url); ?>">Каталог</a></li>
+							<li class="site-header__separator" aria-hidden="true"></li>
+							<li class="site-header__menu-item"><a href="#insights">Про нас</a></li>
+							<li class="site-header__separator" aria-hidden="true"></li>
+							<li class="site-header__menu-item"><a href="#trusted">Клієнти</a></li>
+							<li class="site-header__separator" aria-hidden="true"></li>
 							<li class="site-header__menu-item"><a href="#payment">Оплата і доставка</a></li>
+							<li class="site-header__separator" aria-hidden="true"></li>
 							<li class="site-header__menu-item"><a href="#cooperation" data-collaboration-modal-open>Співпраця</a></li>
+							<li class="site-header__separator" aria-hidden="true"></li>
+							<li class="site-header__menu-item"><a href="<?php echo esc_url(home_url('/sales')); ?>">Акції</a></li>
+							<li class="site-header__separator" aria-hidden="true"></li>
+							<li class="site-header__menu-item"><a href="#feedback" data-feedback-modal-open>Залишити відгук</a></li>
 						</ul>
 					</nav>
 					<div class="site-header__mobile-contacts">

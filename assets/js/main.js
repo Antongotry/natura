@@ -545,29 +545,6 @@ const updateCartCountGlobal = () => {
 				window.scrollTo(0, scrollPosition);
 			}
 		});
-
-		// Инициализация выпадающего меню каталога
-		const catalogToggle = mobileMenu.querySelector('[data-catalog-toggle]');
-		const subcategoryToggles = mobileMenu.querySelectorAll('[data-subcategory-toggle]');
-
-		if (catalogToggle) {
-			catalogToggle.addEventListener('click', (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				const isExpanded = catalogToggle.getAttribute('aria-expanded') === 'true';
-				catalogToggle.setAttribute('aria-expanded', !isExpanded);
-			});
-		}
-
-		subcategoryToggles.forEach((toggle) => {
-			toggle.setAttribute('aria-expanded', 'false');
-			toggle.addEventListener('click', (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-				toggle.setAttribute('aria-expanded', !isExpanded);
-			});
-		});
 	};
 
 	const initHeroAnimation = () => {

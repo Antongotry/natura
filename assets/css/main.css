@@ -919,7 +919,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		display: flex !important;
 		align-items: center;
 		justify-content: flex-start;
-		color: #303030 !important;
+		color: #3030304D !important;
 		font-family: var(--font-family-base) !important;
 		font-weight: 500 !important;
 		font-style: normal !important;
@@ -935,151 +935,6 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		padding: 0;
 	}
 
-	/* ===== Каталог с выпадающим меню ===== */
-	.site-header__menu-item--has-dropdown {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-	}
-
-	.site-header__catalog-toggle {
-		display: flex;
-		align-items: center;
-		justify-content: flex-start;
-		gap: 2vw;
-		background: none;
-		border: none;
-		padding: 0;
-		margin: 0;
-		cursor: pointer;
-		color: #303030;
-		font-family: var(--font-family-base);
-		font-weight: 500;
-		font-size: 9.067vw;
-		line-height: 100%;
-		letter-spacing: -0.03em;
-		text-decoration: none;
-	}
-
-	.site-header__catalog-arrow {
-		width: 8.718vw;
-		height: 8.718vw;
-		object-fit: contain;
-		transition: transform 0.3s ease;
-		flex-shrink: 0;
-	}
-
-	.site-header__catalog-toggle[aria-expanded="false"] .site-header__catalog-arrow {
-		transform: rotate(0deg);
-	}
-
-	.site-header__catalog-toggle[aria-expanded="true"] .site-header__catalog-arrow {
-		transform: rotate(-90deg);
-	}
-
-	/* Выпадающий список категорий */
-	.site-header__catalog-dropdown {
-		display: none;
-		flex-direction: column;
-		list-style: none;
-		margin: 0;
-		padding: 2.667vw 0 0 0;
-		gap: 2.564vw;
-	}
-
-	.site-header__catalog-toggle[aria-expanded="true"] + .site-header__catalog-dropdown {
-		display: flex;
-	}
-
-	.site-header__catalog-item {
-		display: flex;
-		flex-direction: column;
-	}
-
-	/* Подпункты меню (категории) - цвет #30303066 */
-	.site-header__catalog-link {
-		display: flex;
-		align-items: center;
-		gap: 1.5vw;
-		background: none;
-		border: none;
-		padding: 0;
-		margin: 0;
-		cursor: pointer;
-		text-decoration: none;
-		font-family: 'Inter Tight', sans-serif;
-		font-weight: 600;
-		font-size: 3.59vw;
-		line-height: 100%;
-		letter-spacing: -0.03em;
-		color: #30303066;
-		transition: color 0.25s ease;
-	}
-
-	a.site-header__catalog-link {
-		color: #30303066;
-	}
-
-	.site-header__catalog-link:hover,
-	.site-header__catalog-link:focus,
-	a.site-header__catalog-link:hover,
-	a.site-header__catalog-link:focus {
-		color: #303030;
-		outline: none;
-	}
-
-	/* Стрелка для подкатегорий */
-	.site-header__subcategory-arrow {
-		width: 3.59vw;
-		height: 3.59vw;
-		object-fit: contain;
-		transition: transform 0.3s ease;
-		flex-shrink: 0;
-		opacity: 0.6;
-	}
-
-	button.site-header__catalog-link[aria-expanded="false"] .site-header__subcategory-arrow {
-		transform: rotate(0deg);
-	}
-
-	button.site-header__catalog-link[aria-expanded="true"] .site-header__subcategory-arrow {
-		transform: rotate(-90deg);
-	}
-
-	button.site-header__catalog-link[aria-expanded="true"] {
-		color: #303030;
-	}
-
-	/* Подкатегории */
-	.site-header__subcategory-dropdown {
-		display: none;
-		flex-direction: column;
-		list-style: none;
-		margin: 0;
-		padding: 1.6vw 0 0 4vw;
-		gap: 1.6vw;
-	}
-
-	button.site-header__catalog-link[aria-expanded="true"] + .site-header__subcategory-dropdown {
-		display: flex;
-	}
-
-	.site-header__subcategory-item a {
-		font-family: 'Inter Tight', sans-serif;
-		font-weight: 600;
-		font-size: 3.59vw;
-		line-height: 100%;
-		letter-spacing: -0.03em;
-		color: #303030;
-		text-decoration: none;
-		transition: color 0.25s ease;
-	}
-
-	.site-header__subcategory-item a:hover,
-	.site-header__subcategory-item a:focus {
-		color: #4DBD56;
-	}
-
 	/* Специфичные стили для кнопки Каталог в мобильном меню - сбрасываем десктопные стили */
 	.site-header__mobile-menu .site-header__menu-item a.site-header__catalog,
 	.site-header--scrolled .site-header__mobile-menu .site-header__menu-item a.site-header__catalog,
@@ -1088,7 +943,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		border: none !important;
 		border-radius: 0 !important;
 		background-color: transparent !important;
-		color: #303030 !important;
+		color: #3030304D !important;
 		font-size: 9.067vw !important;
 		line-height: 100% !important;
 		font-weight: 500 !important;
@@ -1153,10 +1008,19 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		margin-left: 0 !important;
 	}
 
-	/* Убираем стрелку у активных пунктов */
+	/* Иконка только для активных пунктов */
 	.site-header__mobile-menu .site-header__menu-item.is-active a::after,
 	.site-header__mobile-menu .site-header__menu-item.current-menu-item a::after {
-		display: none !important;
+		content: '' !important;
+		display: inline-block !important;
+		width: 9.067vw;
+		height: 9.067vw;
+		margin-left: 2.667vw;
+		background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/arrow_back_24dp_202020_fill1_wght400_grad0_opsz24-1.svg');
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: contain;
+		flex-shrink: 0;
 	}
 
 	.site-header__mobile-contacts {
@@ -3068,6 +2932,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	height: 100%;
 	display: block;
 	object-fit: cover;
+	object-position: center center;
 	border-radius: 0.26vw; /* скругляем само изображение */
 }
 
@@ -3232,10 +3097,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .checkout-page__layout {
-	display: grid;
-	grid-template-columns: 45.833vw 22.656vw;
-	gap: 1.042vw;
+	display: flex;
+	justify-content: space-between;
 	align-items: flex-start;
+	gap: 0;
 }
 
 .checkout-page__left,
@@ -3245,6 +3110,22 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	border: 1px solid rgba(48, 48, 48, 0.1);
 	padding: 2.083vw;
 	box-sizing: border-box;
+	flex-shrink: 0;
+}
+
+.checkout-page__left {
+	width: 45.833vw;
+}
+
+.checkout-page__right {
+	width: 45.833vw;
+}
+
+.checkout-page__right {
+	position: sticky;
+	top: 6.533vw;
+	max-height: calc(100vh - 6.533vw - 2.083vw);
+	overflow-y: auto;
 }
 
 .checkout-section {
@@ -3259,10 +3140,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
 	font-size: 1.875vw;
-	line-height: 1.1;
+	line-height: 100%;
 	letter-spacing: -0.03em;
 	color: #303030;
 	margin: 0 0 1.25vw 0;
+	vertical-align: middle;
 }
 
 .checkout-summary__title {
@@ -3279,9 +3161,532 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin-top: 1.25vw;
 }
 
+/* Checkout Form Fields Styles */
+.checkout-page .woocommerce-checkout input[type="text"],
+.checkout-page .woocommerce-checkout input[type="email"],
+.checkout-page .woocommerce-checkout input[type="tel"],
+.checkout-page .woocommerce-checkout input[type="number"],
+.checkout-page .woocommerce-checkout input[type="password"],
+.checkout-page .woocommerce-checkout input[type="date"],
+.checkout-page .woocommerce-checkout textarea,
+.checkout-page .woocommerce-checkout select,
+.checkout-page .checkout-section input[type="text"],
+.checkout-page .checkout-section input[type="email"],
+.checkout-page .checkout-section input[type="tel"],
+.checkout-page .checkout-section input[type="number"],
+.checkout-page .checkout-section input[type="password"],
+.checkout-page .checkout-section input[type="date"],
+.checkout-page .checkout-section textarea,
+.checkout-page .checkout-section select {
+	width: 100%;
+	padding: 1.042vw;
+	border: 1px solid rgba(48, 48, 48, 0.15);
+	border-radius: 0.26vw;
+	background-color: #F3F3F366;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #303030;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.checkout-page .woocommerce-checkout input[type="text"]::placeholder,
+.checkout-page .woocommerce-checkout input[type="email"]::placeholder,
+.checkout-page .woocommerce-checkout input[type="tel"]::placeholder,
+.checkout-page .woocommerce-checkout textarea::placeholder,
+.checkout-page .checkout-section input[type="text"]::placeholder,
+.checkout-page .checkout-section input[type="email"]::placeholder,
+.checkout-page .checkout-section input[type="tel"]::placeholder,
+.checkout-page .checkout-section textarea::placeholder {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #3030304D;
+	vertical-align: middle;
+}
+
+.checkout-page .woocommerce-checkout input[type="text"]:focus,
+.checkout-page .woocommerce-checkout input[type="email"]:focus,
+.checkout-page .woocommerce-checkout input[type="tel"]:focus,
+.checkout-page .woocommerce-checkout input[type="number"]:focus,
+.checkout-page .woocommerce-checkout input[type="password"]:focus,
+.checkout-page .woocommerce-checkout input[type="date"]:focus,
+.checkout-page .woocommerce-checkout textarea:focus,
+.checkout-page .woocommerce-checkout select:focus,
+.checkout-page .checkout-section input[type="text"]:focus,
+.checkout-page .checkout-section input[type="email"]:focus,
+.checkout-page .checkout-section input[type="tel"]:focus,
+.checkout-page .checkout-section input[type="number"]:focus,
+.checkout-page .checkout-section input[type="password"]:focus,
+.checkout-page .checkout-section input[type="date"]:focus,
+.checkout-page .checkout-section textarea:focus,
+.checkout-page .checkout-section select:focus {
+	outline: none;
+	border-color: #4DBD56;
+	box-shadow: 0 0 0 2px rgba(77, 189, 86, 0.1);
+}
+
+.checkout-page .woocommerce-checkout textarea,
+.checkout-page .checkout-section textarea {
+	resize: vertical;
+	min-height: 6.25vw;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+.checkout-page .woocommerce-checkout select,
+.checkout-page .checkout-section select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23303030' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 1.042vw center;
+	background-size: 0.833vw;
+	padding-right: 3.125vw;
+}
+
+/* Checkout Labels */
+.checkout-page .woocommerce-checkout label,
+.checkout-page .checkout-section label,
+.checkout-page form.checkout label {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 1.25vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #30303099;
+	margin-bottom: 0.833vw;
+	display: block;
+	vertical-align: middle;
+}
+
+.checkout-page .required {
+	color: #30303099;
+}
+
+/* Checkout Form Rows */
+.checkout-page .woocommerce-checkout .form-row,
+.checkout-page .checkout-section .form-row {
+	margin-bottom: 0;
+}
+
+.checkout-page .woocommerce-checkout .form-row.hidden,
+.checkout-page .checkout-section .form-row.hidden {
+	display: none;
+}
+
+.checkout-page .woocommerce-checkout .form-row.form-row-first,
+.checkout-page .woocommerce-checkout .form-row.form-row-last,
+.checkout-page .checkout-section .form-row.form-row-first,
+.checkout-page .checkout-section .form-row.form-row-last {
+	width: 48%;
+}
+
+.checkout-page .woocommerce-checkout .form-row.form-row-wide,
+.checkout-page .checkout-section .form-row.form-row-wide {
+	width: 100%;
+}
+
+.checkout-page .woocommerce-checkout .form-row.form-row-first,
+.checkout-page .checkout-section .form-row.form-row-first {
+	float: left;
+}
+
+.checkout-page .woocommerce-checkout .form-row.form-row-last,
+.checkout-page .checkout-section .form-row.form-row-last {
+	float: right;
+}
+
+.checkout-page .woocommerce-checkout .form-row::after,
+.checkout-page .checkout-section .form-row::after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+/* Checkout Submit Button */
+.checkout-section--submit {
+	margin-top: 2.083vw;
+	padding-top: 0;
+}
+
+.checkout-submit-button {
+	width: 100%;
+	padding: 1.042vw 2.604vw;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background-color: #4DBD56;
+	color: #ffffff;
+	text-decoration: none;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 0.938vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+	box-sizing: border-box;
+	text-align: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	filter: none !important;
+}
+
+.checkout-submit-button:hover,
+.checkout-submit-button:focus-visible {
+	background-color: transparent;
+	border-color: #4DBD56;
+	color: #303030;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	filter: none !important;
+}
+
+/* Payment Methods */
+.checkout-section--payment .checkout-section__group {
+	margin-top: 2.083vw;
+}
+
+.checkout-page .wc_payment_methods {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.521vw;
+}
+
+.checkout-page .wc_payment_methods li {
+	margin: 0;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	overflow: visible;
+}
+
+.checkout-page .wc_payment_methods label {
+	margin: 0 !important;
+	margin-bottom: 0 !important;
+	padding: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 1.031vw;
+	letter-spacing: -0.02em;
+	color: #30303099;
+	white-space: nowrap;
+}
+
+.checkout-page .wc_payment_methods label img {
+	display: none !important;
+}
+
+.checkout-page .wc_payment_methods label .payment-method-description {
+	color: #3030304D;
+}
+
+.checkout-page .wc_payment_methods input[type="radio"] {
+	margin: 0;
+	margin-right: 0.719vw;
+	width: 0.719vw;
+	height: 0.719vw;
+	min-width: 0.719vw;
+	min-height: 0.719vw;
+	max-width: 0.719vw;
+	max-height: 0.719vw;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	border: 1px solid #30303066;
+	border-radius: 50%;
+	background-color: transparent;
+	cursor: pointer;
+	flex-shrink: 0;
+	flex-grow: 0;
+	padding: 0;
+	box-sizing: border-box;
+	align-self: center;
+}
+
+.checkout-page .wc_payment_methods input[type="radio"]:checked {
+	background-color: #4DBD56;
+	border-color: #30303066;
+}
+
+.checkout-page .payment_box {
+	margin-top: 0.833vw;
+	padding: 1.042vw;
+	background-color: #F3F3F366;
+	border-radius: 8px;
+	font-size: 0.938vw;
+}
+
+.checkout-page .payment_box p {
+	margin: 0;
+	font-size: 0.938vw;
+}
+
+/* Checkout Order Review Styles */
+.checkout-order-review {
+	margin: 0;
+	padding: 0;
+}
+
+.checkout-order-review__items {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.checkout-order-review__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 1.042vw;
+	padding: 1.563vw 0;
+	border-bottom: 1px solid #30303066;
+}
+
+.checkout-order-review__item:first-of-type {
+	border-top: 1px solid #30303066;
+	border-bottom: 1px solid #30303066;
+}
+
+.checkout-order-review__item-image {
+	flex-shrink: 0;
+	width: 6.606vw;
+	height: 3.594vw;
+	border-radius: 0.26vw;
+	overflow: hidden;
+	background-color: #F3F3F3;
+}
+
+.checkout-order-review__item-image img,
+.checkout-order-review__item-image .attachment-woocommerce_thumbnail,
+.checkout-order-review__item-image .size-woocommerce_thumbnail {
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	object-position: center center !important;
+	display: block;
+}
+
+.checkout-order-review__item-details {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 3.594vw;
+}
+
+.checkout-order-review__item-name {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 1.25vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: #303030;
+	vertical-align: middle;
+}
+
+.checkout-order-review__item-name a {
+	color: #303030;
+	text-decoration: none;
+}
+
+.checkout-order-review__item-unit {
+	color: rgba(48, 48, 48, 0.6);
+	font-weight: 400;
+}
+
+.checkout-order-review__item-price {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 1.25vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: #303030;
+	vertical-align: middle;
+	position: relative;
+}
+
+.checkout-order-review__item-price::before {
+	content: 'Вартість товару: ';
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 1.25vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: #30303066;
+	vertical-align: middle;
+}
+
+.checkout-order-review__totals {
+	margin-top: 1.25vw;
+	padding-top: 1.25vw;
+	border-top: 1px solid rgba(48, 48, 48, 0.1);
+}
+
+.checkout-order-review__subtotal,
+.checkout-order-review__total {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.833vw;
+}
+
+.checkout-order-review__subtotal:last-child,
+.checkout-order-review__total:last-child {
+	margin-bottom: 0;
+}
+
+.checkout-order-review__subtotal-label,
+.checkout-order-review__total-label {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 400;
+	font-size: 0.938vw;
+	color: rgba(48, 48, 48, 0.6);
+}
+
+.checkout-order-review__subtotal-value,
+.checkout-order-review__total-value {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 0.938vw;
+	color: #303030;
+}
+
+.checkout-order-review__total {
+	margin-top: 0.833vw;
+	padding-top: 0.833vw;
+	border-top: 1px solid rgba(48, 48, 48, 0.1);
+}
+
+.checkout-order-review__total-label {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 1.875vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: #30303066;
+	vertical-align: middle;
+}
+
+.checkout-order-review__total-value {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 1.875vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: #303030;
+	vertical-align: middle;
+}
+
+/* Скрыть мобильную кнопку на десктопе */
+.checkout-order-review__mobile-submit {
+	display: none;
+}
+
+.checkout-order-review__discount {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.833vw;
+}
+
+.checkout-order-review__discount-label,
+.checkout-order-review__discount-value {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 400;
+	font-size: 0.938vw;
+	color: rgba(48, 48, 48, 0.6);
+}
+
+/* Coupon Section */
+.checkout-order-review__coupon {
+	margin-top: 3.125vw;
+	padding-top: 0;
+	border-top: none;
+}
+
+.checkout-order-review__coupon-label {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 1.25vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #30303099;
+	vertical-align: middle;
+	margin-bottom: 0.833vw;
+	display: block;
+}
+
+.checkout-order-review__coupon-input-wrapper {
+	display: flex;
+	justify-content: space-between;
+	gap: 0;
+}
+
+.checkout-order-review__coupon-input {
+	width: 21.615vw !important;
+	min-width: 21.615vw !important;
+	max-width: 21.615vw !important;
+	flex: none !important;
+	padding: 0.833vw 1.042vw;
+	border: 1px solid rgba(48, 48, 48, 0.15) !important;
+	border-radius: 999999px !important;
+	background-color: #F3F3F366 !important;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+	font-weight: 500 !important;
+	font-size: 0.938vw !important;
+	color: #303030 !important;
+	box-sizing: border-box;
+	outline: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+.checkout-order-review__coupon-input::placeholder {
+	color: rgba(48, 48, 48, 0.3);
+}
+
+.checkout-order-review__coupon-button {
+	width: 19.531vw;
+	flex: none;
+	padding: 0.833vw 1.563vw;
+	border: 2px solid transparent;
+	border-radius: 99999999px;
+	background-color: #303030;
+	color: #ffffff;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	cursor: pointer;
+	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+	box-sizing: border-box;
+}
+
+.checkout-order-review__coupon-button:hover {
+	background-color: transparent;
+	border-color: #303030;
+	color: #303030;
+}
+
 @media (max-width: 768px) {
 	.checkout-page {
-		padding-top: 8.333vw;
+		padding-top: 0;
 		padding-bottom: 10.667vw;
 	}
 
@@ -3294,20 +3699,243 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.checkout-page__layout {
 		display: flex;
-		flex-direction: column-reverse;
+		flex-direction: column;
 		gap: 5.333vw;
 	}
 
 	.checkout-page__left,
 	.checkout-page__right {
+		position: static;
+		width: 100% !important;
+		max-height: none;
+		overflow-y: visible;
 		border-radius: 2.667vw;
 		padding: 5.333vw;
 	}
 
 	.checkout-section__title,
 	.checkout-summary__title {
-		font-size: 4.8vw;
+		font-size: 5.333vw;
 		margin-bottom: 4vw;
+	}
+
+	/* Скрываем кнопку подтверждения в левой колонке на мобильном */
+	.checkout-section--submit {
+		display: none;
+	}
+
+	/* Checkout Form Fields Mobile */
+	.checkout-page .woocommerce-checkout input[type="text"],
+	.checkout-page .woocommerce-checkout input[type="email"],
+	.checkout-page .woocommerce-checkout input[type="tel"],
+	.checkout-page .woocommerce-checkout input[type="number"],
+	.checkout-page .woocommerce-checkout input[type="password"],
+	.checkout-page .woocommerce-checkout input[type="date"],
+	.checkout-page .woocommerce-checkout textarea,
+	.checkout-page .woocommerce-checkout select,
+	.checkout-page .checkout-section input[type="text"],
+	.checkout-page .checkout-section input[type="email"],
+	.checkout-page .checkout-section input[type="tel"],
+	.checkout-page .checkout-section input[type="number"],
+	.checkout-page .checkout-section input[type="password"],
+	.checkout-page .checkout-section input[type="date"],
+	.checkout-page .checkout-section textarea,
+	.checkout-page .checkout-section select {
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	/* Placeholders Mobile */
+	.checkout-page .woocommerce-checkout input[type="text"]::placeholder,
+	.checkout-page .woocommerce-checkout input[type="email"]::placeholder,
+	.checkout-page .woocommerce-checkout input[type="tel"]::placeholder,
+	.checkout-page .woocommerce-checkout textarea::placeholder,
+	.checkout-page .checkout-section input[type="text"]::placeholder,
+	.checkout-page .checkout-section input[type="email"]::placeholder,
+	.checkout-page .checkout-section input[type="tel"]::placeholder,
+	.checkout-page .checkout-section textarea::placeholder {
+		font-size: 4vw;
+	}
+
+	.checkout-page .woocommerce-checkout textarea,
+	.checkout-page .checkout-section textarea {
+		min-height: 24vw;
+	}
+
+	.checkout-page .woocommerce-checkout select,
+	.checkout-page .checkout-section select {
+		background-size: 3.2vw;
+		padding-right: 12vw;
+		background-position: right 4vw center;
+	}
+
+	/* Checkout Labels Mobile */
+	.checkout-page .woocommerce-checkout label,
+	.checkout-page .checkout-section label,
+	.checkout-page form.checkout label {
+		font-size: 4vw;
+		margin-bottom: 3.2vw;
+		vertical-align: middle;
+	}
+
+	/* Checkout Form Rows Mobile */
+	.checkout-page .woocommerce-checkout .form-row,
+	.checkout-page .checkout-section .form-row {
+		margin-bottom: 5.333vw;
+	}
+
+	.checkout-page .woocommerce-checkout .form-row.form-row-first,
+	.checkout-page .woocommerce-checkout .form-row.form-row-last,
+	.checkout-page .checkout-section .form-row.form-row-first,
+	.checkout-page .checkout-section .form-row.form-row-last {
+		width: 100%;
+		float: none;
+	}
+
+	/* Payment Methods Mobile */
+	.checkout-section--payment .checkout-section__group {
+		margin-top: 5.333vw;
+	}
+
+	.checkout-page .wc_payment_methods li {
+		margin-bottom: 4vw;
+		padding: 0;
+	}
+
+	.checkout-page .wc_payment_methods label {
+		font-size: 4vw;
+		line-height: 120%;
+	}
+
+	.checkout-page .wc_payment_methods input[type="radio"] {
+		width: 5vw;
+		height: 5vw;
+		margin-right: 3vw;
+		min-width: 5vw;
+		min-height: 5vw;
+		max-width: 5vw;
+		max-height: 5vw;
+	}
+
+	.checkout-page .payment_box {
+		margin-top: 3.2vw;
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	.checkout-page .payment_box p {
+		font-size: 4vw;
+	}
+
+	/* Checkout Order Review Mobile */
+	.checkout-order-review__item {
+		gap: 4vw;
+		padding: 5.333vw 0;
+	}
+
+	.checkout-order-review__item-image {
+		width: 25vw;
+		height: auto;
+		aspect-ratio: 750 / 408;
+		border-radius: 2.667vw;
+	}
+
+	.checkout-order-review__item-details {
+		height: auto;
+		gap: 2vw;
+		justify-content: center;
+	}
+
+	.checkout-order-review__item-name {
+		font-size: 4vw;
+	}
+
+	.checkout-order-review__item-price {
+		font-size: 4vw;
+	}
+
+	.checkout-order-review__item-price::before {
+		font-size: 4vw;
+	}
+
+	.checkout-order-review__totals {
+		margin-top: 5.333vw;
+		padding-top: 5.333vw;
+	}
+
+	.checkout-order-review__subtotal,
+	.checkout-order-review__total {
+		margin-bottom: 4vw;
+	}
+
+	.checkout-order-review__subtotal-label,
+	.checkout-order-review__total-label {
+		font-size: 5vw;
+	}
+
+	.checkout-order-review__subtotal-value,
+	.checkout-order-review__total-value {
+		font-size: 5vw;
+	}
+
+	.checkout-order-review__total {
+		margin-top: 4vw;
+		padding-top: 4vw;
+	}
+
+	.checkout-order-review__total-label {
+		font-size: 5.333vw;
+	}
+
+	.checkout-order-review__total-value {
+		font-size: 5.333vw;
+	}
+
+	.checkout-order-review__coupon {
+		margin-top: 5.333vw;
+		padding-top: 0;
+	}
+
+	.checkout-order-review__coupon-label {
+		font-size: 4vw;
+		margin-bottom: 3.2vw;
+	}
+
+	.checkout-order-review__coupon-input-wrapper {
+		flex-direction: column;
+		gap: 3.2vw;
+		justify-content: flex-start;
+	}
+
+	.checkout-order-review__coupon-input {
+		width: 100% !important;
+		min-width: 100% !important;
+		max-width: 100% !important;
+		padding: 4vw;
+		border-radius: 999999px;
+		font-size: 4vw;
+	}
+
+	.checkout-order-review__coupon-button {
+		width: 100%;
+		padding: 4vw;
+		border-radius: 99999999px;
+		font-size: 4vw;
+	}
+
+	/* Кнопка подтверждения под ценой в правой колонке - только для мобильной версии */
+	.checkout-order-review__mobile-submit {
+		display: block;
+		margin-top: 5.333vw;
+	}
+
+	.checkout-order-review__mobile-submit .checkout-submit-button {
+		width: 100%;
+		padding: 4vw 8vw;
+		font-size: 4vw;
+		border-radius: 999999px;
 	}
 }
 /* ---------- Пагинация каталога ---------- */
@@ -3447,7 +4075,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 .single-product__image-wrapper {
 	width: 45.833vw;
-	height: 45.833vw; /* квадрат, картинка на всю ширину контейнера */
+	height: 30.625vw;
 	flex-shrink: 0;
 	margin: 0;
 	padding: 0;
@@ -5277,6 +5905,7 @@ body.mini-cart-open {
 		height: 100%;
 		display: block;
 		object-fit: cover;
+		object-position: center center;
 	}
 
 	.shop-archive-hero__content {
