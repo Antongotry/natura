@@ -2109,7 +2109,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 
 	.site-header--not-home .site-header__menu-item a {
-		color: rgba(48, 48, 48, 0.5) !important; /* #30303080 */
+		color: #303030 !important;
 	}
 
 	.site-header--not-home .site-header__menu-item a:hover,
