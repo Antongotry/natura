@@ -6115,13 +6115,80 @@ li.product .product-card,
 
 .mini-cart-sidebar .woocommerce-mini-cart__empty-message {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
-	font-weight: 400;
+	font-weight: 500;
 	font-size: 1.042vw;
-	line-height: 1.5;
-	color: #303030;
+	line-height: 140%;
+	color: rgba(48, 48, 48, 0.7);
 	text-align: center;
-	padding: 4.167vw 0;
-	margin: 0;
+	padding: 3.125vw 2.083vw;
+	margin: 0 1.563vw;
+	border: 1px solid rgba(48, 48, 48, 0.12);
+	border-radius: 1.25vw;
+	background: rgba(255, 255, 255, 0.6);
+	backdrop-filter: blur(10px);
+}
+
+/* Empty state: no products found (archive) */
+.shop-archive-products .woocommerce-info,
+.woocommerce .woocommerce-info {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 1.042vw;
+	line-height: 140%;
+	letter-spacing: -0.03em;
+	color: rgba(48, 48, 48, 0.7);
+	background: rgba(255, 255, 255, 0.6);
+	border: 1px solid rgba(48, 48, 48, 0.12);
+	border-radius: 1.25vw;
+	padding: 1.563vw 1.563vw;
+	margin: 1.563vw 0;
+	backdrop-filter: blur(10px);
+}
+
+.shop-archive-products .woocommerce-info::before,
+.woocommerce .woocommerce-info::before {
+	display: none;
+}
+
+@media (max-width: 1025px) {
+	.mini-cart-sidebar .woocommerce-mini-cart__empty-message {
+		font-size: 4.103vw;
+		border-radius: 5.128vw;
+		padding: 8.205vw 5.128vw;
+		margin: 0 5.128vw;
+	}
+
+	.shop-archive-products .woocommerce-info,
+	.woocommerce .woocommerce-info {
+		font-size: 4.103vw;
+		border-radius: 5.128vw;
+		padding: 5.128vw;
+		margin: 5.128vw 0;
+	}
+}
+
+/* Smooth interactions */
+.shop-archive-filters__item a,
+.shop-filter-list__link,
+.product-card__button-wrapper .button,
+.product-card__button-wrapper .add_to_cart_button,
+.product-card__quantity-wrapper,
+.product-card__quantity-wrapper .quantity-button,
+.mini-cart-item__quantity-button,
+.mini-cart-item__remove,
+.single-product__summary form.cart .quantity-button,
+.single-product__summary form.cart .single_add_to_cart_button {
+	transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.product-card__quantity-wrapper.show,
+.product-card__quantity-wrapper[style*="display: flex"] {
+	transition: opacity 0.25s ease, transform 0.25s ease;
+	transform: translateY(0);
+}
+
+.product-card__button-wrapper .product-card__quantity-wrapper:not(.show):not([style*="display: flex"]) {
+	transform: translateY(4px);
 }
 
 /* Prevent body scroll when cart is open */
