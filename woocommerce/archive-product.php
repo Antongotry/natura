@@ -69,9 +69,20 @@ get_header( 'shop' ); ?>
 					
 					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
 						$current_term = get_queried_object();
-						$shop_url     = function_exists( 'wc_get_page_permalink' )
-							? wc_get_page_permalink( 'shop' )
-							: ( function_exists( 'wc_get_page_id' ) ? get_permalink( wc_get_page_id( 'shop' ) ) : home_url( '/' ) );
+						// URL "Всі товари" (надежный fallback, даже если shop page не настроена)
+						$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
+						if ( empty( $shop_url ) && function_exists( 'wc_get_page_id' ) ) {
+							$shop_page_id = wc_get_page_id( 'shop' );
+							if ( $shop_page_id && $shop_page_id > 0 ) {
+								$shop_url = get_permalink( $shop_page_id );
+							}
+						}
+						if ( empty( $shop_url ) && function_exists( 'get_post_type_archive_link' ) ) {
+							$shop_url = get_post_type_archive_link( 'product' );
+						}
+						if ( empty( $shop_url ) ) {
+							$shop_url = home_url( '/?post_type=product' );
+						}
 						?>
 						<ul class="shop-filter-list">
 							<?php
@@ -138,9 +149,20 @@ get_header( 'shop' ); ?>
 
 					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
 						$current_term = get_queried_object();
-						$shop_url     = function_exists( 'wc_get_page_permalink' )
-							? wc_get_page_permalink( 'shop' )
-							: ( function_exists( 'wc_get_page_id' ) ? get_permalink( wc_get_page_id( 'shop' ) ) : home_url( '/' ) );
+						// URL "Всі товари" (надежный fallback, даже если shop page не настроена)
+						$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
+						if ( empty( $shop_url ) && function_exists( 'wc_get_page_id' ) ) {
+							$shop_page_id = wc_get_page_id( 'shop' );
+							if ( $shop_page_id && $shop_page_id > 0 ) {
+								$shop_url = get_permalink( $shop_page_id );
+							}
+						}
+						if ( empty( $shop_url ) && function_exists( 'get_post_type_archive_link' ) ) {
+							$shop_url = get_post_type_archive_link( 'product' );
+						}
+						if ( empty( $shop_url ) ) {
+							$shop_url = home_url( '/?post_type=product' );
+						}
 						?>
 						<ul class="shop-archive-filters">
 							<?php
