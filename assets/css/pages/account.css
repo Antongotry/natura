@@ -168,6 +168,12 @@
 	color: #303030;
 }
 
+.account-form__submit:focus-visible {
+	outline: none;
+	background: transparent;
+	border-color: #4DBD56;
+	color: #303030;
+}
 .account-form__message {
 	padding: 12px 16px;
 	border-radius: 8px;
@@ -407,6 +413,12 @@
 	color: #303030;
 }
 
+.woocommerce-EditAccountForm .woocommerce-Button:focus-visible {
+	outline: none;
+	background: transparent;
+	border-color: #4DBD56;
+	color: #303030;
+}
 /* Address Form */
 .woocommerce-address-fields label {
 	display: block;
@@ -439,6 +451,13 @@
 }
 
 .woocommerce-address-fields button[type="submit"]:hover {
+	background: transparent;
+	border-color: #4DBD56;
+	color: #303030;
+}
+
+.woocommerce-address-fields button[type="submit"]:focus-visible {
+	outline: none;
 	background: transparent;
 	border-color: #4DBD56;
 	color: #303030;
