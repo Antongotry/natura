@@ -2442,9 +2442,10 @@ const initQuantityButtons = () => {
 						console.log('[handleQuantityClick] Товар в корзине:', cartItemKey ? 'да' : 'нет', 'текущее количество:', currentCartQuantity);
 						
 						if (cartItemKey && currentCartQuantity > 0) {
-							// Товар уже в корзине - обновляем количество через update_cart
-							const newTotalQuantity = Math.max(1, currentCartQuantity + quantityDelta);
-							console.log('[handleQuantityClick] Обновляем количество в корзине с', currentCartQuantity, 'на', newTotalQuantity);
+							// Товар уже в корзине - устанавливаем количество равным выбранному в каталоге (newVal)
+							// Пользователь выбирает общее количество, которое хочет, а не добавляет к существующему
+							const newTotalQuantity = Math.max(1, newVal);
+							console.log('[handleQuantityClick] Устанавливаем количество в корзине на', newTotalQuantity, '(выбрано в каталоге:', newVal, ')');
 							
 							const form = document.createElement('form');
 							form.method = 'POST';
@@ -2635,6 +2636,19 @@ const initProductCardAddToCart = () => {
 			try {
 				// Используем стандартный механизм WooCommerce для добавления в корзину
 				if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+					// Получаем количество из quantity-wrapper если он виден
+					const buttonWrapper = newButton.closest('.product-card__button-wrapper');
+					let quantity = 1;
+					if (buttonWrapper) {
+						const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
+						if (quantityWrapper && quantityWrapper.style.display !== 'none') {
+							const quantityInput = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+							if (quantityInput) {
+								quantity = parseInt(quantityInput.value) || 1;
+							}
+						}
+					}
+					
 					// Если доступен jQuery и WooCommerce AJAX
 					jQuery(document.body).trigger('adding_to_cart', [newButton, {}]);
 					
@@ -2643,7 +2657,7 @@ const initProductCardAddToCart = () => {
 						url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
 						data: {
 							product_id: productId,
-							quantity: 1,
+							quantity: quantity,
 						},
 						dataType: 'json',
 						success: function(response) {
@@ -3381,6 +3395,8 @@ const initMiniCart = () => {
 									jQuery(key).replaceWith(value);
 								}
 							});
+							// Обновляем итоговую сумму корзины
+							jQuery(document.body).trigger('updated_cart_totals');
 						}
 						jQuery(document.body).trigger('wc_fragment_refresh');
 					},
