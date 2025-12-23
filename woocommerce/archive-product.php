@@ -63,12 +63,26 @@ get_header( 'shop' ); ?>
 						)
 					);
 
+					// Исключаем категорию "без категорії"
+					$excluded_slugs = array( 'uncategorized', 'bez-kategoriyi', 'bez-kategorii' );
+					$excluded_names = array( 'без категорії', 'без категории' );
+					
 					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
 						$current_term = get_queried_object();
 						?>
 						<ul class="shop-filter-list">
 							<?php foreach ( $shop_categories as $cat ) : ?>
 								<?php
+								// Пропускаем исключенные категории
+								$slug_match = in_array( $cat->slug, $excluded_slugs, true );
+								$name_match = function_exists( 'mb_strtolower' )
+									? in_array( mb_strtolower( $cat->name ), $excluded_names, true )
+									: in_array( strtolower( $cat->name ), $excluded_names, true );
+								
+								if ( $slug_match || $name_match ) {
+									continue;
+								}
+								
 								$is_active = ( $current_term instanceof WP_Term ) && $current_term->taxonomy === 'product_cat' && (int) $current_term->term_id === (int) $cat->term_id;
 								$item_classes = 'shop-filter-list__item' . ( $is_active ? ' shop-filter-list__item--active' : '' );
 								?>
@@ -105,12 +119,26 @@ get_header( 'shop' ); ?>
 						)
 					);
 
+					// Исключаем категорию "без категорії"
+					$excluded_slugs = array( 'uncategorized', 'bez-kategoriyi', 'bez-kategorii' );
+					$excluded_names = array( 'без категорії', 'без категории' );
+
 					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
 						$current_term = get_queried_object();
 						?>
 						<ul class="shop-archive-filters">
 							<?php foreach ( $shop_categories as $cat ) : ?>
 								<?php
+								// Пропускаем исключенные категории
+								$slug_match = in_array( $cat->slug, $excluded_slugs, true );
+								$name_match = function_exists( 'mb_strtolower' )
+									? in_array( mb_strtolower( $cat->name ), $excluded_names, true )
+									: in_array( strtolower( $cat->name ), $excluded_names, true );
+								
+								if ( $slug_match || $name_match ) {
+									continue;
+								}
+								
 								$is_active = ( $current_term instanceof WP_Term ) && $current_term->taxonomy === 'product_cat' && (int) $current_term->term_id === (int) $cat->term_id;
 								$item_classes = 'shop-archive-filters__item' . ( $is_active ? ' shop-archive-filters__item--active' : '' );
 								?>

@@ -4486,6 +4486,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	background-color: #4DBD56;
 	border-radius: 9999px;
 	margin: 0;
+	margin-bottom: 2vw;
 	line-height: 1;
 	width: fit-content;
 	align-self: flex-start;
@@ -4622,7 +4623,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		gap: 2.667vw !important;
 		padding: 2.667vw 4vw !important;
 		margin: 0 !important;
-		margin-bottom: 0 !important;
+		margin-bottom: 4vw !important;
 		order: 1 !important;
 		position: relative !important;
 		z-index: 1 !important;
