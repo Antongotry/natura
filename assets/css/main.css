@@ -4710,7 +4710,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.single-product__summary .single-product__full-description {
 		font-size: 3.2vw !important;
-		line-height: 140% !important;
+		line-height: 170% !important;
 		margin: 0 !important;
 		margin-top: 5.333vw !important;
 		padding: 0 !important;
@@ -4726,7 +4726,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.single-product__summary .single-product__full-description p {
 		font-size: 3.2vw !important;
-		line-height: 140% !important;
+		line-height: 170% !important;
 		margin: 0 !important;
 		margin-bottom: 2.667vw !important;
 		padding: 0 !important;
@@ -4911,7 +4911,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Product Title and Price Container - same row */
 .single-product__title-price-wrapper {
 	display: flex;
-	align-items: flex-start;
+	align-items: flex-end;
 	justify-content: space-between;
 	width: 100%;
 	gap: 1vw;
@@ -4989,7 +4989,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	font-weight: 600;
 	font-style: normal;
 	font-size: 0.9375vw; /* 18px / 1920 */
-	line-height: 100%;
+	line-height: 160%;
 	letter-spacing: -0.03em; /* -3% */
 	vertical-align: middle;
 	color: #303030;
@@ -5005,7 +5005,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
 	font-size: 0.9375vw;
-	line-height: 100%;
+	line-height: 160%;
 	letter-spacing: -0.03em;
 	color: #303030;
 }
