@@ -32,7 +32,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="checkout-order-review__item">
 					<div class="checkout-order-review__item-image">
 						<?php
-						$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
+						// Используем woocommerce_single для сохранения пропорций изображения
+						$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image( 'woocommerce_single' ), $cart_item, $cart_item_key );
 						if ( ! $product_permalink ) {
 							echo $thumbnail; // PHPCS: XSS ok.
 						} else {

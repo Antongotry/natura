@@ -3806,7 +3806,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 .checkout-order-review__item-image img,
 .checkout-order-review__item-image .attachment-woocommerce_thumbnail,
-.checkout-order-review__item-image .size-woocommerce_thumbnail {
+.checkout-order-review__item-image .attachment-woocommerce_single,
+.checkout-order-review__item-image .size-woocommerce_thumbnail,
+.checkout-order-review__item-image .size-woocommerce_single,
+.checkout-order-review__item-image .wp-post-image {
 	width: 100% !important;
 	height: auto !important;
 	display: block;
