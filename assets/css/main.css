@@ -5355,7 +5355,7 @@ li.product .product-card,
 .product-card__image-wrapper .woocommerce-placeholder {
 	width: 100% !important;
 	height: 100% !important;
-	object-fit: cover;
+	object-fit: contain;
 	object-position: center;
 	display: block;
 	border-radius: 0.26vw;
@@ -6473,7 +6473,7 @@ body.mini-cart-open {
 	.product-card__image-wrapper .attachment-woocommerce_thumbnail {
 		width: 100% !important;
 		height: 100% !important;
-		object-fit: cover !important;
+		object-fit: contain !important;
 		border-radius: 1.333vw !important;
 		display: block !important;
 	}
