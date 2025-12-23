@@ -26,7 +26,11 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 				$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
 				$product_unit      = get_post_meta( $product_id, '_product_unit', true ) ?: 'шт';
 				?>
-				<li class="woocommerce-mini-cart-item <?php echo esc_attr( apply_filters( 'woocommerce_mini_cart_item_class', 'mini_cart_item', $cart_item, $cart_item_key ) ); ?>">
+				<li
+					class="woocommerce-mini-cart-item <?php echo esc_attr( apply_filters( 'woocommerce_mini_cart_item_class', 'mini_cart_item', $cart_item, $cart_item_key ) ); ?>"
+					data-product-id="<?php echo esc_attr( $product_id ); ?>"
+					data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>"
+				>
 					<div class="mini-cart-item__image">
 						<?php if ( empty( $product_permalink ) ) : ?>
 							<?php echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -47,9 +51,21 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 							<?php endif; ?>
 						</div>
 						<div class="mini-cart-item__quantity-wrapper">
-							<button type="button" class="mini-cart-item__quantity-button mini-cart-item__quantity-button--minus" data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>" aria-label="<?php esc_attr_e( 'Зменшити кількість', 'natura' ); ?>">−</button>
+							<button
+								type="button"
+								class="mini-cart-item__quantity-button mini-cart-item__quantity-button--minus"
+								data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>"
+								data-product-id="<?php echo esc_attr( $product_id ); ?>"
+								aria-label="<?php esc_attr_e( 'Зменшити кількість', 'natura' ); ?>"
+							>−</button>
 							<span class="mini-cart-item__quantity-value"><?php echo esc_html( $cart_item['quantity'] ); ?> <?php echo esc_html( $product_unit ); ?></span>
-							<button type="button" class="mini-cart-item__quantity-button mini-cart-item__quantity-button--plus" data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>" data-product-id="<?php echo esc_attr( $product_id ); ?>" aria-label="<?php esc_attr_e( 'Збільшити кількість', 'natura' ); ?>">+</button>
+							<button
+								type="button"
+								class="mini-cart-item__quantity-button mini-cart-item__quantity-button--plus"
+								data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>"
+								data-product-id="<?php echo esc_attr( $product_id ); ?>"
+								aria-label="<?php esc_attr_e( 'Збільшити кількість', 'natura' ); ?>"
+							>+</button>
 						</div>
 						<div class="mini-cart-item__price">
 							<span class="mini-cart-item__price-label">Вартість товару : </span>

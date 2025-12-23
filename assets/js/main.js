@@ -73,7 +73,10 @@ const refreshCartFragments = (callback) => {
 					jQuery(key).replaceWith(value);
 				});
 			}
-			jQuery(document.body).trigger('wc_fragment_refresh');
+			// Не триггерим wc_fragment_refresh здесь: это вызывает повторные запросы (и лаги),
+			// потому что WooCommerce и/или наш код могут слушать этот эвент и снова дергать фрагменты.
+			jQuery(document.body).trigger('wc_fragments_refreshed');
+			jQuery(document.body).trigger('natura_fragments_refreshed');
 			jQuery(document.body).trigger('updated_cart_totals');
 			if (callback) callback(response);
 		}
@@ -226,54 +229,66 @@ const updateCartCountGlobal = debounce(() => {
 		return;
 	}
 
-	wcAjax('get_refreshed_fragments', {}, {
-		success: function(response) {
-			if (response && response.fragments) {
-				const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
-				                    response.fragments['.widget_shopping_cart_content'] ||
-				                    Object.values(response.fragments).find(fragment => 
-				                    	typeof fragment === 'string' && fragment.includes('cart_item')
-				                    );
-				
-				if (cartContent) {
-					const tempDiv = document.createElement('div');
-					tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
-					const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, .woocommerce-mini-cart-item');
-					let totalQuantity = 0;
-					
-					cartItems.forEach(item => {
-						const quantityElement = item.querySelector('.quantity, .mini-cart-item__quantity-value, .woocommerce-mini-cart-item__quantity');
-						if (quantityElement) {
-							const quantityText = quantityElement.textContent.trim();
-							const quantity = parseInt(quantityText) || 0;
-							totalQuantity += quantity;
-						}
-					});
-					
-					if (totalQuantity > 0) {
-						cartCountElements.forEach(element => {
-							element.textContent = totalQuantity;
-							element.style.display = 'flex';
-						});
-					} else {
-						cartCountElements.forEach(element => {
-							element.textContent = '0';
-							element.style.display = 'none';
-						});
-					}
-				} else {
-					cartCountElements.forEach(element => {
-						element.textContent = '0';
-						element.style.display = 'none';
-					});
-				}
-			}
-		},
-		error: function() {
+	const setCount = (totalQuantity) => {
+		if (totalQuantity > 0) {
+			cartCountElements.forEach(element => {
+				element.textContent = String(totalQuantity);
+				element.style.display = 'flex';
+			});
+		} else {
 			cartCountElements.forEach(element => {
 				element.textContent = '0';
 				element.style.display = 'none';
 			});
+		}
+	};
+
+	// Если CartManager уже загрузил состояние корзины — обновляем без лишних запросов
+	if (typeof CartManager !== 'undefined' && CartManager && CartManager.hasLoaded) {
+		let totalQuantity = 0;
+		CartManager.cartState.forEach((item) => {
+			totalQuantity += parseInt(item?.quantity) || 0;
+		});
+		setCount(totalQuantity);
+		return;
+	}
+
+	// Fallback: если состояние еще не загружено, берем количество из фрагментов
+	wcAjax('get_refreshed_fragments', {}, {
+		success: function(response) {
+			if (!response || !response.fragments) {
+				return;
+			}
+
+			const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
+			                    response.fragments['.widget_shopping_cart_content'] ||
+			                    Object.values(response.fragments).find(fragment => 
+			                    	typeof fragment === 'string' && fragment.includes('cart_item')
+			                    );
+
+			if (!cartContent) {
+				setCount(0);
+				return;
+			}
+
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+			const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, .woocommerce-mini-cart-item');
+			let totalQuantity = 0;
+
+			cartItems.forEach(item => {
+				const quantityElement = item.querySelector('.quantity, .mini-cart-item__quantity-value, .woocommerce-mini-cart-item__quantity');
+				if (quantityElement) {
+					const quantityText = quantityElement.textContent.trim();
+					const quantity = parseInt(quantityText) || 0;
+					totalQuantity += quantity;
+				}
+			});
+
+			setCount(totalQuantity);
+		},
+		error: function() {
+			setCount(0);
 		}
 	});
 }, 200);
@@ -2421,15 +2436,595 @@ const updateCartCountGlobal = debounce(() => {
 		initParallax(lenis);
 		initPromoCodeCopy();
 		initSmoothAnchorScroll(lenis);
+		// Инициализируем CartManager первым
+		CartManager.init();
 		initQuantityButtons();
 		initRelatedProductsCarousel();
 		initProductCardAddToCart();
 		initMiniCart();
 		initShopFilterDrawer();
 		preventProductCardLayoutShift();
-		checkCartForProducts();
 	});
 })();
+
+/**
+ * Менеджер состояния корзины - единый источник истины
+ * Предотвращает конфликты и мигание интерфейса
+ */
+const CartManager = {
+	// Текущее состояние корзины (кэш)
+	cartState: new Map(),
+	// Флаг: состояние корзины загружено хотя бы 1 раз
+	hasLoaded: false,
+	// Флаг активного обновления
+	isUpdating: false,
+	// Очередь обновлений (по productId)
+	updateQueue: [],
+	// Набор productId, которые уже стоят в очереди (чтобы не дублировать)
+	queuedProducts: new Set(),
+	// Последнее желаемое количество по productId (для coalescing)
+	desiredQuantities: new Map(),
+	// Резолверы промисов по productId (чтобы отдавать результат на финальное состояние)
+	pendingResolvers: new Map(),
+	// Таймер синхронизации
+	syncTimer: null,
+	
+	/**
+	 * Инициализация - загружаем состояние корзины
+	 */
+	init() {
+		this.bindWooEvents();
+		
+		const loadPromise = this.loadCartState();
+		if (loadPromise && typeof loadPromise.finally === 'function') {
+			loadPromise.finally(() => {
+				this.syncUI();
+				if (typeof updateCartCountGlobal === 'function') {
+					updateCartCountGlobal();
+				}
+			});
+		} else {
+			this.syncUI();
+			if (typeof updateCartCountGlobal === 'function') {
+				updateCartCountGlobal();
+			}
+		}
+	},
+	
+	/**
+	 * Загрузка состояния корзины с сервера
+	 */
+	loadCartState() {
+		if (typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
+			this.cartState.clear();
+			this.hasLoaded = true;
+			return Promise.resolve();
+		}
+		
+		return wcAjax('get_refreshed_fragments', {}, {
+			success: (response) => {
+				if (!response || !response.fragments) {
+					this.cartState.clear();
+					this.hasLoaded = true;
+					return;
+				}
+				
+				this.updateStateFromFragments(response.fragments);
+			},
+			error: () => {
+				this.cartState.clear();
+				this.hasLoaded = true;
+			}
+		});
+	},
+	
+	/**
+	 * Подписка на события WooCommerce, чтобы держать состояние без лишних запросов
+	 */
+	bindWooEvents() {
+		if (typeof jQuery === 'undefined') {
+			return;
+		}
+		
+		const handleFragments = (fragments) => {
+			if (!fragments) return;
+			this.updateStateFromFragments(fragments);
+			this.syncUI();
+			if (typeof updateCartCountGlobal === 'function') {
+				updateCartCountGlobal();
+			}
+		};
+		
+		jQuery(document.body)
+			.off('added_to_cart.cartManager removed_from_cart.cartManager')
+			.on('added_to_cart.cartManager', (event, fragments) => {
+				handleFragments(fragments);
+			})
+			.on('removed_from_cart.cartManager', (event, fragments) => {
+				handleFragments(fragments);
+			});
+		
+		// Когда фрагменты обновились, но fragments не передали — читаем из DOM
+		jQuery(document.body)
+			.off('wc_fragments_refreshed.cartManager natura_fragments_refreshed.cartManager')
+			.on('wc_fragments_refreshed.cartManager natura_fragments_refreshed.cartManager', () => {
+				this.updateStateFromDOM();
+				this.syncUI();
+				if (typeof updateCartCountGlobal === 'function') {
+					updateCartCountGlobal();
+				}
+			});
+	},
+	
+	/**
+	 * Извлекаем HTML мини-корзины из fragments
+	 */
+	extractCartContentFromFragments(fragments) {
+		if (!fragments) return null;
+		
+		return fragments['div.widget_shopping_cart_content'] || 
+		       fragments['.widget_shopping_cart_content'] ||
+		       Object.values(fragments).find(frag => 
+		       	typeof frag === 'string' && (
+		       		frag.includes('woocommerce-mini-cart') ||
+		       		frag.includes('mini-cart-item') ||
+		       		frag.includes('cart_item')
+		       	)
+		       );
+	},
+	
+	/**
+	 * Парсим состояние корзины из DOM-дерева
+	 */
+	parseCartStateFromRoot(root) {
+		const nextState = new Map();
+		if (!root) return nextState;
+		
+		const items = root.querySelectorAll('.woocommerce-mini-cart-item, .mini-cart-item, .mini_cart_item, .cart_item');
+		items.forEach((item) => {
+			const productId = item.getAttribute('data-product-id') ||
+			                 item.querySelector('[data-product-id]')?.getAttribute('data-product-id') ||
+			                 item.querySelector('[data-product_id]')?.getAttribute('data-product_id');
+			
+			if (!productId) return;
+			
+			let quantity = 0;
+			const qtyValue = item.querySelector('.mini-cart-item__quantity-value');
+			if (qtyValue) {
+				quantity = parseInt(qtyValue.textContent.trim().split(' ')[0]) || 0;
+			} else {
+				const qtyEl = item.querySelector('.quantity, .woocommerce-mini-cart-item__quantity');
+				if (qtyEl) {
+					const match = qtyEl.textContent.match(/(\d+)/);
+					quantity = match ? (parseInt(match[1]) || 0) : 0;
+				}
+			}
+			
+			const cartItemKey = item.getAttribute('data-cart-item-key') ||
+			                    item.querySelector('[data-cart-item-key]')?.getAttribute('data-cart-item-key') ||
+			                    item.getAttribute('data-cart_item_key') ||
+			                    item.querySelector('[data-cart_item_key]')?.getAttribute('data-cart_item_key') ||
+			                    item.querySelector('.mini-cart-item__remove')?.getAttribute('data-cart_item_key') ||
+			                    item.querySelector('.remove_from_cart_button, .remove')?.getAttribute('data-cart_item_key') ||
+			                    item.querySelector('.mini-cart-item__remove')?.getAttribute('href')?.match(/remove_item=([^&]+)/)?.[1];
+			
+			if (quantity > 0) {
+				nextState.set(String(productId), {
+					quantity,
+					cartItemKey: cartItemKey || null
+				});
+			}
+		});
+		
+		return nextState;
+	},
+	
+	/**
+	 * Обновляем состояние из fragments (без дополнительного запроса)
+	 */
+	updateStateFromFragments(fragments) {
+		const cartContent = this.extractCartContentFromFragments(fragments);
+		if (!cartContent) {
+			this.cartState.clear();
+			this.hasLoaded = true;
+			return;
+		}
+		
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+		
+		const nextState = this.parseCartStateFromRoot(tempDiv);
+		this.cartState.clear();
+		nextState.forEach((value, key) => {
+			this.cartState.set(key, value);
+		});
+		
+		this.hasLoaded = true;
+	},
+	
+	/**
+	 * Обновляем состояние из текущего DOM (когда fragments не передали)
+	 */
+	updateStateFromDOM() {
+		const containers = document.querySelectorAll('.widget_shopping_cart_content');
+		if (!containers || containers.length === 0) {
+			this.cartState.clear();
+			this.hasLoaded = true;
+			return;
+		}
+		
+		const merged = new Map();
+		containers.forEach((container) => {
+			const partial = this.parseCartStateFromRoot(container);
+			partial.forEach((value, key) => {
+				merged.set(key, value);
+			});
+		});
+		
+		this.cartState.clear();
+		merged.forEach((value, key) => {
+			this.cartState.set(key, value);
+		});
+		
+		this.hasLoaded = true;
+	},
+	
+	/**
+	 * Применяем фрагменты в DOM и синхронизируем состояние
+	 */
+	applyFragments(fragments) {
+		if (!fragments || typeof jQuery === 'undefined') {
+			return;
+		}
+		
+		jQuery.each(fragments, function(key, value) {
+			jQuery(key).replaceWith(value);
+		});
+		
+		this.updateStateFromFragments(fragments);
+		this.syncUI();
+		
+		if (typeof updateCartCountGlobal === 'function') {
+			updateCartCountGlobal();
+		}
+		
+		jQuery(document.body).trigger('wc_fragments_refreshed');
+		jQuery(document.body).trigger('natura_fragments_refreshed');
+		jQuery(document.body).trigger('updated_cart_totals');
+	},
+	
+	/**
+	 * Применяем ответ сервера (если есть fragments)
+	 */
+	applyResponse(response) {
+		if (response && response.fragments) {
+			this.applyFragments(response.fragments);
+			return true;
+		}
+		return false;
+	},
+	
+	/**
+	 * Резолвим все ожидания по продукту (коалесинг)
+	 */
+	resolvePending(productId) {
+		const resolvers = this.pendingResolvers.get(productId);
+		if (resolvers && resolvers.length) {
+			resolvers.forEach((resolve) => resolve());
+		}
+		this.pendingResolvers.delete(productId);
+	},
+	
+	/**
+	 * Получить количество товара в корзине
+	 */
+	getQuantity(productId) {
+		const item = this.cartState.get(String(productId));
+		return item ? item.quantity : 0;
+	},
+	
+	/**
+	 * Получить cart_item_key товара
+	 */
+	getCartItemKey(productId) {
+		const item = this.cartState.get(String(productId));
+		return item ? item.cartItemKey : null;
+	},
+	
+	/**
+	 * Проверить, есть ли товар в корзине
+	 */
+	hasProduct(productId) {
+		return this.cartState.has(String(productId));
+	},
+	
+	/**
+	 * Обновить количество товара в корзине
+	 */
+	updateQuantity(productId, quantity, cartItemKey = null) {
+		// Валидация
+		let nextQuantity = parseInt(quantity) || 1;
+		if (nextQuantity < 1) nextQuantity = 1;
+		
+		const pid = String(productId);
+		
+		// Если пришел cart_item_key (например, из мини-корзины) — сохраняем его,
+		// чтобы не допустить ошибочного add_to_cart вместо update_cart.
+		if (cartItemKey) {
+			const current = this.cartState.get(pid) || {};
+			this.cartState.set(pid, {
+				...current,
+				cartItemKey: cartItemKey
+			});
+			this.hasLoaded = true;
+		}
+		
+		// Запоминаем желаемое количество (коалесинг)
+		this.desiredQuantities.set(pid, nextQuantity);
+		
+		// Оптимистичное обновление UI
+		this.updateUI(pid, nextQuantity);
+		
+		// Добавляем в очередь (без дублей)
+		return new Promise((resolve) => {
+			const list = this.pendingResolvers.get(pid) || [];
+			list.push(resolve);
+			this.pendingResolvers.set(pid, list);
+			
+			if (!this.queuedProducts.has(pid)) {
+				this.updateQueue.push(pid);
+				this.queuedProducts.add(pid);
+			}
+			this.processQueue();
+		});
+	},
+	
+	/**
+	 * Обработка очереди обновлений
+	 */
+	async processQueue() {
+		if (this.isUpdating || this.updateQueue.length === 0) {
+			return;
+		}
+		
+		this.isUpdating = true;
+		const productId = this.updateQueue.shift();
+		this.queuedProducts.delete(productId);
+		const quantity = this.desiredQuantities.get(productId);
+		
+		try {
+			// Если quantity почему-то не определен — просто завершаем
+			if (typeof quantity === 'undefined') {
+				return;
+			}
+			
+			let cartItemKey = this.getCartItemKey(productId);
+			
+			// Если товар есть в состоянии, но ключа нет — пробуем обновить состояние из DOM
+			if (!cartItemKey && this.hasProduct(productId)) {
+				this.updateStateFromDOM();
+				cartItemKey = this.getCartItemKey(productId);
+			}
+			
+			if (cartItemKey) {
+				// Товар есть в корзине - обновляем
+				await this.updateCartItem(cartItemKey, quantity);
+			} else {
+				// Товара нет - добавляем
+				await this.addToCart(productId, quantity);
+			}
+		} catch (error) {
+			// Откатываем оптимистичное обновление
+			this.syncFromServer();
+		} finally {
+			this.isUpdating = false;
+			this.resolvePending(productId);
+			// Обрабатываем следующий элемент очереди
+			if (this.updateQueue.length > 0) {
+				setTimeout(() => this.processQueue(), 50);
+			}
+		}
+	},
+	
+	/**
+	 * Обновление товара в корзине
+	 */
+	updateCartItem(cartItemKey, quantity) {
+		return new Promise((resolve, reject) => {
+			const data = {
+				['cart[' + cartItemKey + '][qty]']: quantity,
+				update_cart: 'Update Cart',
+			};
+			
+			wcAjax('update_cart', data, {
+				success: (response) => {
+					// update_cart обычно возвращает fragments — применяем их, без доп. запроса
+					const applied = this.applyResponse(response);
+					if (!applied) {
+						// fallback на случай нестандартного ответа
+						refreshCartFragments(() => resolve(response));
+						return;
+					}
+					resolve(response);
+				},
+				error: reject
+			});
+		});
+	},
+	
+	/**
+	 * Добавление товара в корзину
+	 */
+	addToCart(productId, quantity, sourceButton = null) {
+		return new Promise((resolve, reject) => {
+			wcAjax('add_to_cart', {
+				product_id: productId,
+				quantity: quantity,
+			}, {
+				success: (response) => {
+					if (response.error && response.product_url) {
+						reject(new Error('Product error'));
+						return;
+					}
+					
+					// Применяем фрагменты без лишних запросов
+					this.applyResponse(response);
+					
+					// Триггерим стандартное событие WooCommerce (для уведомлений и совместимости)
+					if (typeof jQuery !== 'undefined') {
+						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, sourceButton]);
+					}
+					
+					resolve(response);
+				},
+				error: reject
+			});
+		});
+	},
+	
+	/**
+	 * Оптимистичное обновление UI (без запроса к серверу)
+	 */
+	updateUI(productId, quantity) {
+		// Обновляем каталог
+		const productCards = document.querySelectorAll('.product-card');
+		productCards.forEach(card => {
+			const buttonWrapper = card.querySelector('.product-card__button-wrapper');
+			if (!buttonWrapper) return;
+			
+			const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
+			const cardProductId = addToCartButton?.getAttribute('data-product_id') || 
+			                      addToCartButton?.getAttribute('data-product-id');
+			
+			if (cardProductId !== productId) return;
+			
+			const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
+			
+			if (quantity > 0) {
+				// Показываем quantity-wrapper
+				if (quantityWrapper) {
+					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+					if (input) {
+						input.value = quantity;
+						input.setAttribute('value', quantity);
+					}
+					if (addToCartButton) {
+						addToCartButton.style.display = 'none';
+					}
+					quantityWrapper.style.display = 'flex';
+					quantityWrapper.classList.add('show');
+				}
+			} else {
+				// Скрываем quantity-wrapper
+				if (quantityWrapper) {
+					quantityWrapper.style.display = 'none';
+					quantityWrapper.classList.remove('show');
+					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+					if (input) {
+						input.value = 1;
+						input.setAttribute('value', 1);
+					}
+				}
+				if (addToCartButton) {
+					addToCartButton.style.display = '';
+				}
+			}
+		});
+		
+		// Обновляем мини-корзину
+		const miniCart = document.getElementById('mini-cart-sidebar');
+		if (miniCart) {
+			const cartItem = miniCart.querySelector(`.woocommerce-mini-cart-item[data-product-id="${productId}"], .mini-cart-item[data-product-id="${productId}"]`);
+			if (cartItem) {
+				const quantityValue = cartItem.querySelector('.mini-cart-item__quantity-value');
+				if (quantityValue) {
+					const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
+					quantityValue.textContent = `${quantity} ${unit}`;
+				}
+			}
+		}
+	},
+	
+	/**
+	 * Синхронизация с сервером (с debounce)
+	 */
+	syncFromServer() {
+		if (this.syncTimer) {
+			clearTimeout(this.syncTimer);
+		}
+		
+		this.syncTimer = setTimeout(() => {
+			const loadPromise = this.loadCartState();
+			if (loadPromise && typeof loadPromise.finally === 'function') {
+				loadPromise.finally(() => {
+					this.syncUI();
+					if (typeof updateCartCountGlobal === 'function') {
+						updateCartCountGlobal();
+					}
+				});
+			} else {
+				this.syncUI();
+				if (typeof updateCartCountGlobal === 'function') {
+					updateCartCountGlobal();
+				}
+			}
+		}, 400);
+	},
+	
+	/**
+	 * Синхронизация UI с состоянием корзины
+	 */
+	syncUI() {
+		// Обновляем каталог
+		const productCards = document.querySelectorAll('.product-card');
+		productCards.forEach(card => {
+			const buttonWrapper = card.querySelector('.product-card__button-wrapper');
+			if (!buttonWrapper) return;
+			
+			const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
+			const productId = addToCartButton?.getAttribute('data-product_id') || 
+			                  addToCartButton?.getAttribute('data-product-id');
+			
+			if (!productId) return;
+			
+			const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
+			const quantity = this.getQuantity(productId);
+			
+			if (quantity > 0) {
+				// Показываем quantity-wrapper
+				if (quantityWrapper) {
+					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+					if (input) {
+						const currentValue = parseInt(input.value) || 1;
+						if (currentValue !== quantity) {
+							input.value = quantity;
+							input.setAttribute('value', quantity);
+						}
+					}
+					if (addToCartButton) {
+						addToCartButton.style.display = 'none';
+					}
+					quantityWrapper.style.display = 'flex';
+					quantityWrapper.classList.add('show');
+				}
+			} else {
+				// Скрываем quantity-wrapper
+				if (quantityWrapper) {
+					quantityWrapper.style.display = 'none';
+					quantityWrapper.classList.remove('show');
+					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+					if (input) {
+						input.value = 1;
+						input.setAttribute('value', 1);
+					}
+				}
+				if (addToCartButton) {
+					addToCartButton.style.display = '';
+				}
+			}
+		});
+	}
+};
 
 /**
  * Инициализация кнопок количества товара в карточках каталога
@@ -2468,23 +3063,14 @@ const initQuantityButtons = () => {
 		input.value = newVal;
 		input.setAttribute('value', newVal);
 		
-		// Обновляем корзину
+		// Обновляем корзину через менеджер
 		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-			updateProductQuantityInCart(productId, newVal, wrapper);
+			CartManager.updateQuantity(productId, newVal);
 		}
 	}, true);
 	
-	// Обработчик изменения input вручную
-	document.addEventListener('change', function(e) {
-		const input = e.target;
-		if (!input.matches('input.qty, input[type="number"], .product-card__quantity-input')) return;
-		
-		const wrapper = input.closest('.product-card__quantity-wrapper');
-		if (!wrapper) return;
-		
-		const productId = wrapper.getAttribute('data-product-id');
-		if (!productId) return;
-		
+	// Обработчик изменения input вручную (с debounce)
+	const debouncedUpdate = debounce(function(input, productId) {
 		const min = parseInt(input.getAttribute('min')) || 1;
 		const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
 		let value = parseInt(input.value) || min;
@@ -2495,154 +3081,22 @@ const initQuantityButtons = () => {
 		input.value = value;
 		input.setAttribute('value', value);
 		
-		// Обновляем корзину
 		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-			updateProductQuantityInCart(productId, value, wrapper);
+			CartManager.updateQuantity(productId, value);
 		}
-	});
-};
-
-/**
- * Обновление количества товара в корзине из каталога
- * Обновляет корзину на основе количества в каталоге (каталог -> корзина)
- */
-const updateProductQuantityInCart = (productId, quantity, wrapper) => {
-	// Если идет синхронизация из корзины, не обновляем корзину из каталога
-	if (isSyncingFromCart) {
-		return;
-	}
+	}, 500);
 	
-	// Получаем текущее состояние корзины
-	wcAjax('get_refreshed_fragments', {}, {
-		success: function(response) {
-			if (!response || !response.fragments) {
-				// Товара нет в корзине - добавляем
-				addProductToCart(productId, quantity, wrapper);
-				return;
-			}
-			
-			// Ищем товар в корзине
-			const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
-			                    response.fragments['.widget_shopping_cart_content'] ||
-			                    Object.values(response.fragments).find(frag => 
-			                    	typeof frag === 'string' && frag.includes('mini-cart-item')
-			                    );
-			
-			if (!cartContent) {
-				// Товара нет в корзине - добавляем
-				addProductToCart(productId, quantity, wrapper);
-				return;
-			}
-			
-			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
-			const cartItem = tempDiv.querySelector('[data-product-id="' + productId + '"]');
-			
-			if (!cartItem) {
-				// Товара нет в корзине - добавляем
-				addProductToCart(productId, quantity, wrapper);
-				return;
-			}
-			
-			// Товар есть в корзине - обновляем количество
-			const removeButton = cartItem.querySelector('.mini-cart-item__remove');
-			if (!removeButton) {
-				addProductToCart(productId, quantity, wrapper);
-				return;
-			}
-			
-			const cartItemKey = removeButton.getAttribute('data-cart_item_key') || 
-			                    removeButton.getAttribute('href')?.match(/remove_item=([^&]+)/)?.[1];
-			
-			if (!cartItemKey) {
-				addProductToCart(productId, quantity, wrapper);
-				return;
-			}
-			
-			// Обновляем количество в корзине
-			const form = document.createElement('form');
-			form.method = 'POST';
-			form.action = wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'update_cart');
-			
-			const cartInput = document.createElement('input');
-			cartInput.type = 'hidden';
-			cartInput.name = 'cart[' + cartItemKey + '][qty]';
-			cartInput.value = quantity;
-			form.appendChild(cartInput);
-			
-			const updateInput = document.createElement('input');
-			updateInput.type = 'hidden';
-			updateInput.name = 'update_cart';
-			updateInput.value = 'Update Cart';
-			form.appendChild(updateInput);
-			
-			const nonce = wc_add_to_cart_params.wc_cart_nonce || '';
-			const formData = jQuery(form).serialize();
-			const dataWithNonce = formData + (nonce ? '&_wpnonce=' + encodeURIComponent(nonce) : '');
-			
-			wcAjax('update_cart', dataWithNonce, {
-				success: function() {
-					refreshCartFragments(() => {
-						// Не вызываем syncCatalogQuantity здесь, чтобы избежать циклической синхронизации
-						// Синхронизация произойдет автоматически через события WooCommerce
-					});
-				}
-			});
-		}
-	});
-};
-
-/**
- * Добавление товара в корзину
- */
-const addProductToCart = (productId, quantity, wrapper) => {
-	wcAjax('add_to_cart', {
-		product_id: productId,
-		quantity: quantity,
-	}, {
-		success: function(response) {
-			if (response.error && response.product_url) {
-				return;
-			}
-			
-			if (response.fragments) {
-				jQuery.each(response.fragments, function(key, value) {
-					jQuery(key).replaceWith(value);
-				});
-			}
-			
-			if (response.cart_hash) {
-				jQuery(document.body).trigger('wc_fragment_refresh');
-			}
-			
-			// Показываем quantity-wrapper после добавления товара
-			if (wrapper) {
-				setTimeout(() => {
-					const buttonWrapper = wrapper.closest('.product-card__button-wrapper');
-					if (buttonWrapper) {
-						const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
-						const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
-						if (quantityWrapper) {
-							// Скрываем кнопку
-							if (addToCartButton) {
-								addToCartButton.style.display = 'none';
-							}
-							// Показываем quantity-wrapper
-							quantityWrapper.style.display = 'flex';
-							quantityWrapper.classList.add('show');
-							// Устанавливаем правильное количество
-							const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
-							if (input) {
-								input.value = quantity;
-								input.setAttribute('value', quantity);
-							}
-						}
-					}
-				}, 100);
-			}
-			
-			jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, wrapper]);
-		}
+	document.addEventListener('change', function(e) {
+		const input = e.target;
+		if (!input.matches('input.qty, input[type="number"], .product-card__quantity-input')) return;
+		
+		const wrapper = input.closest('.product-card__quantity-wrapper');
+		if (!wrapper) return;
+		
+		const productId = wrapper.getAttribute('data-product-id');
+		if (!productId) return;
+		
+		debouncedUpdate(input, productId);
 	});
 };
 
@@ -2745,55 +3199,11 @@ const initProductCardAddToCart = () => {
 					// Если доступен jQuery и WooCommerce AJAX
 					jQuery(document.body).trigger('adding_to_cart', [newButton, {}]);
 					
-					wcAjax('add_to_cart', {
-						product_id: productId,
-						quantity: quantity,
-					}, {
-						success: function(response) {
-							if (response.error && response.product_url) {
-								window.location = response.product_url;
-								return;
-							}
-							
-							// Обновляем корзину
-							if (response.fragments) {
-								jQuery.each(response.fragments, function(key, value) {
-									jQuery(key).replaceWith(value);
-								});
-							}
-							
-							if (response.cart_hash) {
-								jQuery(document.body).trigger('wc_fragment_refresh');
-							}
-							
-							// Показываем quantity-wrapper и скрываем кнопку после обновления фрагментов
-							setTimeout(() => {
-								const buttonWrapper = newButton.closest('.product-card__button-wrapper');
-								if (buttonWrapper) {
-									const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
-									if (quantityWrapper) {
-										// Скрываем кнопку
-										newButton.style.display = 'none';
-										// Показываем quantity-wrapper
-										quantityWrapper.style.display = 'flex';
-										quantityWrapper.classList.add('show');
-										// Устанавливаем правильное количество
-										const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
-										if (input) {
-											input.value = quantity;
-											input.setAttribute('value', quantity);
-										}
-									}
-								}
-							}, 100);
-							
-							jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, newButton]);
-						},
-						error: function() {
-							// При ошибке просто переходим по ссылке
-							window.location.href = addToCartUrl;
-						},
-					});
+					// Оптимистично переключаем кнопку на quantity-wrapper
+					CartManager.updateUI(productId, quantity);
+					
+					// Добавляем товар через CartManager (без лишнего get_refreshed_fragments)
+					await CartManager.addToCart(productId, quantity, newButton);
 				} else {
 					// Fallback: просто переходим по ссылке
 					window.location.href = addToCartUrl;
@@ -2807,128 +3217,6 @@ const initProductCardAddToCart = () => {
 	});
 };
 
-// Флаг для предотвращения циклической синхронизации
-let isSyncingFromCart = false;
-
-/**
- * Синхронизация количества в каталоге с количеством в корзине
- * Читает количество из корзины и обновляет каталог (корзина -> каталог)
- * Использует debounce для предотвращения множественных запросов
- */
-const syncCatalogQuantity = debounce(() => {
-	if (typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
-		return;
-	}
-	
-	// Устанавливаем флаг синхронизации
-	isSyncingFromCart = true;
-	
-	// Получаем актуальное состояние корзины
-	wcAjax('get_refreshed_fragments', {}, {
-		success: function(response) {
-			if (!response || !response.fragments) {
-				isSyncingFromCart = false;
-				return;
-			}
-			
-			// Ищем фрагмент корзины (может быть в разных форматах)
-			const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
-			                    response.fragments['.widget_shopping_cart_content'] ||
-			                    Object.values(response.fragments).find(fragment => 
-			                    	typeof fragment === 'string' && (fragment.includes('mini-cart-item') || fragment.includes('cart_item'))
-			                    );
-			
-			if (!cartContent) {
-				isSyncingFromCart = false;
-				return;
-			}
-			
-			// Создаем временный элемент для парсинга
-			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
-			
-			// Получаем все товары в корзине
-			const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, [data-product-id]');
-			const cartProductIds = new Set();
-			const cartQuantities = new Map();
-			
-			cartItems.forEach(item => {
-				const productId = item.getAttribute('data-product-id') || 
-				                 item.querySelector('[data-product-id]')?.getAttribute('data-product-id');
-				const quantitySpan = item.querySelector('.mini-cart-item__quantity-value, .quantity, .woocommerce-mini-cart-item__quantity');
-				if (productId && quantitySpan) {
-					const quantityText = quantitySpan.textContent.trim();
-					const quantity = parseInt(quantityText.split(' ')[0]) || 0;
-					if (quantity > 0) {
-						cartQuantities.set(productId, quantity);
-						cartProductIds.add(productId);
-					}
-				}
-			});
-			
-			// Обновляем все карточки товаров
-			const productCards = document.querySelectorAll('.product-card');
-			productCards.forEach(card => {
-				const buttonWrapper = card.querySelector('.product-card__button-wrapper');
-				if (!buttonWrapper) {
-					return;
-				}
-				
-				const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
-				const productId = addToCartButton?.getAttribute('data-product_id') || 
-				                 addToCartButton?.getAttribute('data-product-id');
-				
-				if (!productId) {
-					return;
-				}
-				
-				const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
-				
-				if (cartProductIds.has(productId)) {
-					// Товар в корзине - обновляем количество и показываем quantity-wrapper
-					if (quantityWrapper) {
-						const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
-						if (input) {
-							const quantity = cartQuantities.get(productId) || 1;
-							// Обновляем только если значение отличается
-							input.value = quantity;
-							input.setAttribute('value', quantity);
-						}
-						// Показываем quantity-wrapper
-						if (addToCartButton) {
-							addToCartButton.style.display = 'none';
-						}
-						quantityWrapper.style.display = 'flex';
-						quantityWrapper.classList.add('show');
-					}
-				} else {
-					// Товара нет в корзине - скрываем quantity-wrapper и показываем кнопку
-					if (quantityWrapper) {
-						quantityWrapper.style.display = 'none';
-						quantityWrapper.classList.remove('show');
-						// Сбрасываем количество на 1
-						const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
-						if (input) {
-							input.value = 1;
-							input.setAttribute('value', 1);
-						}
-					}
-					if (addToCartButton) {
-						addToCartButton.style.display = '';
-					}
-				}
-			});
-			
-			// Сбрасываем флаг после завершения синхронизации
-			setTimeout(() => {
-				isSyncingFromCart = false;
-			}, 100);
-		},
-		error: function() {
-			isSyncingFromCart = false;
-		}
-	});
-}, 300);
 
 /**
  * Проверка корзины при загрузке страницы - показываем quantity-wrapper для товаров в корзине
@@ -3134,11 +3422,6 @@ const initMiniCart = () => {
 						
 						// Не открываем корзину автоматически - показываем только уведомление
 						
-						// Триггерим события WooCommerce
-						if (response.cart_hash) {
-							jQuery(document.body).trigger('wc_fragment_refresh');
-						}
-						
 						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button[0]]);
 					},
 					error: function() {
@@ -3241,11 +3524,6 @@ const initMiniCart = () => {
 						
 						// Триггерим событие WooCommerce
 						jQuery(document.body).trigger('removed_from_cart', [response.fragments, response.cart_hash, $button]);
-						
-						// Обновляем счетчик корзины, если есть
-						if (response.cart_hash) {
-							jQuery(document.body).trigger('wc_fragment_refresh');
-						}
 					},
 					error: function() {
 						console.log('[initMiniCart] Ошибка при удалении товара');
@@ -3270,8 +3548,11 @@ const initMiniCart = () => {
 							// Переинициализируем кнопки количества после обновления
 							setTimeout(() => {
 								initMiniCartQuantityButtons();
-								// Синхронизируем количество в каталоге с корзиной
-								syncCatalogQuantity();
+								CartManager.updateStateFromDOM();
+								CartManager.syncUI();
+								if (typeof updateCartCountGlobal === 'function') {
+									updateCartCountGlobal();
+								}
 							}, 100);
 						} else {
 							jQuery(key).replaceWith(value);
@@ -3279,10 +3560,12 @@ const initMiniCart = () => {
 					});
 				}
 			} else {
-				// Если нет фрагментов, все равно синхронизируем
-				setTimeout(() => {
-					syncCatalogQuantity();
-				}, 100);
+				// Если нет фрагментов, обновляем состояние из DOM (без запроса)
+				CartManager.updateStateFromDOM();
+				CartManager.syncUI();
+				if (typeof updateCartCountGlobal === 'function') {
+					updateCartCountGlobal();
+				}
 			}
 		});
 
@@ -3300,116 +3583,55 @@ const initMiniCart = () => {
 		
 		// Устанавливаем новый таймер для debounce (300ms)
 		addedToCartTimeout = setTimeout(() => {
-			// Синхронизируем количество в каталоге с корзиной
-			syncCatalogQuantity();
+			// Обновляем состояние без доп. запроса
+			if (fragments) {
+				CartManager.updateStateFromFragments(fragments);
+			} else {
+				CartManager.updateStateFromDOM();
+			}
+			CartManager.syncUI();
+			if (typeof updateCartCountGlobal === 'function') {
+				updateCartCountGlobal();
+			}
 		}, 300);
 	});
 
-		// Обновление корзины при изменении количества или удалении товара (с debounce)
-		const debouncedRefreshCart = debounce(() => {
-			refreshCartFragments(function(data) {
-				if (data && data.fragments) {
-					jQuery.each(data.fragments, function(key, value) {
-						const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
-						if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
-							jQuery(cartContent).html(value);
-						} else {
-							jQuery(key).replaceWith(value);
-						}
-					});
-				}
-			});
-		}, 200);
-
-		jQuery(document.body).on('wc_fragment_refresh', debouncedRefreshCart);
 	} else {
 		console.log('[initMiniCart] jQuery не загружен');
 	}
 
-	// Обработчики кнопок количества
+	// Обработчики кнопок количества в мини-корзине
 	const handleQuantityChange = (button, delta) => {
-		if (typeof jQuery === 'undefined') {
-			return;
-		}
-		
-		// Параметры AJAX WooCommerce (fallback, если wc_add_to_cart_params недоступен)
-		const ajaxParams = window.wc_add_to_cart_params || window.wc_cart_fragments_params || {};
-		const ajaxUrlTemplate = ajaxParams.wc_ajax_url || '/?wc-ajax=%%endpoint%%';
-
-		const cartItemKey = button.getAttribute('data-cart-item-key');
+		const cartItemKey = button.getAttribute('data-cart-item-key') || 
+		                    button.getAttribute('data-cart_item_key') ||
+		                    button.closest('[data-cart-item-key]')?.getAttribute('data-cart-item-key') ||
+		                    button.closest('[data-cart_item_key]')?.getAttribute('data-cart_item_key');
 		if (!cartItemKey) {
 			return;
 		}
 
 		const quantityWrapper = button.closest('.mini-cart-item__quantity-wrapper');
-		const quantityValue = quantityWrapper.querySelector('.mini-cart-item__quantity-value');
+		const quantityValue = quantityWrapper?.querySelector('.mini-cart-item__quantity-value');
+		const productId = button.getAttribute('data-product-id') ||
+		                  button.closest('[data-product-id]')?.getAttribute('data-product-id') ||
+		                  button.closest('[data-product_id]')?.getAttribute('data-product_id');
+		
+		if (!productId || !quantityValue) {
+			return;
+		}
+
 		const currentQuantity = parseInt(quantityValue.textContent.trim().split(' ')[0]) || 1;
 		const newQuantity = Math.max(1, currentQuantity + delta);
-
-		// Обновляем отображение
 		const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
-		quantityValue.textContent = `${newQuantity} ${unit}`;
 
-		// Обновляем количество через стандартный способ WooCommerce
-		const form = document.createElement('form');
-		form.method = 'POST';
-		form.action = ajaxUrlTemplate.toString().replace('%%endpoint%%', 'update_cart');
-		
-		const cartInput = document.createElement('input');
-		cartInput.type = 'hidden';
-		cartInput.name = 'cart[' + cartItemKey + '][qty]';
-		cartInput.value = newQuantity;
-		form.appendChild(cartInput);
-		
-		const updateInput = document.createElement('input');
-		updateInput.type = 'hidden';
-		updateInput.name = 'update_cart';
-		updateInput.value = 'Update Cart';
-		form.appendChild(updateInput);
-		
-		// Добавляем nonce для безопасности
-		const nonce = ajaxParams.wc_cart_nonce || '';
-		const formData = jQuery(form).serialize();
-		const dataWithNonce = formData + (nonce ? '&_wpnonce=' + encodeURIComponent(nonce) : '');
-		
-		// Отправляем через AJAX
-		wcAjax('update_cart', dataWithNonce, {
-			success: function(response) {
-				// Обновляем фрагменты для получения актуальных данных корзины (включая цены)
-				refreshCartFragments(function(fragmentResponse) {
-					if (fragmentResponse && fragmentResponse.fragments) {
-						// Обновляем все фрагменты, включая цены товаров и итоговую сумму
-						jQuery.each(fragmentResponse.fragments, function(key, value) {
-							const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
-							if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
-								// Полностью заменяем содержимое корзины для обновления всех цен
-								jQuery(cartContent).html(value);
-								// Переинициализируем обработчики
-								setTimeout(() => {
-									initMiniCartQuantityButtons();
-								}, 100);
-							} else {
-								// Обновляем другие элементы (счетчик корзины, итоговая сумма и т.д.)
-								jQuery(key).replaceWith(value);
-							}
-						});
-					}
-					// Триггерим события для обновления всех компонентов корзины
-					jQuery(document.body).trigger('updated_cart_totals');
-					jQuery(document.body).trigger('wc_fragment_refresh');
-					
-					// Синхронизируем количество в каталоге с корзиной
-					// Используем задержку, чтобы дать время на обновление корзины
-					setTimeout(() => {
-						syncCatalogQuantity();
-					}, 400);
-				});
-			},
-			error: function(xhr, status, error) {
-				console.error('[handleQuantityChange] Ошибка AJAX запроса:', error);
-				// Откатываем изменение при ошибке
-				const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
-				quantityValue.textContent = `${currentQuantity} ${unit}`;
+		// Обновляем через CartManager (коалесинг + без лишних запросов)
+		CartManager.updateQuantity(productId, newQuantity, cartItemKey).catch(() => {
+			// Откатываем при ошибке
+			quantityValue.textContent = `${currentQuantity} ${unit}`;
+			CartManager.updateStateFromDOM();
+			CartManager.syncUI();
+			if (typeof updateCartCountGlobal === 'function') {
+				updateCartCountGlobal();
 			}
 		});
 	};
@@ -3451,22 +3673,25 @@ const initMiniCart = () => {
 	// Debounce для переинициализации обработчиков
 	let reinitTimeout = null;
 	
-	// Переинициализируем обработчики после обновления корзины через события WooCommerce
-	// Используем namespace для избежания конфликтов
-	jQuery(document.body).off('updated_wc_div.miniCart updated_cart_totals.miniCart wc_fragment_refresh.miniCart')
-		.on('updated_wc_div.miniCart updated_cart_totals.miniCart wc_fragment_refresh.miniCart', function() {
-			// Очищаем предыдущий таймер
-			if (reinitTimeout) {
-				clearTimeout(reinitTimeout);
-			}
-			
-			// Устанавливаем новый таймер для debounce (150ms)
-			reinitTimeout = setTimeout(() => {
-				initMiniCartQuantityButtons();
-				// Синхронизируем количество в каталоге с корзиной
-				syncCatalogQuantity();
-			}, 150);
-		});
+		// Переинициализируем обработчики после обновления корзины через события WooCommerce
+		// Используем namespace для избежания конфликтов
+		jQuery(document.body).off('updated_wc_div.miniCart updated_cart_totals.miniCart wc_fragments_refreshed.miniCart natura_fragments_refreshed.miniCart')
+			.on('updated_wc_div.miniCart updated_cart_totals.miniCart wc_fragments_refreshed.miniCart natura_fragments_refreshed.miniCart', function() {
+				// Очищаем предыдущий таймер
+				if (reinitTimeout) {
+					clearTimeout(reinitTimeout);
+				}
+				
+				// Устанавливаем новый таймер для debounce (150ms)
+				reinitTimeout = setTimeout(() => {
+					initMiniCartQuantityButtons();
+					CartManager.updateStateFromDOM();
+					CartManager.syncUI();
+					if (typeof updateCartCountGlobal === 'function') {
+						updateCartCountGlobal();
+					}
+				}, 150);
+			});
 };
 
 /**
