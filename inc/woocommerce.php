@@ -316,6 +316,75 @@ function natura_force_shipping_fields($needs_shipping) {
 }
 add_filter('woocommerce_cart_needs_shipping_address', 'natura_force_shipping_fields');
 
+/**
+ * AJAX: Обновление количества товара в корзине (по cart_item_key) + возврат fragments
+ */
+function natura_update_cart_item_quantity_ajax() {
+	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'natura_cart_nonce' ) ) {
+		wp_send_json_error(
+			array( 'message' => 'Invalid nonce' ),
+			403
+		);
+	}
+
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		wp_send_json_error(
+			array( 'message' => 'WooCommerce not available' ),
+			500
+		);
+	}
+
+	// Убеждаемся, что корзина загружена (особенно для admin-ajax)
+	if ( function_exists( 'wc_load_cart' ) ) {
+		wc_load_cart();
+	}
+
+	if ( ! WC()->cart ) {
+		wp_send_json_error(
+			array( 'message' => 'Cart not available' ),
+			500
+		);
+	}
+
+	$cart_item_key = isset( $_POST['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_POST['cart_item_key'] ) ) : '';
+	$quantity      = isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1;
+
+	if ( $quantity < 1 ) {
+		$quantity = 1;
+	}
+
+	if ( empty( $cart_item_key ) ) {
+		wp_send_json_error(
+			array( 'message' => 'Missing cart_item_key' ),
+			400
+		);
+	}
+
+	$cart = WC()->cart->get_cart();
+	if ( ! isset( $cart[ $cart_item_key ] ) ) {
+		wp_send_json_error(
+			array( 'message' => 'Cart item not found' ),
+			404
+		);
+	}
+
+	WC()->cart->set_quantity( $cart_item_key, $quantity, true );
+	WC()->cart->calculate_totals();
+
+	// Возвращаем стандартные WooCommerce fragments
+	if ( class_exists( 'WC_AJAX' ) ) {
+		WC_AJAX::get_refreshed_fragments();
+	}
+
+	wp_send_json_error(
+		array( 'message' => 'Fragments not available' ),
+		500
+	);
+}
+
+add_action( 'wp_ajax_natura_update_cart_item_quantity', 'natura_update_cart_item_quantity_ajax' );
+add_action( 'wp_ajax_nopriv_natura_update_cart_item_quantity', 'natura_update_cart_item_quantity_ajax' );
+
 
 
 

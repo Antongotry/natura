@@ -412,6 +412,60 @@ const updateCartCountGlobal = debounce(() => {
 	}
 })();
 
+// Быстро прячем "Переглянути кошик / View cart" (added_to_cart) и держим quantity-selector вместо кнопки
+(function registerReplaceViewCartWithQuantity() {
+	const registerHandler = () => {
+		if (typeof jQuery === 'undefined') {
+			setTimeout(registerHandler, 100);
+			return;
+		}
+
+		jQuery(document.body)
+			.off('added_to_cart.naturaReplaceViewCart')
+			.on('added_to_cart.naturaReplaceViewCart', function(event, fragments, cart_hash, button) {
+				const $button = button ? (button.jquery ? button : jQuery(button)) : null;
+				if (!$button || !$button.length) {
+					return;
+				}
+
+				const $wrapper = $button.closest('.product-card__button-wrapper');
+				if (!$wrapper.length) {
+					return;
+				}
+
+				const wrapperEl = $wrapper[0];
+				const productId = String(
+					$button.data('product_id') ||
+					$button.attr('data-product_id') ||
+					$wrapper.find('.product-card__quantity-wrapper').attr('data-product-id') ||
+					''
+				);
+
+				// Даем WooCommerce отрисовать added_to_cart, затем сразу прячем
+				requestAnimationFrame(() => {
+					const viewCartLink = wrapperEl.querySelector('.added_to_cart.wc-forward, .added_to_cart');
+					if (viewCartLink) {
+						viewCartLink.style.display = 'none';
+					}
+
+					if (!productId) {
+						return;
+					}
+
+					// Синхронизируем UI (кол-во берём из состояния, иначе 1)
+					const qty = (CartManager.getQuantity(productId) || 1);
+					CartManager.updateUI(productId, qty);
+				});
+			});
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', registerHandler);
+	} else {
+		registerHandler();
+	}
+})();
+
 (function () {
 	'use strict';
 
@@ -2762,6 +2816,15 @@ const CartManager = {
 		
 		// Запоминаем желаемое количество (коалесинг)
 		this.desiredQuantities.set(pid, nextQuantity);
+
+		// Оптимистично обновляем состояние (иначе UI может откатываться на старое значение)
+		const currentState = this.cartState.get(pid) || {};
+		this.cartState.set(pid, {
+			...currentState,
+			quantity: nextQuantity,
+			cartItemKey: cartItemKey || currentState.cartItemKey || null,
+		});
+		this.hasLoaded = true;
 		
 		// Оптимистичное обновление UI
 		this.updateUI(pid, nextQuantity);
@@ -2832,22 +2895,65 @@ const CartManager = {
 	 */
 	updateCartItem(cartItemKey, quantity) {
 		return new Promise((resolve, reject) => {
+			const applyOrFallback = (response) => {
+				const applied = this.applyResponse(response);
+				if (!applied) {
+					refreshCartFragments(() => resolve(response));
+					return;
+				}
+				resolve(response);
+			};
+
+			// Основной путь: наш WP AJAX (надежнее, чем wc-ajax=update_cart)
+			if (
+				typeof jQuery !== 'undefined' &&
+				typeof naturaCart !== 'undefined' &&
+				naturaCart &&
+				naturaCart.ajax_url &&
+				naturaCart.nonce
+			) {
+				jQuery.ajax({
+					type: 'POST',
+					url: naturaCart.ajax_url,
+					dataType: 'json',
+					data: {
+						action: 'natura_update_cart_item_quantity',
+						nonce: naturaCart.nonce,
+						cart_item_key: cartItemKey,
+						quantity: quantity,
+					},
+					success: (response) => {
+						// wp_send_json_error возвращает { success:false, data:{...} }
+						if (response && response.success === false) {
+							reject(new Error(response?.data?.message || 'Cart update failed'));
+							return;
+						}
+						applyOrFallback(response);
+					},
+					error: () => {
+						// Fallback: пробуем wc-ajax=update_cart (если доступен)
+						const data = {
+							['cart[' + cartItemKey + '][qty]']: quantity,
+							update_cart: 'Update Cart',
+						};
+						
+						wcAjax('update_cart', data, {
+							success: (response) => applyOrFallback(response),
+							error: reject
+						});
+					}
+				});
+				return;
+			}
+
+			// Fallback: wc-ajax=update_cart
 			const data = {
 				['cart[' + cartItemKey + '][qty]']: quantity,
 				update_cart: 'Update Cart',
 			};
 			
 			wcAjax('update_cart', data, {
-				success: (response) => {
-					// update_cart обычно возвращает fragments — применяем их, без доп. запроса
-					const applied = this.applyResponse(response);
-					if (!applied) {
-						// fallback на случай нестандартного ответа
-						refreshCartFragments(() => resolve(response));
-						return;
-					}
-					resolve(response);
-				},
+				success: (response) => applyOrFallback(response),
 				error: reject
 			});
 		});
@@ -2897,13 +3003,21 @@ const CartManager = {
 			if (!buttonWrapper) return;
 			
 			const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
-			const cardProductId = addToCartButton?.getAttribute('data-product_id') || 
-			                      addToCartButton?.getAttribute('data-product-id');
+			const quantityWrapper =
+				buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`) ||
+				buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id]');
 			
-			if (cardProductId !== productId) return;
+			const cardProductId = String(
+				quantityWrapper?.getAttribute('data-product-id') ||
+				addToCartButton?.getAttribute('data-product_id') ||
+				addToCartButton?.getAttribute('data-product-id') ||
+				''
+			);
 			
-			const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
+			if (!cardProductId || String(cardProductId) !== String(productId)) return;
+
 			const addedToCartLink = buttonWrapper.querySelector('.added_to_cart.wc-forward, .added_to_cart');
+			const cartItemKey = this.getCartItemKey(productId);
 			
 			if (quantity > 0) {
 				// Показываем quantity-wrapper
@@ -2920,6 +3034,9 @@ const CartManager = {
 					if (addedToCartLink) {
 						addedToCartLink.style.display = 'none';
 					}
+					if (cartItemKey) {
+						quantityWrapper.setAttribute('data-cart-item-key', cartItemKey);
+					}
 					quantityWrapper.style.display = 'flex';
 					quantityWrapper.classList.add('show');
 				}
@@ -2928,6 +3045,7 @@ const CartManager = {
 				if (quantityWrapper) {
 					quantityWrapper.style.display = 'none';
 					quantityWrapper.classList.remove('show');
+					quantityWrapper.removeAttribute('data-cart-item-key');
 					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
 					if (input) {
 						input.value = 1;
@@ -2994,15 +3112,20 @@ const CartManager = {
 			const buttonWrapper = card.querySelector('.product-card__button-wrapper');
 			if (!buttonWrapper) return;
 			
+			const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id]');
 			const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
-			const productId = addToCartButton?.getAttribute('data-product_id') || 
-			                  addToCartButton?.getAttribute('data-product-id');
+			const productId = String(
+				quantityWrapper?.getAttribute('data-product-id') ||
+				addToCartButton?.getAttribute('data-product_id') || 
+				addToCartButton?.getAttribute('data-product-id') ||
+				''
+			);
 			
 			if (!productId) return;
-			
-			const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
+
 			const addedToCartLink = buttonWrapper.querySelector('.added_to_cart.wc-forward, .added_to_cart');
 			const quantity = this.getQuantity(productId);
+			const cartItemKey = this.getCartItemKey(productId);
 			
 			if (quantity > 0) {
 				// Показываем quantity-wrapper
@@ -3021,6 +3144,9 @@ const CartManager = {
 					if (addedToCartLink) {
 						addedToCartLink.style.display = 'none';
 					}
+					if (cartItemKey) {
+						quantityWrapper.setAttribute('data-cart-item-key', cartItemKey);
+					}
 					quantityWrapper.style.display = 'flex';
 					quantityWrapper.classList.add('show');
 				}
@@ -3029,6 +3155,7 @@ const CartManager = {
 				if (quantityWrapper) {
 					quantityWrapper.style.display = 'none';
 					quantityWrapper.classList.remove('show');
+					quantityWrapper.removeAttribute('data-cart-item-key');
 					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
 					if (input) {
 						input.value = 1;
@@ -3085,7 +3212,10 @@ const initQuantityButtons = () => {
 		
 		// Обновляем корзину через менеджер
 		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-			CartManager.updateQuantity(productId, newVal);
+			const cartItemKey =
+				wrapper.getAttribute('data-cart-item-key') ||
+				CartManager.getCartItemKey(productId);
+			CartManager.updateQuantity(productId, newVal, cartItemKey);
 		}
 	}, true);
 	
@@ -3102,7 +3232,11 @@ const initQuantityButtons = () => {
 		input.setAttribute('value', value);
 		
 		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-			CartManager.updateQuantity(productId, value);
+			const wrapper = input.closest('.product-card__quantity-wrapper');
+			const cartItemKey =
+				wrapper?.getAttribute('data-cart-item-key') ||
+				CartManager.getCartItemKey(productId);
+			CartManager.updateQuantity(productId, value, cartItemKey);
 		}
 	}, 500);
 	

@@ -55,6 +55,12 @@ function natura_register_assets(): void {
 		'ajax_url' => admin_url('admin-ajax.php'),
 		'nonce' => wp_create_nonce('natura_search_nonce'),
 	));
+
+	// Локализация для AJAX обновления корзины (количество)
+	wp_localize_script('natura-main', 'naturaCart', array(
+		'ajax_url' => admin_url('admin-ajax.php'),
+		'nonce'    => wp_create_nonce('natura_cart_nonce'),
+	));
 }
 add_action('wp_enqueue_scripts', 'natura_register_assets');
 

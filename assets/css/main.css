@@ -6705,6 +6705,11 @@ body.mini-cart-open {
 		display: none !important;
 	}
 
+	/* Всегда скрываем "Переглянути кошик / View cart" в карточке товара (заменяем на quantity selector) */
+	.product-card__button-wrapper .added_to_cart {
+		display: none !important;
+	}
+
 	/* Убеждаемся, что quantity-wrapper скрыт по умолчанию */
 	.product-card__button-wrapper .product-card__quantity-wrapper:not(.show):not([style*="display: flex"]) {
 		display: none !important;
