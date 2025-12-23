@@ -3809,7 +3809,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-order-review__item-image .size-woocommerce_thumbnail {
 	width: 100% !important;
 	height: 100% !important;
-	object-fit: contain !important;
+	object-fit: cover !important;
 	object-position: center center !important;
 	display: block;
 }
