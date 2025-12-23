@@ -6699,6 +6699,12 @@ body.mini-cart-open {
 		display: none !important;
 	}
 
+	/* Скрываем "Переглянути кошик / View cart" когда показан quantity-wrapper */
+	.product-card__button-wrapper:has(.product-card__quantity-wrapper.show) .added_to_cart,
+	.product-card__button-wrapper:has(.product-card__quantity-wrapper[style*="display: flex"]) .added_to_cart {
+		display: none !important;
+	}
+
 	/* Убеждаемся, что quantity-wrapper скрыт по умолчанию */
 	.product-card__button-wrapper .product-card__quantity-wrapper:not(.show):not([style*="display: flex"]) {
 		display: none !important;

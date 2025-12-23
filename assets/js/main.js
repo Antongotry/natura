@@ -2903,6 +2903,7 @@ const CartManager = {
 			if (cardProductId !== productId) return;
 			
 			const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
+			const addedToCartLink = buttonWrapper.querySelector('.added_to_cart.wc-forward, .added_to_cart');
 			
 			if (quantity > 0) {
 				// Показываем quantity-wrapper
@@ -2914,6 +2915,10 @@ const CartManager = {
 					}
 					if (addToCartButton) {
 						addToCartButton.style.display = 'none';
+					}
+					// Скрываем "Переглянути кошик / View cart" (WooCommerce добавляет .added_to_cart.wc-forward)
+					if (addedToCartLink) {
+						addedToCartLink.style.display = 'none';
 					}
 					quantityWrapper.style.display = 'flex';
 					quantityWrapper.classList.add('show');
@@ -2931,6 +2936,10 @@ const CartManager = {
 				}
 				if (addToCartButton) {
 					addToCartButton.style.display = '';
+				}
+				// Убираем/скрываем "View cart" ссылку, чтобы не оставалась после удаления
+				if (addedToCartLink) {
+					addedToCartLink.remove();
 				}
 			}
 		});
@@ -2992,6 +3001,7 @@ const CartManager = {
 			if (!productId) return;
 			
 			const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
+			const addedToCartLink = buttonWrapper.querySelector('.added_to_cart.wc-forward, .added_to_cart');
 			const quantity = this.getQuantity(productId);
 			
 			if (quantity > 0) {
@@ -3007,6 +3017,9 @@ const CartManager = {
 					}
 					if (addToCartButton) {
 						addToCartButton.style.display = 'none';
+					}
+					if (addedToCartLink) {
+						addedToCartLink.style.display = 'none';
 					}
 					quantityWrapper.style.display = 'flex';
 					quantityWrapper.classList.add('show');
@@ -3024,6 +3037,9 @@ const CartManager = {
 				}
 				if (addToCartButton) {
 					addToCartButton.style.display = '';
+				}
+				if (addedToCartLink) {
+					addedToCartLink.remove();
 				}
 			}
 		});
