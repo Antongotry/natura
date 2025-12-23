@@ -69,8 +69,21 @@ get_header( 'shop' ); ?>
 					
 					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
 						$current_term = get_queried_object();
+						$shop_url     = function_exists( 'wc_get_page_permalink' )
+							? wc_get_page_permalink( 'shop' )
+							: ( function_exists( 'wc_get_page_id' ) ? get_permalink( wc_get_page_id( 'shop' ) ) : home_url( '/' ) );
 						?>
 						<ul class="shop-filter-list">
+							<?php
+							// Пункт "Все товары" — активен на странице магазина (shop)
+							$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
+							$all_item_class = 'shop-filter-list__item' . ( $is_all_active ? ' shop-filter-list__item--active' : '' );
+							?>
+							<li class="<?php echo esc_attr( $all_item_class ); ?>">
+								<a href="<?php echo esc_url( $shop_url ); ?>" class="shop-filter-list__link">
+									<?php esc_html_e( 'Всі товари', 'natura' ); ?>
+								</a>
+							</li>
 							<?php foreach ( $shop_categories as $cat ) : ?>
 								<?php
 								// Пропускаем исключенные категории
@@ -125,8 +138,21 @@ get_header( 'shop' ); ?>
 
 					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
 						$current_term = get_queried_object();
+						$shop_url     = function_exists( 'wc_get_page_permalink' )
+							? wc_get_page_permalink( 'shop' )
+							: ( function_exists( 'wc_get_page_id' ) ? get_permalink( wc_get_page_id( 'shop' ) ) : home_url( '/' ) );
 						?>
 						<ul class="shop-archive-filters">
+							<?php
+							// Пункт "Все товары" — активен на странице магазина (shop)
+							$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
+							$all_item_class = 'shop-archive-filters__item' . ( $is_all_active ? ' shop-archive-filters__item--active' : '' );
+							?>
+							<li class="<?php echo esc_attr( $all_item_class ); ?>">
+								<a href="<?php echo esc_url( $shop_url ); ?>">
+									<?php esc_html_e( 'Всі товари', 'natura' ); ?>
+								</a>
+							</li>
 							<?php foreach ( $shop_categories as $cat ) : ?>
 								<?php
 								// Пропускаем исключенные категории

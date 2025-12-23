@@ -3051,7 +3051,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 /* Активный фильтр — стрелка как в макете (чёрная, без прозрачности) */
 .shop-archive-filters__item--active a::after {
-	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/21.svg');
+	/* Active icon */
+	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
 }
 
 /* ========== MOBILE FILTER DRAWER ========== */
