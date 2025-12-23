@@ -30,7 +30,7 @@ if ( ! empty( $product_unit ) ) {
 }
 
 ?>
-<div class="quantity-wrapper">
+<div class="quantity-wrapper" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
 	<button type="button" class="quantity-button quantity-button--minus" aria-label="<?php esc_attr_e( 'Зменшити кількість', 'natura' ); ?>">
 		<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/minus-bas.svg" alt="" class="quantity-button__icon quantity-button__icon--default">
 		<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/minus-hover.svg" alt="" class="quantity-button__icon quantity-button__icon--hover">
@@ -52,6 +52,7 @@ if ( ! empty( $product_unit ) ) {
 			placeholder=""
 			inputmode="numeric"
 			autocomplete="off"
+			data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
 		/>
 		<span class="quantity-unit"><?php echo esc_html( $unit_label ); ?></span>
 	</div>

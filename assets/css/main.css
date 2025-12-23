@@ -5193,6 +5193,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	filter: none !important;
 }
 
+/* На странице товара (single product) не показываем "Переглянути кошик / View cart" */
+.single-product__summary form.cart .added_to_cart,
+.woocommerce div.product form.cart .added_to_cart {
+	display: none !important;
+}
+
 .single-product__summary form.cart .single_add_to_cart_button:hover,
 .single-product__summary form.cart .single_add_to_cart_button:focus-visible {
 	background-color: transparent;
