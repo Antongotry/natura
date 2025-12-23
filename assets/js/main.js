@@ -321,11 +321,12 @@ const updateCartCountGlobal = debounce(() => {
 			
 			// Получаем изображение товара из фрагментов или кнопки
 			let productImage = '';
-			if (button) {
-				console.log('[added_to_cart.cartNotification] Ищем изображение для кнопки:', button);
+			const buttonEl = button ? (button.jquery ? button[0] : button) : null;
+			if (buttonEl) {
+				console.log('[added_to_cart.cartNotification] Ищем изображение для кнопки:', buttonEl);
 				
 				// Пробуем найти изображение в карточке товара
-				const productCard = button.closest('.product-card, li.product, .product');
+				const productCard = buttonEl.closest('.product-card, li.product, .product');
 				if (productCard) {
 					const img = productCard.querySelector('.product-card__image-wrapper img, .woocommerce-loop-product__link img, .product-card__image img, img.attachment-woocommerce_thumbnail, img.wp-post-image');
 					if (img) {
@@ -335,8 +336,8 @@ const updateCartCountGlobal = debounce(() => {
 				}
 				
 				// Если не нашли, пробуем найти по data-product-id
-				if (!productImage && button.getAttribute('data-product_id')) {
-					const productId = button.getAttribute('data-product_id');
+				if (!productImage && buttonEl.getAttribute('data-product_id')) {
+					const productId = buttonEl.getAttribute('data-product_id');
 					const productElement = document.querySelector(`[data-product-id="${productId}"], .product[data-product-id="${productId}"], li.product[data-product-id="${productId}"]`);
 					if (productElement) {
 						const img = productElement.querySelector('.product-card__image-wrapper img, .woocommerce-loop-product__link img, img.attachment-woocommerce_thumbnail, img.wp-post-image');
@@ -349,7 +350,7 @@ const updateCartCountGlobal = debounce(() => {
 				
 				// Если все еще не нашли, пробуем найти в результатах поиска
 				if (!productImage) {
-					const searchResult = button.closest('.site-header__search-result-item');
+					const searchResult = buttonEl.closest('.site-header__search-result-item');
 					if (searchResult) {
 						const img = searchResult.querySelector('.site-header__search-result-image');
 						if (img) {
@@ -2257,7 +2258,7 @@ const updateCartCountGlobal = debounce(() => {
 							}
 							
 								// Открываем корзину (через data-mini-cart-open)
-								jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, button]);
+								jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, jQuery(button)]);
 								
 								// Открываем мини-корзину после обновления фрагментов
 								// Функция для открытия мини-корзины
@@ -2339,7 +2340,7 @@ const updateCartCountGlobal = debounce(() => {
 									}
 								}
 								
-								jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, newButton]);
+								jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, jQuery(newButton)]);
 							}
 						});
 					}
@@ -2872,7 +2873,10 @@ const CartManager = {
 					
 					// Триггерим стандартное событие WooCommerce (для уведомлений и совместимости)
 					if (typeof jQuery !== 'undefined') {
-						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, sourceButton]);
+						const $button = sourceButton
+							? (sourceButton.jquery ? sourceButton : jQuery(sourceButton))
+							: null;
+						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button]);
 					}
 					
 					resolve(response);
@@ -3422,7 +3426,8 @@ const initMiniCart = () => {
 						
 						// Не открываем корзину автоматически - показываем только уведомление
 						
-						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button[0]]);
+						// WooCommerce ожидает jQuery-объект кнопки, иначе add-to-cart.min.js падает
+						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button]);
 					},
 					error: function() {
 						console.log('[initMiniCart] AJAX ошибка');
