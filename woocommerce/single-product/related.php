@@ -26,6 +26,7 @@ if ( $related_products ) :
 
 	<section class="related products single-product__related-section">
 		<div class="container">
+			<h2 class="single-product__related-heading">Схожі товари</h2>
 			<div
 				id="<?php echo esc_attr( $carousel_id ); ?>"
 				class="swiper single-product__related-swiper"
