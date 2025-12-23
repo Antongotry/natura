@@ -3205,14 +3205,24 @@ const initMiniCart = () => {
 
 	// Обработчики кнопок количества
 	const handleQuantityChange = (button, delta) => {
-		if (typeof jQuery === 'undefined') return;
+		console.log('[handleQuantityChange] Вызвана функция, delta:', delta, 'button:', button);
+		
+		if (typeof jQuery === 'undefined') {
+			console.error('[handleQuantityChange] jQuery не загружен');
+			return;
+		}
 		
 		// Параметры AJAX WooCommerce (fallback, если wc_add_to_cart_params недоступен)
 		const ajaxParams = window.wc_add_to_cart_params || window.wc_cart_fragments_params || {};
 		const ajaxUrlTemplate = ajaxParams.wc_ajax_url || '/?wc-ajax=%%endpoint%%';
 
 		const cartItemKey = button.getAttribute('data-cart-item-key');
-		if (!cartItemKey) return;
+		console.log('[handleQuantityChange] cartItemKey:', cartItemKey);
+		
+		if (!cartItemKey) {
+			console.error('[handleQuantityChange] cartItemKey не найден');
+			return;
+		}
 
 		const quantityWrapper = button.closest('.mini-cart-item__quantity-wrapper');
 		const quantityValue = quantityWrapper.querySelector('.mini-cart-item__quantity-value');
@@ -3245,34 +3255,45 @@ const initMiniCart = () => {
 		const formData = jQuery(form).serialize();
 		const dataWithNonce = formData + (nonce ? '&_wpnonce=' + encodeURIComponent(nonce) : '');
 		
+		console.log('[handleQuantityChange] Отправка AJAX запроса, newQuantity:', newQuantity);
+		
 		// Отправляем через AJAX
 		jQuery.ajax({
 			type: 'POST',
 			url: form.action,
 			data: dataWithNonce,
-			success: function() {
+			success: function(response) {
+				console.log('[handleQuantityChange] AJAX запрос успешен, ответ:', response);
 				// Обновляем фрагменты
 				jQuery.ajax({
 					type: 'POST',
 					url: ajaxUrlTemplate.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-					success: function(response) {
-						if (response && response.fragments) {
-							jQuery.each(response.fragments, function(key, value) {
+					success: function(fragmentResponse) {
+						console.log('[handleQuantityChange] Фрагменты получены:', fragmentResponse);
+						if (fragmentResponse && fragmentResponse.fragments) {
+							jQuery.each(fragmentResponse.fragments, function(key, value) {
 								const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
 								if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
 									jQuery(cartContent).html(value);
 									// Переинициализируем обработчики
-									setTimeout(initMiniCartQuantityButtons, 100);
+									setTimeout(() => {
+										console.log('[handleQuantityChange] Переинициализация кнопок после обновления');
+										initMiniCartQuantityButtons();
+									}, 100);
 								} else {
 									jQuery(key).replaceWith(value);
 								}
 							});
 						}
 						jQuery(document.body).trigger('wc_fragment_refresh');
+					},
+					error: function(xhr, status, error) {
+						console.error('[handleQuantityChange] Ошибка получения фрагментов:', error);
 					}
 				});
 			},
-			error: function() {
+			error: function(xhr, status, error) {
+				console.error('[handleQuantityChange] Ошибка AJAX запроса:', error);
 				// Откатываем изменение при ошибке
 				const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
 				quantityValue.textContent = `${currentQuantity} ${unit}`;
@@ -3281,46 +3302,47 @@ const initMiniCart = () => {
 	};
 
 	const initMiniCartQuantityButtons = () => {
-		// Удаляем старые обработчики, чтобы избежать дублирования
-		const allQuantityButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--minus, .mini-cart-item__quantity-button--plus');
-		allQuantityButtons.forEach(button => {
-			// Клонируем элемент, чтобы удалить все обработчики
-			const newButton = button.cloneNode(true);
-			button.parentNode.replaceChild(newButton, button);
-		});
-
-		// Добавляем новые обработчики
-		const minusButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--minus');
-		const plusButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--plus');
-
-		minusButtons.forEach(button => {
-			button.addEventListener('click', function(e) {
-				e.preventDefault();
-				e.stopPropagation();
-				handleQuantityChange(button, -1);
-			});
-		});
-
-		plusButtons.forEach(button => {
-			button.addEventListener('click', function(e) {
-				e.preventDefault();
-				e.stopPropagation();
-				handleQuantityChange(button, 1);
-			});
-		});
+		console.log('[initMiniCart] Инициализация кнопок количества');
+		
+		// Используем делегирование событий на родительском элементе корзины
+		const cartContent = miniCart.querySelector('.widget_shopping_cart_content') || miniCart;
+		
+		// Удаляем старые обработчики если они есть
+		if (cartContent._quantityButtonHandler) {
+			cartContent.removeEventListener('click', cartContent._quantityButtonHandler);
+		}
+		
+		// Создаем новый обработчик с делегированием
+		cartContent._quantityButtonHandler = function(e) {
+			const button = e.target.closest('.mini-cart-item__quantity-button--minus, .mini-cart-item__quantity-button--plus');
+			if (!button) return;
+			
+			e.preventDefault();
+			e.stopPropagation();
+			
+			const isMinus = button.classList.contains('mini-cart-item__quantity-button--minus');
+			const delta = isMinus ? -1 : 1;
+			
+			console.log('[initMiniCart] Клик на кнопку количества, delta:', delta);
+			handleQuantityChange(button, delta);
+		};
+		
+		// Добавляем обработчик на родительский элемент
+		cartContent.addEventListener('click', cartContent._quantityButtonHandler);
+		
+		console.log('[initMiniCart] Обработчики кнопок количества установлены');
 	};
 
 	// Инициализируем кнопки при загрузке
 	initMiniCartQuantityButtons();
 
-	// Переинициализируем при обновлении корзины
-	const observer = new MutationObserver(() => {
-		setTimeout(initMiniCartQuantityButtons, 100);
+	// Переинициализируем обработчики после обновления корзины через события WooCommerce
+	jQuery(document.body).on('updated_wc_div updated_cart_totals wc_fragment_refresh', function() {
+		setTimeout(() => {
+			console.log('[initMiniCart] Событие обновления корзины, переинициализация кнопок');
+			initMiniCartQuantityButtons();
+		}, 100);
 	});
-	const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
-	if (cartContent) {
-		observer.observe(cartContent, { childList: true, subtree: true });
-	}
 };
 
 /**
