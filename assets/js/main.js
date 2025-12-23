@@ -2498,6 +2498,7 @@ const updateCartCountGlobal = debounce(() => {
 		initProductCardAddToCart();
 		initMiniCart();
 		initShopFilterDrawer();
+		initShopArchiveAjaxNavigation();
 		preventProductCardLayoutShift();
 	});
 })();
@@ -3409,64 +3410,87 @@ const initPromoCodeCopy = () => {
  * Инициализация функционала добавления в корзину для карточек товаров
  */
 const initProductCardAddToCart = () => {
-	const addToCartButtons = document.querySelectorAll('.product-card__button-wrapper .add_to_cart_button, .product-card__button-wrapper .ajax_add_to_cart');
-	
-	addToCartButtons.forEach((button) => {
-		// Убираем старые обработчики, если они есть
-		const newButton = button.cloneNode(true);
-		button.parentNode.replaceChild(newButton, button);
-		
-		newButton.addEventListener('click', async (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			
-			const productId = newButton.getAttribute('data-product_id') || newButton.getAttribute('data-product-id');
-			if (!productId) {
-				// Если нет product_id, используем стандартное поведение WooCommerce
-				return;
-			}
-			
-			// Добавляем товар в корзину через WooCommerce AJAX
-			const addToCartUrl = newButton.href || newButton.getAttribute('href');
-			if (!addToCartUrl) {
-				return;
-			}
-			
-			try {
-				// Используем стандартный механизм WooCommerce для добавления в корзину
-				if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-					// Получаем количество из quantity-wrapper если он виден
-					const buttonWrapper = newButton.closest('.product-card__button-wrapper');
-					let quantity = 1;
-					if (buttonWrapper) {
-						const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
-						if (quantityWrapper && quantityWrapper.style.display !== 'none') {
-							const quantityInput = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+	// Делегирование — чтобы работало и после AJAX-подмены списка товаров
+	if (document._productCardAddToCartHandler) {
+		document.removeEventListener('click', document._productCardAddToCartHandler, true);
+	}
+
+	document._productCardAddToCartHandler = async function(e) {
+		// только левый клик без модификаторов
+		if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+			return;
+		}
+
+		const button = e.target.closest(
+			'.product-card__button-wrapper .add_to_cart_button, .product-card__button-wrapper .ajax_add_to_cart'
+		);
+		if (!button) return;
+
+		// Не перехватываем add-to-cart в поиске (там своя логика)
+		if (button.closest('.site-header__search-results, .site-header__search-result-item')) {
+			return;
+		}
+
+		const productId = button.getAttribute('data-product_id') || button.getAttribute('data-product-id');
+		if (!productId) {
+			return; // пусть работает стандартный WooCommerce
+		}
+
+		const addToCartUrl = button.href || button.getAttribute('href');
+		if (!addToCartUrl) {
+			return;
+		}
+
+		e.preventDefault();
+		e.stopPropagation();
+		e.stopImmediatePropagation();
+
+		try {
+			if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+				// Количество из quantity-wrapper (если уже отображается)
+				const buttonWrapper = button.closest('.product-card__button-wrapper');
+				let quantity = 1;
+				if (buttonWrapper) {
+					const quantityWrapper = buttonWrapper.querySelector(
+						'.product-card__quantity-wrapper[data-product-id="' + productId + '"]'
+					);
+					if (quantityWrapper) {
+						const isVisible =
+							quantityWrapper.classList.contains('show') ||
+							quantityWrapper.style.display === 'flex' ||
+							(window.getComputedStyle(quantityWrapper).display !== 'none');
+
+						if (isVisible) {
+							const quantityInput = quantityWrapper.querySelector(
+								'input.qty, input[type="number"], .product-card__quantity-input'
+							);
 							if (quantityInput) {
 								quantity = parseInt(quantityInput.value) || 1;
 							}
 						}
 					}
-					
-					// Если доступен jQuery и WooCommerce AJAX
-					jQuery(document.body).trigger('adding_to_cart', [newButton, {}]);
-					
-					// Оптимистично переключаем кнопку на quantity-wrapper
+				}
+
+				// Событие Woo (совместимость)
+				jQuery(document.body).trigger('adding_to_cart', [jQuery(button), {}]);
+
+				// Оптимистично показываем quantity selector
+				if (typeof CartManager !== 'undefined' && CartManager) {
 					CartManager.updateUI(productId, quantity);
-					
-					// Добавляем товар через CartManager (без лишнего get_refreshed_fragments)
-					await CartManager.addToCart(productId, quantity, newButton);
+					await CartManager.addToCart(productId, quantity, button);
 				} else {
-					// Fallback: просто переходим по ссылке
 					window.location.href = addToCartUrl;
 				}
-			} catch (error) {
-				console.error('Помилка додавання товару в кошик:', error);
-				// При ошибке просто переходим по ссылке
+			} else {
 				window.location.href = addToCartUrl;
 			}
-		});
-	});
+		} catch (error) {
+			console.error('Помилка додавання товару в кошик:', error);
+			window.location.href = addToCartUrl;
+		}
+	};
+
+	document.addEventListener('click', document._productCardAddToCartHandler, true);
 };
 
 
@@ -4008,6 +4032,200 @@ const initShopFilterDrawer = () => {
 			closeFilter();
 		});
 	}
+};
+
+/**
+ * AJAX навигация по каталогу: категории и пагинация без перезагрузки страницы.
+ * Обновляет список товаров, активные категории, хлебные крошки, title и URL (history).
+ */
+const initShopArchiveAjaxNavigation = () => {
+	const productsContainer = document.querySelector('.shop-archive-products');
+	if (!productsContainer || typeof window.fetch === 'undefined') {
+		return;
+	}
+
+	let controller = null;
+
+	const setLoading = (isLoading) => {
+		productsContainer.classList.toggle('is-loading', isLoading);
+		productsContainer.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+	};
+
+	const closeFilterDrawerIfOpen = () => {
+		const filterDrawer = document.querySelector('[data-shop-filter-drawer]');
+		if (filterDrawer && filterDrawer.classList.contains('is-open')) {
+			filterDrawer.classList.remove('is-open');
+			document.body.style.overflow = '';
+		}
+	};
+
+	const isSameOrigin = (url) => {
+		try {
+			const u = new URL(url, window.location.href);
+			return u.origin === window.location.origin;
+		} catch {
+			return false;
+		}
+	};
+
+	const looksLikeShopUrl = (url) => {
+		try {
+			const u = new URL(url, window.location.href);
+			// Категории: /product-category/...
+			if (u.pathname.includes('/product-category/')) return true;
+			// Архив товаров: ?post_type=product
+			if (u.searchParams.get('post_type') === 'product') return true;
+			// Страница магазина (shop) — в любом виде, если совпадает с текущим шаблоном каталога
+			// (на практике это просто link внутри фильтров)
+			return true;
+		} catch {
+			return false;
+		}
+	};
+
+	const swapFromHtml = (html, urlToSet, pushHistory) => {
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(html, 'text/html');
+
+		const nextProducts = doc.querySelector('.shop-archive-products');
+		if (!nextProducts) {
+			return false;
+		}
+
+		// Обновляем товары
+		productsContainer.innerHTML = nextProducts.innerHTML;
+
+		// Обновляем списки категорий (сайдбар и моб. drawer), чтобы активные классы совпали с сервером
+		const nextSidebarFilters = doc.querySelector('.shop-archive-filters');
+		const currentSidebarFilters = document.querySelector('.shop-archive-filters');
+		if (nextSidebarFilters && currentSidebarFilters) {
+			currentSidebarFilters.innerHTML = nextSidebarFilters.innerHTML;
+		}
+
+		const nextMobileFilters = doc.querySelector('.shop-filter-list');
+		const currentMobileFilters = document.querySelector('.shop-filter-list');
+		if (nextMobileFilters && currentMobileFilters) {
+			currentMobileFilters.innerHTML = nextMobileFilters.innerHTML;
+		}
+
+		// Обновляем breadcrumb
+		const nextBreadcrumb = doc.querySelector('.shop-archive-hero__breadcrumb');
+		const currentBreadcrumb = document.querySelector('.shop-archive-hero__breadcrumb');
+		if (nextBreadcrumb && currentBreadcrumb) {
+			currentBreadcrumb.innerHTML = nextBreadcrumb.innerHTML;
+		}
+
+		// Обновляем title
+		if (doc.title) {
+			document.title = doc.title;
+		}
+
+		// Меняем URL (pushState)
+		if (pushHistory && urlToSet) {
+			window.history.pushState({ naturaShopAjax: true }, '', urlToSet);
+		}
+
+		// Синхронизируем UI корзины на новых карточках
+		if (typeof CartManager !== 'undefined' && CartManager) {
+			CartManager.updateStateFromDOM();
+			CartManager.syncUI();
+		}
+
+		// Фиксим возможные скачки высоты карточек
+		if (typeof preventProductCardLayoutShift === 'function') {
+			preventProductCardLayoutShift();
+		}
+
+		// Скроллим к товарам (мягко)
+		const scrollTarget = document.querySelector('.shop-archive-content') || productsContainer;
+		if (scrollTarget && typeof scrollTarget.scrollIntoView === 'function') {
+			scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+
+		return true;
+	};
+
+	const loadUrl = async (url, { pushHistory = true } = {}) => {
+		if (!url || !isSameOrigin(url) || !looksLikeShopUrl(url)) {
+			window.location.href = url;
+			return;
+		}
+
+		if (controller) {
+			controller.abort();
+		}
+		controller = new AbortController();
+
+		setLoading(true);
+		try {
+			const res = await fetch(url, {
+				method: 'GET',
+				signal: controller.signal,
+				headers: {
+					'X-Requested-With': 'XMLHttpRequest',
+				},
+			});
+
+			if (!res.ok) {
+				window.location.href = url;
+				return;
+			}
+
+			const html = await res.text();
+			const swapped = swapFromHtml(html, url, pushHistory);
+			if (!swapped) {
+				window.location.href = url;
+			}
+		} catch (err) {
+			if (err && err.name === 'AbortError') {
+				return;
+			}
+			window.location.href = url;
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// Делегирование кликов по категориям и пагинации
+	document._shopArchiveAjaxNavHandler = function(e) {
+		// только левый клик без модификаторов
+		if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+			return;
+		}
+
+		const link = e.target.closest(
+			'.shop-archive-filters a, .shop-filter-list__link, .woocommerce-pagination a.page-numbers'
+		);
+		if (!link || !link.href) return;
+
+		// Не перехватываем ссылки из поиска в хедере
+		if (link.closest('.site-header__search-results')) return;
+
+		if (!isSameOrigin(link.href) || !looksLikeShopUrl(link.href)) {
+			return;
+		}
+
+		e.preventDefault();
+		e.stopPropagation();
+
+		closeFilterDrawerIfOpen();
+		loadUrl(link.href, { pushHistory: true });
+	};
+
+	// Снимаем старый обработчик, если был
+	if (document._shopArchiveAjaxNavHandlerBound) {
+		document.removeEventListener('click', document._shopArchiveAjaxNavHandlerBound, true);
+	}
+	document._shopArchiveAjaxNavHandlerBound = document._shopArchiveAjaxNavHandler;
+	document.addEventListener('click', document._shopArchiveAjaxNavHandlerBound, true);
+
+	// Back/forward
+	window.addEventListener('popstate', function() {
+		// если мы всё ещё на странице с каталогом — подгружаем текущее location.href
+		if (document.querySelector('.shop-archive-products')) {
+			loadUrl(window.location.href, { pushHistory: false });
+		}
+	});
 };
 
 /**

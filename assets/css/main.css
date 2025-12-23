@@ -3397,6 +3397,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 .shop-archive-products {
 	width: 100%;
+	transition: opacity 0.25s ease;
+}
+
+.shop-archive-products.is-loading {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 /* ==========================
