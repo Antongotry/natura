@@ -3011,7 +3011,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	border-top: 1px solid rgba(48, 48, 48, 0.4); /* #30303066 */
 }
 
-.shop-archive-filters__item a {
+.shop-archive-filters__item > a {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -3024,18 +3024,18 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	text-decoration: none;
 }
 
-.shop-archive-filters__item a:hover,
-.shop-archive-filters__item a:focus-visible {
+.shop-archive-filters__item > a:hover,
+.shop-archive-filters__item > a:focus-visible {
 	color: #303030;
 }
 
 /* Активная категория */
-.shop-archive-filters__item--active a {
+.shop-archive-filters__item--active > a {
 	color: #303030;
 }
 
 /* Иконка стрелки справа от категории */
-.shop-archive-filters__item a::after {
+.shop-archive-filters__item > a::after {
 	content: '';
 	display: inline-block;
 	width: 1.563vw;
@@ -3050,21 +3050,13 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 /* Активный фильтр — стрелка как в макете (чёрная, без прозрачности) */
-.shop-archive-filters__item--active a::after {
+.shop-archive-filters__item--active > a::after {
 	/* Active icon */
 	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
 }
 
 /* ===== Subcategories: sidebar (desktop) ===== */
 /* Плавный "аккордеон" без точек/линий — легкий отступ + более спокойный цвет/размер шрифта */
-.shop-archive-filters__item a::after {
-	transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1);
-	transform: rotate(0deg);
-}
-
-.shop-archive-filters__item--expanded > a::after {
-	transform: rotate(90deg);
-}
 
 .shop-archive-filters__sublist {
 	list-style: none;
@@ -3105,11 +3097,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	display: block;
 	padding: 0.625vw 0;
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
-	font-weight: 600;
-	font-size: 0.833vw;
+	font-weight: 500;
+	font-size: 0.781vw;
 	line-height: 100%;
 	letter-spacing: -0.03em;
-	color: rgba(48, 48, 48, 0.32);
+	color: rgba(48, 48, 48, 0.4);
 	text-decoration: none;
 }
 
