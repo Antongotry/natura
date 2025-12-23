@@ -5,6 +5,21 @@
 (function () {
 	'use strict';
 
+	/**
+	 * Debounce функция для предотвращения множественных запросов
+	 */
+	const debounce = (func, wait = 300) => {
+		let timeout;
+		return function executedFunction(...args) {
+			const later = () => {
+				timeout = null;
+				func.apply(this, args);
+			};
+			clearTimeout(timeout);
+			timeout = setTimeout(later, wait);
+		};
+	};
+
 	// Перемикання табів
 	const tabs = document.querySelectorAll('[data-tab]');
 	const forms = document.querySelectorAll('[data-form]');
@@ -66,13 +81,22 @@
 		});
 	}
 
-	async function handleSubmit(form, action) {
+	// Флаг для предотвращения множественных отправок формы
+	const submittingForms = new Set();
+
+	const handleSubmit = debounce(async (form, action) => {
+		// Проверяем, не отправляется ли уже форма
+		if (submittingForms.has(form)) {
+			return;
+		}
+
 		const submitBtn = form.querySelector('.auth-page__submit');
 		const submitText = form.querySelector('.auth-page__submit-text');
 		const submitLoader = form.querySelector('.auth-page__submit-loader');
 		const errorDiv = form.querySelector('[data-error]');
 
 		// Disable button, show loader
+		submittingForms.add(form);
 		submitBtn.disabled = true;
 		submitText.style.display = 'none';
 		submitLoader.style.display = 'inline-block';
@@ -108,19 +132,29 @@
 			errorDiv.classList.add('auth-page__error--visible');
 		} finally {
 			// Re-enable button
+			submittingForms.delete(form);
 			submitBtn.disabled = false;
 			submitText.style.display = 'inline';
 			submitLoader.style.display = 'none';
 		}
-	}
+	}, 500);
 
-	async function handleLostPassword(form) {
+	// Флаг для предотвращения множественных запросов восстановления пароля
+	let isSubmittingPassword = false;
+
+	const handleLostPassword = debounce(async (form) => {
+		// Проверяем, не отправляется ли уже запрос
+		if (isSubmittingPassword) {
+			return;
+		}
+
 		const submitBtn = form.querySelector('.auth-page__submit');
 		const errorDiv = form.querySelector('[data-error]');
 		const formTop = form.querySelector('.auth-page__form-top');
 		const formBottom = form.querySelector('.auth-page__form-bottom');
 
 		// Disable button
+		isSubmittingPassword = true;
 		submitBtn.disabled = true;
 		submitBtn.textContent = 'Відправка...';
 		errorDiv.classList.remove('auth-page__error--visible');
@@ -198,8 +232,10 @@
 			errorDiv.classList.add('auth-page__error--visible');
 			submitBtn.disabled = false;
 			submitBtn.textContent = 'Скинути пароль';
+		} finally {
+			isSubmittingPassword = false;
 		}
-	}
+	}, 1000);
 })();
 
 

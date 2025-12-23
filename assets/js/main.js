@@ -1,3 +1,143 @@
+/**
+ * Универсальные утилиты для обработки событий и AJAX запросов
+ */
+
+/**
+ * Debounce функция для предотвращения множественных вызовов
+ * @param {Function} func - Функция для выполнения
+ * @param {number} wait - Время задержки в миллисекундах
+ * @param {boolean} immediate - Выполнить немедленно при первом вызове
+ * @returns {Function} Debounced функция
+ */
+const debounce = (func, wait = 300, immediate = false) => {
+	let timeout;
+	return function executedFunction(...args) {
+		const later = () => {
+			timeout = null;
+			if (!immediate) func.apply(this, args);
+		};
+		const callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(this, args);
+	};
+};
+
+/**
+ * Универсальная функция для AJAX запросов к WooCommerce
+ * @param {string} endpoint - Endpoint WooCommerce (add_to_cart, update_cart, get_refreshed_fragments, remove_from_cart)
+ * @param {Object} data - Данные для отправки
+ * @param {Object} options - Дополнительные опции (success, error, beforeSend)
+ * @returns {Promise|jQuery.jqXHR} Promise или jQuery AJAX объект
+ */
+const wcAjax = (endpoint, data = {}, options = {}) => {
+	if (typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
+		console.warn('[wcAjax] jQuery или wc_add_to_cart_params не доступны');
+		if (options.error) {
+			options.error({}, 'error', 'Dependencies not available');
+		}
+		return Promise.reject('Dependencies not available');
+	}
+
+	const url = wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', endpoint);
+	const defaultOptions = {
+		type: 'POST',
+		url: url,
+		dataType: 'json',
+		data: data,
+		...options
+	};
+
+	// Добавляем nonce для безопасности, если это не get_refreshed_fragments
+	if (endpoint !== 'get_refreshed_fragments' && wc_add_to_cart_params.wc_cart_nonce) {
+		if (defaultOptions.data instanceof FormData) {
+			defaultOptions.data.append('_wpnonce', wc_add_to_cart_params.wc_cart_nonce);
+		} else if (typeof defaultOptions.data === 'object') {
+			defaultOptions.data._wpnonce = wc_add_to_cart_params.wc_cart_nonce;
+		}
+	}
+
+	return jQuery.ajax(defaultOptions);
+};
+
+/**
+ * Универсальная функция для обновления фрагментов корзины
+ * @param {Function} callback - Callback функция после успешного обновления
+ * @returns {Promise|jQuery.jqXHR}
+ */
+const refreshCartFragments = (callback) => {
+	return wcAjax('get_refreshed_fragments', {}, {
+		success: function(response) {
+			if (response && response.fragments) {
+				jQuery.each(response.fragments, function(key, value) {
+					jQuery(key).replaceWith(value);
+				});
+			}
+			jQuery(document.body).trigger('wc_fragment_refresh');
+			jQuery(document.body).trigger('updated_cart_totals');
+			if (callback) callback(response);
+		}
+	});
+};
+
+/**
+ * Универсальный обработчик событий с debounce
+ * @param {HTMLElement|Document|Window} element - Элемент для привязки события
+ * @param {string} event - Тип события
+ * @param {Function} handler - Обработчик события
+ * @param {Object} options - Опции (debounce, passive, capture)
+ * @returns {Function} Функция для удаления обработчика
+ */
+const addEventListenerDebounced = (element, event, handler, options = {}) => {
+	const { debounce: debounceTime = 0, passive = false, capture = false, ...restOptions } = options;
+	
+	let debouncedHandler = handler;
+	if (debounceTime > 0) {
+		debouncedHandler = debounce(handler, debounceTime);
+	}
+	
+	element.addEventListener(event, debouncedHandler, { passive, capture, ...restOptions });
+	
+	// Возвращаем функцию для удаления обработчика
+	return () => {
+		element.removeEventListener(event, debouncedHandler, { passive, capture, ...restOptions });
+	};
+};
+
+/**
+ * Универсальный обработчик кликов с делегированием событий
+ * @param {HTMLElement|Document} container - Контейнер для делегирования
+ * @param {string} selector - Селектор целевого элемента
+ * @param {Function} handler - Обработчик события
+ * @param {Object} options - Опции (debounce, preventDefault, stopPropagation)
+ * @returns {Function} Функция для удаления обработчика
+ */
+const delegateClick = (container, selector, handler, options = {}) => {
+	const { debounce: debounceTime = 0, preventDefault = true, stopPropagation = false } = options;
+	
+	const eventHandler = (e) => {
+		const target = e.target.closest(selector);
+		if (!target) return;
+		
+		if (preventDefault) e.preventDefault();
+		if (stopPropagation) e.stopPropagation();
+		
+		handler.call(target, e, target);
+	};
+	
+	let debouncedHandler = eventHandler;
+	if (debounceTime > 0) {
+		debouncedHandler = debounce(eventHandler, debounceTime);
+	}
+	
+	container.addEventListener('click', debouncedHandler, true);
+	
+	// Возвращаем функцию для удаления обработчика
+	return () => {
+		container.removeEventListener('click', debouncedHandler, true);
+	};
+};
+
 // Глобальные функции для работы с корзиной и уведомлениями
 const showCartNotification = (productImage) => {
 	console.log('[showCartNotification] Вызвана функция, productImage:', productImage);
@@ -79,69 +219,64 @@ const showCartNotification = (productImage) => {
 	}, 3000);
 };
 
-// Глобальная функция обновления счетчика корзины
-const updateCartCountGlobal = () => {
+// Глобальная функция обновления счетчика корзины (с debounce для предотвращения множественных запросов)
+const updateCartCountGlobal = debounce(() => {
 	const cartCountElements = document.querySelectorAll('[data-cart-count]');
 	if (!cartCountElements || cartCountElements.length === 0) {
 		return;
 	}
 
-	if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-		jQuery.ajax({
-			type: 'POST',
-			url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-			dataType: 'json',
-			success: function(response) {
-				if (response && response.fragments) {
-					const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
-					                    response.fragments['.widget_shopping_cart_content'] ||
-					                    Object.values(response.fragments).find(fragment => 
-					                    	typeof fragment === 'string' && fragment.includes('cart_item')
-					                    );
+	wcAjax('get_refreshed_fragments', {}, {
+		success: function(response) {
+			if (response && response.fragments) {
+				const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
+				                    response.fragments['.widget_shopping_cart_content'] ||
+				                    Object.values(response.fragments).find(fragment => 
+				                    	typeof fragment === 'string' && fragment.includes('cart_item')
+				                    );
+				
+				if (cartContent) {
+					const tempDiv = document.createElement('div');
+					tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+					const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, .woocommerce-mini-cart-item');
+					let totalQuantity = 0;
 					
-					if (cartContent) {
-						const tempDiv = document.createElement('div');
-						tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
-						const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, .woocommerce-mini-cart-item');
-						let totalQuantity = 0;
-						
-						cartItems.forEach(item => {
-							const quantityElement = item.querySelector('.quantity, .mini-cart-item__quantity-value, .woocommerce-mini-cart-item__quantity');
-							if (quantityElement) {
-								const quantityText = quantityElement.textContent.trim();
-								const quantity = parseInt(quantityText) || 0;
-								totalQuantity += quantity;
-							}
-						});
-						
-						if (totalQuantity > 0) {
-							cartCountElements.forEach(element => {
-								element.textContent = totalQuantity;
-								element.style.display = 'flex';
-							});
-						} else {
-							cartCountElements.forEach(element => {
-								element.textContent = '0';
-								element.style.display = 'none';
-							});
+					cartItems.forEach(item => {
+						const quantityElement = item.querySelector('.quantity, .mini-cart-item__quantity-value, .woocommerce-mini-cart-item__quantity');
+						if (quantityElement) {
+							const quantityText = quantityElement.textContent.trim();
+							const quantity = parseInt(quantityText) || 0;
+							totalQuantity += quantity;
 						}
+					});
+					
+					if (totalQuantity > 0) {
+						cartCountElements.forEach(element => {
+							element.textContent = totalQuantity;
+							element.style.display = 'flex';
+						});
 					} else {
 						cartCountElements.forEach(element => {
 							element.textContent = '0';
 							element.style.display = 'none';
 						});
 					}
+				} else {
+					cartCountElements.forEach(element => {
+						element.textContent = '0';
+						element.style.display = 'none';
+					});
 				}
-			},
-			error: function() {
-				cartCountElements.forEach(element => {
-					element.textContent = '0';
-					element.style.display = 'none';
-				});
 			}
-		});
-	}
-};
+		},
+		error: function() {
+			cartCountElements.forEach(element => {
+				element.textContent = '0';
+				element.style.display = 'none';
+			});
+		}
+	});
+}, 200);
 
 // Глобальный обработчик события added_to_cart (работает на всех страницах)
 // Регистрируем после загрузки DOM и jQuery
@@ -1779,7 +1914,6 @@ const updateCartCountGlobal = () => {
 			return;
 		}
 
-		let searchTimeout;
 		let currentRequest = null;
 
 		// Функция для обновления видимости кнопок
@@ -2046,8 +2180,6 @@ const updateCartCountGlobal = () => {
 									quantityWrapper.style.display = 'flex';
 									quantityWrapper.classList.add('show');
 									
-									// Инициализируем кнопки количества
-									initQuantityButtonsForCard(quantityWrapper);
 								}
 							}
 						});
@@ -2058,11 +2190,6 @@ const updateCartCountGlobal = () => {
 				});
 			}
 
-			// Инициализация кнопок количества для каждого товара
-			const quantityWrappers = searchResults.querySelectorAll('.product-card__quantity-wrapper.show');
-			quantityWrappers.forEach((wrapper) => {
-				initQuantityButtonsForCard(wrapper);
-			});
 			
 			// Инициализация обработчиков для кнопок корзины в мобильной версии
 			const mobileCartButtons = searchResults.querySelectorAll('.site-header__search-result-cart-button');
@@ -2082,14 +2209,10 @@ const updateCartCountGlobal = () => {
 					
 					// Добавляем товар в корзину
 					jQuery(document.body).trigger('adding_to_cart', [button, {}]);
-					jQuery.ajax({
-						type: 'POST',
-						url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
-						data: {
-							product_id: productId,
-							quantity: 1,
-						},
-						dataType: 'json',
+					wcAjax('add_to_cart', {
+						product_id: productId,
+						quantity: 1,
+					}, {
 						success: function(response) {
 							if (response.error && response.product_url) {
 								window.location = response.product_url;
@@ -2163,14 +2286,10 @@ const updateCartCountGlobal = () => {
 					const productId = newButton.getAttribute('data-product_id');
 					if (productId && typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
 						jQuery(document.body).trigger('adding_to_cart', [newButton, {}]);
-						jQuery.ajax({
-							type: 'POST',
-							url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
-							data: {
-								product_id: productId,
-								quantity: 1,
-							},
-							dataType: 'json',
+						wcAjax('add_to_cart', {
+							product_id: productId,
+							quantity: 1,
+						}, {
 							success: function(response) {
 								if (response.error && response.product_url) {
 									window.location = response.product_url;
@@ -2192,7 +2311,6 @@ const updateCartCountGlobal = () => {
 										newButton.style.display = 'none';
 										quantityWrapper.style.display = 'flex';
 										quantityWrapper.classList.add('show');
-										initQuantityButtonsForCard(quantityWrapper);
 									}
 								}
 								
@@ -2214,15 +2332,15 @@ const updateCartCountGlobal = () => {
 			});
 		};
 
-		// Поиск при вводе
-		searchInput.addEventListener('input', (e) => {
+		// Поиск при вводе с debounce для предотвращения множественных запросов
+		const debouncedPerformSearch = debounce((query) => {
+			performSearch(query);
+		}, 300);
+
+		addEventListenerDebounced(searchInput, 'input', (e) => {
 			updateSearchButtons();
-			clearTimeout(searchTimeout);
 			const query = e.target.value.trim();
-			
-			searchTimeout = setTimeout(() => {
-				performSearch(query);
-			}, 300);
+			debouncedPerformSearch(query);
 		});
 
 		// Инициализация видимости кнопок при загрузке
@@ -2248,30 +2366,31 @@ const updateCartCountGlobal = () => {
 
 		// Закрываем выпадающий список при скролле для мобильной версии
 		if (window.innerWidth <= 1025) {
-			let scrollTimeout;
 			let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
 			
-			window.addEventListener('scroll', () => {
+			const handleScroll = debounce(() => {
+				if (searchResults.classList.contains('is-visible')) {
+					searchResults.classList.remove('is-visible');
+					returnSearchResultsToOriginal();
+				}
+			}, 100);
+
+			addEventListenerDebounced(window, 'scroll', () => {
 				if (searchResults.classList.contains('is-visible')) {
 					const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
 					// Проверяем, что произошел реальный скролл (не просто событие)
 					if (Math.abs(currentScrollTop - lastScrollTop) > 5) {
-						clearTimeout(scrollTimeout);
-						scrollTimeout = setTimeout(() => {
-							searchResults.classList.remove('is-visible');
-							returnSearchResultsToOriginal();
-						}, 100);
+						handleScroll();
 					}
 					lastScrollTop = currentScrollTop;
 				}
 			}, { passive: true });
 			
-			// Обновляем позицию при изменении размера окна
-			let resizeTimeout;
-			window.addEventListener('resize', () => {
+			// Обновляем позицию при изменении размера окна с debounce
+			const debouncedPositionSearchResults = debounce(positionSearchResults, 10);
+			addEventListenerDebounced(window, 'resize', () => {
 				if (searchResults.classList.contains('is-visible')) {
-					clearTimeout(resizeTimeout);
-					resizeTimeout = setTimeout(positionSearchResults, 10);
+					debouncedPositionSearchResults();
 				}
 			});
 		}
@@ -2313,244 +2432,192 @@ const updateCartCountGlobal = () => {
 })();
 
 /**
- * Инициализация кнопок количества товара
- * Используем нативный JavaScript для надежности
+ * Инициализация кнопок количества товара в карточках каталога
  */
 const initQuantityButtons = () => {
-	console.log('[initQuantityButtons] Функция инициализирована');
-	
-	// Функция для обработки клика
-	const handleQuantityClick = (e) => {
-		console.log('[handleQuantityClick] Клик зарегистрирован', e.target);
+	// Обработчик клика на кнопки +/-
+	document.addEventListener('click', function(e) {
+		const button = e.target.closest('.quantity-button--minus, .quantity-button--plus');
+		if (!button) return;
 		
-		// Проверяем, что клик произошел на кнопке или внутри нее
-		const clickedElement = e.target;
-		console.log('[handleQuantityClick] clickedElement:', clickedElement, 'классы:', clickedElement.className);
-		
-		let button = clickedElement;
-		
-		// Если клик был на img или другом элементе внутри кнопки, находим саму кнопку
-		if (!button.classList.contains('quantity-button--minus') && !button.classList.contains('quantity-button--plus')) {
-			button = clickedElement.closest('.quantity-button--minus, .quantity-button--plus');
-			console.log('[handleQuantityClick] Найдена кнопка через closest:', button);
-		}
-		
-		if (!button) {
-			console.log('[handleQuantityClick] Кнопка не найдена, выход');
-			return;
-		}
-		
-		console.log('[handleQuantityClick] Кнопка найдена:', button, 'классы:', button.className);
-		
-		// Находим wrapper и input
-		const wrapper = button.closest('.quantity-wrapper');
-		if (!wrapper) {
-			console.log('[handleQuantityClick] Wrapper не найден, выход');
-			return;
-		}
-		
-		console.log('[handleQuantityClick] Wrapper найден:', wrapper);
-		
-		const input = wrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
-		if (!input) {
-			console.log('[handleQuantityClick] Input не найден, выход');
-			return;
-		}
-		
-		console.log('[handleQuantityClick] Input найден:', input, 'текущее значение:', input.value);
+		const wrapper = button.closest('.product-card__quantity-wrapper');
+		if (!wrapper) return;
 		
 		e.preventDefault();
 		e.stopPropagation();
+		
+		const input = wrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+		if (!input) return;
+		
+		const productId = wrapper.getAttribute('data-product-id');
+		if (!productId) return;
 		
 		const min = parseInt(input.getAttribute('min')) || 1;
 		const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
 		const step = parseInt(input.getAttribute('step')) || 1;
 		const currentVal = parseInt(input.value) || min;
 		
-		console.log('[handleQuantityClick] Параметры:', { min, max, step, currentVal });
-		
 		let newVal;
-		
 		if (button.classList.contains('quantity-button--minus')) {
 			newVal = Math.max(min, currentVal - step);
-			console.log('[handleQuantityClick] Минус: новое значение =', newVal);
 		} else {
 			newVal = max ? Math.min(max, currentVal + step) : currentVal + step;
-			console.log('[handleQuantityClick] Плюс: новое значение =', newVal);
 		}
 		
-		// Обновляем значение
+		// Обновляем значение в input
 		input.value = newVal;
 		input.setAttribute('value', newVal);
 		
-		console.log('[handleQuantityClick] Значение обновлено в input:', input.value);
+		// Обновляем корзину
+		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+			updateProductQuantityInCart(productId, newVal, wrapper);
+		}
+	}, true);
+	
+	// Обработчик изменения input вручную
+	document.addEventListener('change', function(e) {
+		const input = e.target;
+		if (!input.matches('input.qty, input[type="number"], .product-card__quantity-input')) return;
 		
-		// Триггерим события
-		input.dispatchEvent(new Event('change', { bubbles: true }));
-		input.dispatchEvent(new Event('input', { bubbles: true }));
+		const wrapper = input.closest('.product-card__quantity-wrapper');
+		if (!wrapper) return;
 		
-		console.log('[handleQuantityClick] События change и input отправлены');
+		const productId = wrapper.getAttribute('data-product-id');
+		if (!productId) return;
 		
-		// Если это карточка товара, обновляем корзину через AJAX
-		if (wrapper.classList.contains('product-card__quantity-wrapper')) {
-			console.log('[handleQuantityClick] Это карточка товара, обновляем корзину');
-			const productId = wrapper.getAttribute('data-product-id');
-			if (productId && typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-				// Вычисляем разницу количества (сколько нужно добавить/убрать)
-				const quantityDelta = newVal - currentVal;
-				console.log('[handleQuantityClick] Разница количества:', quantityDelta);
-				
-				if (quantityDelta === 0) {
-					console.log('[handleQuantityClick] Количество не изменилось, пропускаем');
-					return;
+		const min = parseInt(input.getAttribute('min')) || 1;
+		const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
+		let value = parseInt(input.value) || min;
+		
+		if (value < min) value = min;
+		if (max && value > max) value = max;
+		
+		input.value = value;
+		input.setAttribute('value', value);
+		
+		// Обновляем корзину
+		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
+			updateProductQuantityInCart(productId, value, wrapper);
+		}
+	});
+};
+
+/**
+ * Обновление количества товара в корзине из каталога
+ * Обновляет корзину на основе количества в каталоге (каталог -> корзина)
+ */
+const updateProductQuantityInCart = (productId, quantity, wrapper) => {
+	// Если идет синхронизация из корзины, не обновляем корзину из каталога
+	if (isSyncingFromCart) {
+		return;
+	}
+	
+	// Получаем текущее состояние корзины
+	wcAjax('get_refreshed_fragments', {}, {
+		success: function(response) {
+			if (!response || !response.fragments) {
+				// Товара нет в корзине - добавляем
+				addProductToCart(productId, quantity, wrapper);
+				return;
+			}
+			
+			// Ищем товар в корзине
+			const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
+			                    response.fragments['.widget_shopping_cart_content'] ||
+			                    Object.values(response.fragments).find(frag => 
+			                    	typeof frag === 'string' && frag.includes('mini-cart-item')
+			                    );
+			
+			if (!cartContent) {
+				// Товара нет в корзине - добавляем
+				addProductToCart(productId, quantity, wrapper);
+				return;
+			}
+			
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+			const cartItem = tempDiv.querySelector('[data-product-id="' + productId + '"]');
+			
+			if (!cartItem) {
+				// Товара нет в корзине - добавляем
+				addProductToCart(productId, quantity, wrapper);
+				return;
+			}
+			
+			// Товар есть в корзине - обновляем количество
+			const removeButton = cartItem.querySelector('.mini-cart-item__remove');
+			if (!removeButton) {
+				addProductToCart(productId, quantity, wrapper);
+				return;
+			}
+			
+			const cartItemKey = removeButton.getAttribute('data-cart_item_key') || 
+			                    removeButton.getAttribute('href')?.match(/remove_item=([^&]+)/)?.[1];
+			
+			if (!cartItemKey) {
+				addProductToCart(productId, quantity, wrapper);
+				return;
+			}
+			
+			// Обновляем количество в корзине
+			const form = document.createElement('form');
+			form.method = 'POST';
+			form.action = wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'update_cart');
+			
+			const cartInput = document.createElement('input');
+			cartInput.type = 'hidden';
+			cartInput.name = 'cart[' + cartItemKey + '][qty]';
+			cartInput.value = quantity;
+			form.appendChild(cartInput);
+			
+			const updateInput = document.createElement('input');
+			updateInput.type = 'hidden';
+			updateInput.name = 'update_cart';
+			updateInput.value = 'Update Cart';
+			form.appendChild(updateInput);
+			
+			const nonce = wc_add_to_cart_params.wc_cart_nonce || '';
+			const formData = jQuery(form).serialize();
+			const dataWithNonce = formData + (nonce ? '&_wpnonce=' + encodeURIComponent(nonce) : '');
+			
+			wcAjax('update_cart', dataWithNonce, {
+				success: function() {
+					refreshCartFragments(() => {
+						// Не вызываем syncCatalogQuantity здесь, чтобы избежать циклической синхронизации
+						// Синхронизация произойдет автоматически через события WooCommerce
+					});
 				}
-				
-				// Получаем текущее состояние корзины для проверки наличия товара
-				jQuery.ajax({
-					type: 'POST',
-					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-					dataType: 'json',
-					success: function(cartResponse) {
-						// Парсим HTML корзины для поиска товара
-						let cartItemKey = null;
-						let currentCartQuantity = 0;
-						
-						if (cartResponse && cartResponse.fragments) {
-							const cartFragment = Object.values(cartResponse.fragments).find(frag => 
-								typeof frag === 'string' && frag.includes('mini-cart-item') && frag.includes('data-product-id="' + productId + '"')
-							);
-							
-							if (cartFragment) {
-								const tempDiv = document.createElement('div');
-								tempDiv.innerHTML = cartFragment;
-								const cartItem = tempDiv.querySelector('[data-product-id="' + productId + '"]');
-								if (cartItem) {
-									// Находим cart_item_key из кнопки удаления или из data-атрибута
-									const removeButton = cartItem.querySelector('.mini-cart-item__remove');
-									if (removeButton) {
-										cartItemKey = removeButton.getAttribute('data-cart_item_key') || removeButton.getAttribute('href')?.match(/remove_item=([^&]+)/)?.[1];
-									}
-									// Получаем текущее количество из корзины
-									const quantitySpan = cartItem.querySelector('.mini-cart-item__quantity-value');
-									if (quantitySpan) {
-										currentCartQuantity = parseInt(quantitySpan.textContent.trim().split(' ')[0]) || 0;
-									}
-								}
-							}
-						}
-						
-						console.log('[handleQuantityClick] Товар в корзине:', cartItemKey ? 'да' : 'нет', 'текущее количество:', currentCartQuantity);
-						
-						if (cartItemKey && currentCartQuantity > 0) {
-							// Товар уже в корзине - устанавливаем количество равным выбранному в каталоге (newVal)
-							// Пользователь выбирает общее количество, которое хочет, а не добавляет к существующему
-							const newTotalQuantity = Math.max(1, newVal);
-							console.log('[handleQuantityClick] Устанавливаем количество в корзине на', newTotalQuantity, '(выбрано в каталоге:', newVal, ')');
-							
-							const form = document.createElement('form');
-							form.method = 'POST';
-							form.action = wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'update_cart');
-							
-							const cartInput = document.createElement('input');
-							cartInput.type = 'hidden';
-							cartInput.name = 'cart[' + cartItemKey + '][qty]';
-							cartInput.value = newTotalQuantity;
-							form.appendChild(cartInput);
-							
-							const updateInput = document.createElement('input');
-							updateInput.type = 'hidden';
-							updateInput.name = 'update_cart';
-							updateInput.value = 'Update Cart';
-							form.appendChild(updateInput);
-							
-							const nonce = wc_add_to_cart_params.wc_cart_nonce || '';
-							const formData = jQuery(form).serialize();
-							const dataWithNonce = formData + (nonce ? '&_wpnonce=' + encodeURIComponent(nonce) : '');
-							
-							jQuery.ajax({
-								type: 'POST',
-								url: form.action,
-								data: dataWithNonce,
-								success: function() {
-									// Обновляем фрагменты
-									jQuery.ajax({
-										type: 'POST',
-										url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-										success: function(response) {
-											if (response && response.fragments) {
-												jQuery.each(response.fragments, function(key, value) {
-													jQuery(key).replaceWith(value);
-												});
-											}
-											jQuery(document.body).trigger('wc_fragment_refresh');
-											jQuery(document.body).trigger('updated_cart_totals');
-										}
-									});
-								}
-							});
-						} else {
-							// Товара нет в корзине - добавляем с новым количеством
-							console.log('[handleQuantityClick] Добавляем товар в корзину с количеством:', newVal);
-							jQuery.ajax({
-								type: 'POST',
-								url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
-								data: {
-									product_id: productId,
-									quantity: newVal,
-								},
-								dataType: 'json',
-								success: function(response) {
-									console.log('[handleQuantityClick] AJAX успех:', response);
-									if (response.error && response.product_url) {
-										return;
-									}
-									
-									if (response.fragments) {
-										jQuery.each(response.fragments, function(key, value) {
-											jQuery(key).replaceWith(value);
-										});
-									}
-									
-									if (response.cart_hash) {
-										jQuery(document.body).trigger('wc_fragment_refresh');
-									}
-									
-									jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, wrapper]);
-								},
-							});
-						}
-					}
+			});
+		}
+	});
+};
+
+/**
+ * Добавление товара в корзину
+ */
+const addProductToCart = (productId, quantity, wrapper) => {
+	wcAjax('add_to_cart', {
+		product_id: productId,
+		quantity: quantity,
+	}, {
+		success: function(response) {
+			if (response.error && response.product_url) {
+				return;
+			}
+			
+			if (response.fragments) {
+				jQuery.each(response.fragments, function(key, value) {
+					jQuery(key).replaceWith(value);
 				});
 			}
-		} else {
-			console.log('[handleQuantityClick] Это не карточка товара (обычная страница товара)');
+			
+			if (response.cart_hash) {
+				jQuery(document.body).trigger('wc_fragment_refresh');
+			}
+			
+			jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, wrapper]);
 		}
-	};
-	
-	// Используем делегирование событий на document
-	document.addEventListener('click', function(e) {
-		console.log('[click handler] Клик зарегистрирован на:', e.target);
-		
-		// Проверяем, что клик произошел внутри quantity-wrapper
-		const wrapper = e.target.closest('.quantity-wrapper');
-		if (!wrapper) {
-			return;
-		}
-		
-		console.log('[click handler] Wrapper найден:', wrapper);
-		
-		// Проверяем, что клик был на кнопке или внутри нее
-		const button = e.target.closest('.quantity-button--minus, .quantity-button--plus');
-		if (!button) {
-			console.log('[click handler] Кнопка не найдена внутри wrapper');
-			return;
-		}
-		
-		console.log('[click handler] Кнопка найдена, вызываем handleQuantityClick');
-		handleQuantityClick(e);
-	}, true); // Используем capture phase для раннего перехвата
-	
-	console.log('[initQuantityButtons] Обработчик событий добавлен на document');
+	});
 };
 
 const initPromoCodeCopy = () => {
@@ -2652,14 +2719,10 @@ const initProductCardAddToCart = () => {
 					// Если доступен jQuery и WooCommerce AJAX
 					jQuery(document.body).trigger('adding_to_cart', [newButton, {}]);
 					
-					jQuery.ajax({
-						type: 'POST',
-						url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
-						data: {
-							product_id: productId,
-							quantity: quantity,
-						},
-						dataType: 'json',
+					wcAjax('add_to_cart', {
+						product_id: productId,
+						quantity: quantity,
+					}, {
 						success: function(response) {
 							if (response.error && response.product_url) {
 								window.location = response.product_url;
@@ -2677,8 +2740,6 @@ const initProductCardAddToCart = () => {
 									quantityWrapper.style.display = 'flex';
 									quantityWrapper.classList.add('show');
 									
-									// Инициализируем кнопки количества
-									initQuantityButtonsForCard(quantityWrapper);
 								}
 							}
 							
@@ -2712,6 +2773,129 @@ const initProductCardAddToCart = () => {
 		});
 	});
 };
+
+// Флаг для предотвращения циклической синхронизации
+let isSyncingFromCart = false;
+
+/**
+ * Синхронизация количества в каталоге с количеством в корзине
+ * Читает количество из корзины и обновляет каталог (корзина -> каталог)
+ * Использует debounce для предотвращения множественных запросов
+ */
+const syncCatalogQuantity = debounce(() => {
+	if (typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
+		return;
+	}
+	
+	// Устанавливаем флаг синхронизации
+	isSyncingFromCart = true;
+	
+	// Получаем актуальное состояние корзины
+	wcAjax('get_refreshed_fragments', {}, {
+		success: function(response) {
+			if (!response || !response.fragments) {
+				isSyncingFromCart = false;
+				return;
+			}
+			
+			// Ищем фрагмент корзины (может быть в разных форматах)
+			const cartContent = response.fragments['div.widget_shopping_cart_content'] || 
+			                    response.fragments['.widget_shopping_cart_content'] ||
+			                    Object.values(response.fragments).find(fragment => 
+			                    	typeof fragment === 'string' && (fragment.includes('mini-cart-item') || fragment.includes('cart_item'))
+			                    );
+			
+			if (!cartContent) {
+				isSyncingFromCart = false;
+				return;
+			}
+			
+			// Создаем временный элемент для парсинга
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = typeof cartContent === 'string' ? cartContent : cartContent.outerHTML || '';
+			
+			// Получаем все товары в корзине
+			const cartItems = tempDiv.querySelectorAll('.mini-cart-item, .cart_item, [data-product-id]');
+			const cartProductIds = new Set();
+			const cartQuantities = new Map();
+			
+			cartItems.forEach(item => {
+				const productId = item.getAttribute('data-product-id') || 
+				                 item.querySelector('[data-product-id]')?.getAttribute('data-product-id');
+				const quantitySpan = item.querySelector('.mini-cart-item__quantity-value, .quantity, .woocommerce-mini-cart-item__quantity');
+				if (productId && quantitySpan) {
+					const quantityText = quantitySpan.textContent.trim();
+					const quantity = parseInt(quantityText.split(' ')[0]) || 0;
+					if (quantity > 0) {
+						cartQuantities.set(productId, quantity);
+						cartProductIds.add(productId);
+					}
+				}
+			});
+			
+			// Обновляем все карточки товаров
+			const productCards = document.querySelectorAll('.product-card');
+			productCards.forEach(card => {
+				const buttonWrapper = card.querySelector('.product-card__button-wrapper');
+				if (!buttonWrapper) {
+					return;
+				}
+				
+				const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
+				const productId = addToCartButton?.getAttribute('data-product_id') || 
+				                 addToCartButton?.getAttribute('data-product-id');
+				
+				if (!productId) {
+					return;
+				}
+				
+				const quantityWrapper = buttonWrapper.querySelector(`.product-card__quantity-wrapper[data-product-id="${productId}"]`);
+				
+				if (cartProductIds.has(productId)) {
+					// Товар в корзине - обновляем количество и показываем quantity-wrapper
+					if (quantityWrapper) {
+						const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+						if (input) {
+							const quantity = cartQuantities.get(productId) || 1;
+							// Обновляем только если значение отличается
+							input.value = quantity;
+							input.setAttribute('value', quantity);
+						}
+						// Показываем quantity-wrapper
+						if (addToCartButton) {
+							addToCartButton.style.display = 'none';
+						}
+						quantityWrapper.style.display = 'flex';
+						quantityWrapper.classList.add('show');
+					}
+				} else {
+					// Товара нет в корзине - скрываем quantity-wrapper и показываем кнопку
+					if (quantityWrapper) {
+						quantityWrapper.style.display = 'none';
+						quantityWrapper.classList.remove('show');
+						// Сбрасываем количество на 1
+						const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+						if (input) {
+							input.value = 1;
+							input.setAttribute('value', 1);
+						}
+					}
+					if (addToCartButton) {
+						addToCartButton.style.display = '';
+					}
+				}
+			});
+			
+			// Сбрасываем флаг после завершения синхронизации
+			setTimeout(() => {
+				isSyncingFromCart = false;
+			}, 100);
+		},
+		error: function() {
+			isSyncingFromCart = false;
+		}
+	});
+}, 300);
 
 /**
  * Проверка корзины при загрузке страницы - показываем quantity-wrapper для товаров в корзине
@@ -2786,8 +2970,6 @@ const checkCartForProducts = () => {
 						quantityWrapper.style.display = 'flex';
 						quantityWrapper.classList.add('show');
 						
-						// Инициализируем кнопки количества
-						initQuantityButtonsForCard(quantityWrapper);
 					}
 				}
 			});
@@ -2798,165 +2980,7 @@ const checkCartForProducts = () => {
 	});
 };
 
-/**
- * Обработка успешного добавления товара в корзину - замена кнопки на quantity-wrapper
- */
-const handleAddToCartSuccess = (button) => {
-	if (!button) {
-		return;
-	}
-	
-	// Проверяем, что это кнопка добавления в корзину в карточке товара
-	if (!button.classList.contains('add_to_cart_button') && !button.classList.contains('ajax_add_to_cart')) {
-		return;
-	}
-	
-	// Получаем ID товара
-	const productId = button.getAttribute('data-product_id') || 
-	                  button.getAttribute('data-product-id') ||
-	                  button.getAttribute('value');
-	
-	if (!productId) {
-		return;
-	}
-	
-	// Находим обертку кнопки
-	const buttonWrapper = button.closest('.product-card__button-wrapper');
-	if (!buttonWrapper) {
-		return;
-	}
-	
-	// Находим quantity-wrapper
-	const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
-	if (!quantityWrapper) {
-		return;
-	}
-	
-	// Скрываем кнопку
-	button.style.display = 'none';
-	
-	// Показываем quantity-wrapper
-	quantityWrapper.style.display = 'flex';
-	quantityWrapper.classList.add('show');
-	
-	// Инициализируем кнопки количества
-	initQuantityButtonsForCard(quantityWrapper);
-	
-	console.log('[handleAddToCartSuccess] Кнопка заменена на quantity-wrapper для товара', productId);
-};
 
-/**
- * Инициализация кнопок количества для карточки товара
- */
-const initQuantityButtonsForCard = (wrapper) => {
-	const minusButton = wrapper.querySelector('.quantity-button--minus');
-	const plusButton = wrapper.querySelector('.quantity-button--plus');
-	const input = wrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
-	const productId = wrapper.getAttribute('data-product-id');
-	
-	if (!minusButton || !plusButton || !input) {
-		console.log('Missing elements:', { minusButton, plusButton, input });
-		return;
-	}
-	
-	const min = parseInt(input.getAttribute('min')) || 1;
-	const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
-	const step = parseInt(input.getAttribute('step')) || 1;
-	
-	// Удаляем старые обработчики, если они есть
-	const newMinusButton = minusButton.cloneNode(true);
-	const newPlusButton = plusButton.cloneNode(true);
-	minusButton.parentNode.replaceChild(newMinusButton, minusButton);
-	plusButton.parentNode.replaceChild(newPlusButton, plusButton);
-	
-	// Функция для обновления количества в корзине через AJAX
-	const updateCartQuantity = (newQuantity) => {
-		if (newQuantity < min) {
-			input.value = min;
-			return;
-		}
-		if (max && newQuantity > max) {
-			input.value = max;
-			return;
-		}
-		
-		// Используем WooCommerce AJAX для обновления количества только если товар уже в корзине
-		if (productId && typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
-			jQuery.ajax({
-				type: 'POST',
-				url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
-				data: {
-					product_id: productId,
-					quantity: newQuantity,
-				},
-				dataType: 'json',
-				success: function(response) {
-					if (response.error && response.product_url) {
-						return;
-					}
-					
-					// Обновляем корзину
-					if (response.fragments) {
-						jQuery.each(response.fragments, function(key, value) {
-							jQuery(key).replaceWith(value);
-						});
-					}
-					
-					if (response.cart_hash) {
-						jQuery(document.body).trigger('wc_fragment_refresh');
-					}
-					
-					jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, wrapper]);
-				},
-			});
-		}
-	};
-	
-	// Обработчик для кнопки минус
-	newMinusButton.addEventListener('click', (e) => {
-		e.preventDefault();
-		e.stopPropagation();
-		let currentValue = parseInt(input.value) || min;
-		const newValue = Math.max(min, currentValue - step);
-		input.value = newValue;
-		// Триггерим события для обновления
-		input.dispatchEvent(new Event('change', { bubbles: true }));
-		input.dispatchEvent(new Event('input', { bubbles: true }));
-		if (productId) {
-			updateCartQuantity(newValue);
-		}
-	});
-	
-	// Обработчик для кнопки плюс
-	newPlusButton.addEventListener('click', (e) => {
-		e.preventDefault();
-		e.stopPropagation();
-		let currentValue = parseInt(input.value) || min;
-		const newValue = max ? Math.min(max, currentValue + step) : currentValue + step;
-		input.value = newValue;
-		// Триггерим события для обновления
-		input.dispatchEvent(new Event('change', { bubbles: true }));
-		input.dispatchEvent(new Event('input', { bubbles: true }));
-		if (productId) {
-			updateCartQuantity(newValue);
-		}
-	});
-	
-	// Валидация при ручном вводе
-	input.addEventListener('change', () => {
-		let value = parseInt(input.value) || min;
-		if (value < min) {
-			value = min;
-		}
-		if (max && value > max) {
-			value = max;
-		}
-		input.value = value;
-		if (productId) {
-			updateCartQuantity(value);
-		}
-	});
-};
 
 /**
  * Инициализация мини-корзины и перехват формы добавления в корзину
@@ -3041,14 +3065,10 @@ const initMiniCart = () => {
 			
 			// Отправляем через AJAX
 			if (typeof wc_add_to_cart_params !== 'undefined') {
-				jQuery.ajax({
-					type: 'POST',
-					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
-					data: {
-						product_id: productId,
-						quantity: quantity,
-					},
-					dataType: 'json',
+				wcAjax('add_to_cart', {
+					product_id: productId,
+					quantity: quantity,
+				}, {
 					success: function(response) {
 						console.log('[initMiniCart] AJAX успех:', response);
 						
@@ -3142,38 +3162,29 @@ const initMiniCart = () => {
 					removeData._wpnonce = wc_add_to_cart_params.wc_cart_nonce;
 				}
 				
-				jQuery.ajax({
-					type: 'POST',
-					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'remove_from_cart'),
-					data: removeData,
-					dataType: 'json',
+				wcAjax('remove_from_cart', removeData, {
 					success: function(response) {
 						console.log('[initMiniCart] Товар удален, ответ:', response);
 						
 						if (!response || !response.fragments) {
 							console.log('[initMiniCart] Нет фрагментов в ответе, обновляем через get_refreshed_fragments');
 							// Если нет фрагментов, получаем их отдельно
-							jQuery.ajax({
-								type: 'POST',
-								url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-								dataType: 'json',
-								success: function(fragmentResponse) {
-									if (fragmentResponse && fragmentResponse.fragments) {
-										const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
-										if (cartContent) {
-											jQuery.each(fragmentResponse.fragments, function(key, value) {
-												if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
-													jQuery(cartContent).html(value);
-													setTimeout(() => {
-														initMiniCartQuantityButtons();
-													}, 100);
-												} else {
-													jQuery(key).replaceWith(value);
-												}
-											});
-										}
-										jQuery(document.body).trigger('removed_from_cart', [fragmentResponse.fragments, fragmentResponse.cart_hash, $button]);
+							refreshCartFragments(function(fragmentResponse) {
+								if (fragmentResponse && fragmentResponse.fragments) {
+									const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+									if (cartContent) {
+										jQuery.each(fragmentResponse.fragments, function(key, value) {
+											if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
+												jQuery(cartContent).html(value);
+												setTimeout(() => {
+													initMiniCartQuantityButtons();
+												}, 100);
+											} else {
+												jQuery(key).replaceWith(value);
+											}
+										});
 									}
+									jQuery(document.body).trigger('removed_from_cart', [fragmentResponse.fragments, fragmentResponse.cart_hash, $button]);
 								}
 							});
 							return;
@@ -3216,7 +3227,6 @@ const initMiniCart = () => {
 
 		// Предотвращаем закрытие корзины при удалении товара
 		jQuery(document.body).on('removed_from_cart', function(event, fragments, cart_hash, $button) {
-			console.log('[initMiniCart] Событие removed_from_cart сработало, корзина остается открытой');
 			// Не закрываем корзину - просто обновляем содержимое
 			if (fragments) {
 				const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
@@ -3227,99 +3237,69 @@ const initMiniCart = () => {
 							// Переинициализируем кнопки количества после обновления
 							setTimeout(() => {
 								initMiniCartQuantityButtons();
+								// Синхронизируем количество в каталоге с корзиной
+								syncCatalogQuantity();
 							}, 100);
 						} else {
 							jQuery(key).replaceWith(value);
 						}
 					});
 				}
+			} else {
+				// Если нет фрагментов, все равно синхронизируем
+				setTimeout(() => {
+					syncCatalogQuantity();
+				}, 100);
 			}
 		});
 
 		// Открытие корзины при добавлении товара через другие методы
+	// Debounce для обработки добавления в корзину
+	let addedToCartTimeout = null;
+	
 	// Обработчик для замены кнопки на quantity-wrapper после добавления в корзину
-	jQuery(document.body).on('added_to_cart', function(event, fragments, cart_hash, $button) {
+	// Используем namespace для избежания конфликтов
+	jQuery(document.body).off('added_to_cart.miniCart').on('added_to_cart.miniCart', function(event, fragments, cart_hash, $button) {
 		console.log('[added_to_cart handler] Событие added_to_cart сработало');
 		
-		// Получаем элемент кнопки
-		const button = $button && $button.length ? $button[0] : (typeof $button === 'object' && $button.nodeType ? $button : null);
-		if (button) {
-			// Обрабатываем успешное добавление в корзину
-			handleAddToCartSuccess(button);
-		} else {
-			// Пытаемся найти кнопку по event target или другим способом
-			const target = event.target || event.originalEvent?.target;
-			if (target && (target.classList.contains('add_to_cart_button') || target.classList.contains('ajax_add_to_cart'))) {
-				handleAddToCartSuccess(target);
-			} else {
-				// Ищем все кнопки добавления в корзину, которые могли быть использованы
-				const allButtons = document.querySelectorAll('.add_to_cart_button.ajax_add_to_cart');
-				allButtons.forEach(btn => {
-					if (btn.classList.contains('loading') || btn.classList.contains('added')) {
-						handleAddToCartSuccess(btn);
-					}
-				});
-			}
+		// Очищаем предыдущий таймер
+		if (addedToCartTimeout) {
+			clearTimeout(addedToCartTimeout);
 		}
 		
-		// Не открываем корзину автоматически - показываем только уведомление
-			
-			// Обновляем содержимое корзины через AJAX
-			if (typeof wc_add_to_cart_params !== 'undefined') {
-				jQuery.ajax({
-					type: 'POST',
-					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-					success: function(data) {
-						console.log('[initMiniCart] Фрагменты обновлены:', data);
-						if (data && data.fragments) {
-							jQuery.each(data.fragments, function(key, value) {
-								// Обновляем мини-корзину
-								if (key.includes('widget_shopping_cart_content') || key.includes('mini-cart')) {
-									const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
-									if (cartContent) {
-										jQuery(cartContent).html(value);
-									}
-								} else {
-									jQuery(key).replaceWith(value);
-								}
-							});
-						}
-					}
-				});
-			}
-		});
+		// Устанавливаем новый таймер для debounce (150ms)
+		addedToCartTimeout = setTimeout(() => {
+			// Синхронизируем количество в каталоге с корзиной
+			setTimeout(() => {
+				syncCatalogQuantity();
+			}, 200);
+		}, 150);
+	});
 
-		// Обновление корзины при изменении количества или удалении товара
-		jQuery(document.body).on('wc_fragment_refresh', function() {
-			if (typeof wc_add_to_cart_params !== 'undefined') {
-				jQuery.ajax({
-					type: 'POST',
-					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-					success: function(data) {
-						if (data && data.fragments) {
-							jQuery.each(data.fragments, function(key, value) {
-								const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
-								if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
-									jQuery(cartContent).html(value);
-								} else {
-									jQuery(key).replaceWith(value);
-								}
-							});
+		// Обновление корзины при изменении количества или удалении товара (с debounce)
+		const debouncedRefreshCart = debounce(() => {
+			refreshCartFragments(function(data) {
+				if (data && data.fragments) {
+					jQuery.each(data.fragments, function(key, value) {
+						const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+						if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
+							jQuery(cartContent).html(value);
+						} else {
+							jQuery(key).replaceWith(value);
 						}
-					}
-				});
-			}
-		});
+					});
+				}
+			});
+		}, 200);
+
+		jQuery(document.body).on('wc_fragment_refresh', debouncedRefreshCart);
 	} else {
 		console.log('[initMiniCart] jQuery не загружен');
 	}
 
 	// Обработчики кнопок количества
 	const handleQuantityChange = (button, delta) => {
-		console.log('[handleQuantityChange] Вызвана функция, delta:', delta, 'button:', button);
-		
 		if (typeof jQuery === 'undefined') {
-			console.error('[handleQuantityChange] jQuery не загружен');
 			return;
 		}
 		
@@ -3328,10 +3308,7 @@ const initMiniCart = () => {
 		const ajaxUrlTemplate = ajaxParams.wc_ajax_url || '/?wc-ajax=%%endpoint%%';
 
 		const cartItemKey = button.getAttribute('data-cart-item-key');
-		console.log('[handleQuantityChange] cartItemKey:', cartItemKey);
-		
 		if (!cartItemKey) {
-			console.error('[handleQuantityChange] cartItemKey не найден');
 			return;
 		}
 
@@ -3366,43 +3343,37 @@ const initMiniCart = () => {
 		const formData = jQuery(form).serialize();
 		const dataWithNonce = formData + (nonce ? '&_wpnonce=' + encodeURIComponent(nonce) : '');
 		
-		console.log('[handleQuantityChange] Отправка AJAX запроса, newQuantity:', newQuantity);
-		
 		// Отправляем через AJAX
-		jQuery.ajax({
-			type: 'POST',
-			url: form.action,
-			data: dataWithNonce,
+		wcAjax('update_cart', dataWithNonce, {
 			success: function(response) {
-				console.log('[handleQuantityChange] AJAX запрос успешен, ответ:', response);
-				// Обновляем фрагменты
-				jQuery.ajax({
-					type: 'POST',
-					url: ajaxUrlTemplate.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
-					success: function(fragmentResponse) {
-						console.log('[handleQuantityChange] Фрагменты получены:', fragmentResponse);
-						if (fragmentResponse && fragmentResponse.fragments) {
-							jQuery.each(fragmentResponse.fragments, function(key, value) {
-								const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
-								if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
-									jQuery(cartContent).html(value);
-									// Переинициализируем обработчики
-									setTimeout(() => {
-										console.log('[handleQuantityChange] Переинициализация кнопок после обновления');
-										initMiniCartQuantityButtons();
-									}, 100);
-								} else {
-									jQuery(key).replaceWith(value);
-								}
-							});
-							// Обновляем итоговую сумму корзины
-							jQuery(document.body).trigger('updated_cart_totals');
-						}
-						jQuery(document.body).trigger('wc_fragment_refresh');
-					},
-					error: function(xhr, status, error) {
-						console.error('[handleQuantityChange] Ошибка получения фрагментов:', error);
+				// Обновляем фрагменты для получения актуальных данных корзины (включая цены)
+				refreshCartFragments(function(fragmentResponse) {
+					if (fragmentResponse && fragmentResponse.fragments) {
+						// Обновляем все фрагменты, включая цены товаров и итоговую сумму
+						jQuery.each(fragmentResponse.fragments, function(key, value) {
+							const cartContent = miniCart.querySelector('.widget_shopping_cart_content');
+							if (cartContent && (key.includes('widget_shopping_cart_content') || key.includes('mini-cart'))) {
+								// Полностью заменяем содержимое корзины для обновления всех цен
+								jQuery(cartContent).html(value);
+								// Переинициализируем обработчики
+								setTimeout(() => {
+									initMiniCartQuantityButtons();
+								}, 100);
+							} else {
+								// Обновляем другие элементы (счетчик корзины, итоговая сумма и т.д.)
+								jQuery(key).replaceWith(value);
+							}
+						});
 					}
+					// Триггерим события для обновления всех компонентов корзины
+					jQuery(document.body).trigger('updated_cart_totals');
+					jQuery(document.body).trigger('wc_fragment_refresh');
+					
+					// Синхронизируем количество в каталоге с корзиной
+					// Используем небольшую задержку, чтобы избежать конфликтов
+					setTimeout(() => {
+						syncCatalogQuantity();
+					}, 300);
 				});
 			},
 			error: function(xhr, status, error) {
@@ -3415,8 +3386,6 @@ const initMiniCart = () => {
 	};
 
 	const initMiniCartQuantityButtons = () => {
-		console.log('[initMiniCart] Инициализация кнопок количества');
-		
 		// Используем делегирование событий на document для надежности
 		// Удаляем старый обработчик если он есть
 		if (document._miniCartQuantityHandler) {
@@ -3440,26 +3409,35 @@ const initMiniCart = () => {
 			const isMinus = button.classList.contains('mini-cart-item__quantity-button--minus');
 			const delta = isMinus ? -1 : 1;
 			
-			console.log('[initMiniCart] Клик на кнопку количества, delta:', delta, 'button:', button);
 			handleQuantityChange(button, delta);
 		};
 		
 		// Добавляем обработчик на document с capture phase для раннего перехвата
 		document.addEventListener('click', document._miniCartQuantityHandler, true);
-		
-		console.log('[initMiniCart] Обработчики кнопок количества установлены на document');
 	};
 
 	// Инициализируем кнопки при загрузке
 	initMiniCartQuantityButtons();
 
+	// Debounce для переинициализации обработчиков
+	let reinitTimeout = null;
+	
 	// Переинициализируем обработчики после обновления корзины через события WooCommerce
-	jQuery(document.body).on('updated_wc_div updated_cart_totals wc_fragment_refresh', function() {
-		setTimeout(() => {
-			console.log('[initMiniCart] Событие обновления корзины, переинициализация кнопок');
-			initMiniCartQuantityButtons();
-		}, 100);
-	});
+	// Используем namespace для избежания конфликтов
+	jQuery(document.body).off('updated_wc_div.miniCart updated_cart_totals.miniCart wc_fragment_refresh.miniCart')
+		.on('updated_wc_div.miniCart updated_cart_totals.miniCart wc_fragment_refresh.miniCart', function() {
+			// Очищаем предыдущий таймер
+			if (reinitTimeout) {
+				clearTimeout(reinitTimeout);
+			}
+			
+			// Устанавливаем новый таймер для debounce (150ms)
+			reinitTimeout = setTimeout(() => {
+				initMiniCartQuantityButtons();
+				// Синхронизируем количество в каталоге с корзиной
+				syncCatalogQuantity();
+			}, 150);
+		});
 };
 
 /**
