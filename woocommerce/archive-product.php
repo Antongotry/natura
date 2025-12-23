@@ -68,7 +68,9 @@ if ( ! function_exists( 'natura_render_product_cat_items' ) ) {
 		$terms = get_terms(
 			array(
 				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
+				'hide_empty' => true,
+				'pad_counts' => true,
+				'hierarchical' => true,
 				'parent'     => $parent_id,
 				'orderby'    => 'menu_order',
 				'order'      => 'ASC',
