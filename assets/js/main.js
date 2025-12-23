@@ -2615,6 +2615,32 @@ const addProductToCart = (productId, quantity, wrapper) => {
 				jQuery(document.body).trigger('wc_fragment_refresh');
 			}
 			
+			// Показываем quantity-wrapper после добавления товара
+			if (wrapper) {
+				setTimeout(() => {
+					const buttonWrapper = wrapper.closest('.product-card__button-wrapper');
+					if (buttonWrapper) {
+						const addToCartButton = buttonWrapper.querySelector('.add_to_cart_button, .ajax_add_to_cart');
+						const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
+						if (quantityWrapper) {
+							// Скрываем кнопку
+							if (addToCartButton) {
+								addToCartButton.style.display = 'none';
+							}
+							// Показываем quantity-wrapper
+							quantityWrapper.style.display = 'flex';
+							quantityWrapper.classList.add('show');
+							// Устанавливаем правильное количество
+							const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+							if (input) {
+								input.value = quantity;
+								input.setAttribute('value', quantity);
+							}
+						}
+					}
+				}, 100);
+			}
+			
 			jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, wrapper]);
 		}
 	});
@@ -2729,20 +2755,6 @@ const initProductCardAddToCart = () => {
 								return;
 							}
 							
-							// Показываем quantity-wrapper и скрываем кнопку
-							const buttonWrapper = newButton.closest('.product-card__button-wrapper');
-							if (buttonWrapper) {
-								const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
-								if (quantityWrapper) {
-									// Скрываем кнопку
-									newButton.style.display = 'none';
-									// Показываем quantity-wrapper с плавной анимацией
-									quantityWrapper.style.display = 'flex';
-									quantityWrapper.classList.add('show');
-									
-								}
-							}
-							
 							// Обновляем корзину
 							if (response.fragments) {
 								jQuery.each(response.fragments, function(key, value) {
@@ -2753,6 +2765,27 @@ const initProductCardAddToCart = () => {
 							if (response.cart_hash) {
 								jQuery(document.body).trigger('wc_fragment_refresh');
 							}
+							
+							// Показываем quantity-wrapper и скрываем кнопку после обновления фрагментов
+							setTimeout(() => {
+								const buttonWrapper = newButton.closest('.product-card__button-wrapper');
+								if (buttonWrapper) {
+									const quantityWrapper = buttonWrapper.querySelector('.product-card__quantity-wrapper[data-product-id="' + productId + '"]');
+									if (quantityWrapper) {
+										// Скрываем кнопку
+										newButton.style.display = 'none';
+										// Показываем quantity-wrapper
+										quantityWrapper.style.display = 'flex';
+										quantityWrapper.classList.add('show');
+										// Устанавливаем правильное количество
+										const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
+										if (input) {
+											input.value = quantity;
+											input.setAttribute('value', quantity);
+										}
+									}
+								}
+							}, 100);
 							
 							jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, newButton]);
 						},
@@ -3257,23 +3290,19 @@ const initMiniCart = () => {
 	// Debounce для обработки добавления в корзину
 	let addedToCartTimeout = null;
 	
-	// Обработчик для замены кнопки на quantity-wrapper после добавления в корзину
+	// Обработчик для синхронизации после добавления в корзину
 	// Используем namespace для избежания конфликтов
 	jQuery(document.body).off('added_to_cart.miniCart').on('added_to_cart.miniCart', function(event, fragments, cart_hash, $button) {
-		console.log('[added_to_cart handler] Событие added_to_cart сработало');
-		
 		// Очищаем предыдущий таймер
 		if (addedToCartTimeout) {
 			clearTimeout(addedToCartTimeout);
 		}
 		
-		// Устанавливаем новый таймер для debounce (150ms)
+		// Устанавливаем новый таймер для debounce (300ms)
 		addedToCartTimeout = setTimeout(() => {
 			// Синхронизируем количество в каталоге с корзиной
-			setTimeout(() => {
-				syncCatalogQuantity();
-			}, 200);
-		}, 150);
+			syncCatalogQuantity();
+		}, 300);
 	});
 
 		// Обновление корзины при изменении количества или удалении товара (с debounce)
@@ -3370,10 +3399,10 @@ const initMiniCart = () => {
 					jQuery(document.body).trigger('wc_fragment_refresh');
 					
 					// Синхронизируем количество в каталоге с корзиной
-					// Используем небольшую задержку, чтобы избежать конфликтов
+					// Используем задержку, чтобы дать время на обновление корзины
 					setTimeout(() => {
 						syncCatalogQuantity();
-					}, 300);
+					}, 400);
 				});
 			},
 			error: function(xhr, status, error) {
