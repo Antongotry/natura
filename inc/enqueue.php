@@ -20,7 +20,8 @@ function natura_register_assets(): void {
 		wp_enqueue_style('natura-auth', $theme_uri . '/assets/css/pages/auth.css', array('natura-main'), $auth_css_version);
 	}
 	if (function_exists('is_account_page') && is_account_page()) {
-		wp_enqueue_style('natura-account', $theme_uri . '/assets/css/pages/account.css', array('natura-main'), NATURA_THEME_VERSION);
+		$account_css_version = file_exists($theme_path . '/assets/css/pages/account.css') ? filemtime($theme_path . '/assets/css/pages/account.css') : NATURA_THEME_VERSION;
+		wp_enqueue_style('natura-account', $theme_uri . '/assets/css/pages/account.css', array('natura-main'), $account_css_version);
 	}
 	
 	// Lenis CSS

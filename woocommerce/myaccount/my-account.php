@@ -44,19 +44,20 @@ $menu_items = [
 			</picture>
 			<div class="shop-archive-hero__content">
 				<div class="shop-archive-hero__breadcrumb">
-					<nav class="woocommerce-breadcrumb">
-						<a href="<?php echo esc_url(home_url('/')); ?>">Головна</a>
-						<span class="breadcrumb-separator">
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					<nav class="woocommerce-breadcrumb" aria-label="<?php esc_attr_e( 'Хлібні крихти', 'natura' ); ?>">
+						<?php $breadcrumb_icon_url = 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/vector-12.svg'; ?>
+						<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="woocommerce-breadcrumb__link">Головна</a>
+						<span class="woocommerce-breadcrumb__separator">
+							<img src="<?php echo esc_url( $breadcrumb_icon_url ); ?>" alt="" class="woocommerce-breadcrumb__icon">
 						</span>
 						<?php 
 						$catalog_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/catalog');
 						?>
-						<a href="<?php echo esc_url($catalog_url); ?>">Каталог</a>
-						<span class="breadcrumb-separator">
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						<a href="<?php echo esc_url( $catalog_url ); ?>" class="woocommerce-breadcrumb__link">Каталог</a>
+						<span class="woocommerce-breadcrumb__separator">
+							<img src="<?php echo esc_url( $breadcrumb_icon_url ); ?>" alt="" class="woocommerce-breadcrumb__icon">
 						</span>
-						<span>Особистий кабінет</span>
+						<span class="woocommerce-breadcrumb__current">Особистий кабінет</span>
 					</nav>
 				</div>
 			</div>

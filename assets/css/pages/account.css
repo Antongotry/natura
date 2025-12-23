@@ -60,26 +60,27 @@
 	color: #303030;
 }
 
-.account-page__menu-item--active .account-page__menu-arrow {
-	background: #4CAF50;
-	color: #fff;
-}
-
 .account-page__menu-arrow {
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	border: 1px solid #e0e0e0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: rgba(48, 48, 48, 0.4);
-	transition: all 0.2s;
+	/* Используем такие же стрелки как в каталоге (через ::after), а кружок скрываем */
+	display: none;
 }
 
-.account-page__menu-item:hover .account-page__menu-arrow {
-	border-color: #4CAF50;
-	color: #4CAF50;
+/* Стрелка как в каталоге (inactive/active svg) */
+.account-page__menu-item::after {
+	content: '';
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	margin-left: 12px;
+	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/2345.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	flex-shrink: 0;
+}
+
+.account-page__menu-item--active::after {
+	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
 }
 
 .account-page__menu-item--logout {
