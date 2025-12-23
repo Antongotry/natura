@@ -149,20 +149,23 @@
 
 .account-form__submit {
 	padding: 18px 32px;
-	background: #4CAF50;
-	border: none;
-	border-radius: 8px;
+	background: #4DBD56;
+	border: 2px solid #4DBD56;
+	border-radius: 999px;
 	font-family: 'Inter Tight', sans-serif;
 	font-size: 16px;
 	font-weight: 600;
 	color: #fff;
 	cursor: pointer;
-	transition: background-color 0.2s;
+	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 	margin-top: 12px;
+	box-shadow: none;
 }
 
 .account-form__submit:hover {
-	background: #43a047;
+	background: transparent;
+	border-color: #4DBD56;
+	color: #303030;
 }
 
 .account-form__message {
@@ -387,17 +390,21 @@
 
 .woocommerce-EditAccountForm .woocommerce-Button {
 	padding: 18px 32px;
-	background: #4CAF50;
-	border: none;
-	border-radius: 8px;
+	background: #4DBD56;
+	border: 2px solid #4DBD56;
+	border-radius: 999px;
 	font-size: 16px;
 	font-weight: 600;
 	color: #fff;
 	cursor: pointer;
+	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+	box-shadow: none;
 }
 
 .woocommerce-EditAccountForm .woocommerce-Button:hover {
-	background: #43a047;
+	background: transparent;
+	border-color: #4DBD56;
+	color: #303030;
 }
 
 /* Address Form */
@@ -420,13 +427,21 @@
 
 .woocommerce-address-fields button[type="submit"] {
 	padding: 18px 32px;
-	background: #4CAF50;
-	border: none;
-	border-radius: 8px;
+	background: #4DBD56;
+	border: 2px solid #4DBD56;
+	border-radius: 999px;
 	font-size: 16px;
 	font-weight: 600;
 	color: #fff;
 	cursor: pointer;
+	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+	box-shadow: none;
+}
+
+.woocommerce-address-fields button[type="submit"]:hover {
+	background: transparent;
+	border-color: #4DBD56;
+	color: #303030;
 }
 
 /* Mobile */
