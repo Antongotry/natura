@@ -2995,8 +2995,9 @@ const initMiniCart = () => {
 			const target = e.target;
 			const $target = jQuery(target);
 			
-			// Проверяем, что это кнопка удаления в мини-корзине
-			if (!target.matches('.remove_from_cart_button, .remove') || 
+			// Проверяем, что это кнопка удаления в мини-корзине (может быть ссылка или изображение внутри)
+			const removeButton = target.closest('.mini-cart-item__remove, .remove_from_cart_button, .remove');
+			if (!removeButton || 
 			    !$target.closest('.mini-cart-sidebar, .widget_shopping_cart').length) {
 				return; // Не наша кнопка, пропускаем
 			}
@@ -3005,8 +3006,8 @@ const initMiniCart = () => {
 			e.stopPropagation();
 			e.stopImmediatePropagation();
 			
-			const $button = $target;
-			const cartItemKey = $button.data('cart_item_key') || $button.attr('data-cart_item_key');
+			const $button = jQuery(removeButton);
+			const cartItemKey = $button.data('cart_item_key') || $button.attr('data-cart_item_key') || removeButton.getAttribute('data-cart_item_key');
 			const $cartItem = $button.closest('.woocommerce-mini-cart-item, .mini_cart_item');
 			
 			if (!cartItemKey) {
@@ -3021,12 +3022,19 @@ const initMiniCart = () => {
 			
 			// Отправляем AJAX запрос на удаление
 			if (typeof wc_add_to_cart_params !== 'undefined') {
+				const removeData = {
+					cart_item_key: cartItemKey
+				};
+				
+				// Добавляем nonce если доступен
+				if (wc_add_to_cart_params.wc_cart_nonce) {
+					removeData._wpnonce = wc_add_to_cart_params.wc_cart_nonce;
+				}
+				
 				jQuery.ajax({
 					type: 'POST',
 					url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'remove_from_cart'),
-					data: {
-						cart_item_key: cartItemKey
-					},
+					data: removeData,
 					dataType: 'json',
 					success: function(response) {
 						console.log('[initMiniCart] Товар удален, ответ:', response);
@@ -3232,11 +3240,16 @@ const initMiniCart = () => {
 		updateInput.value = 'Update Cart';
 		form.appendChild(updateInput);
 		
+		// Добавляем nonce для безопасности
+		const nonce = ajaxParams.wc_cart_nonce || '';
+		const formData = jQuery(form).serialize();
+		const dataWithNonce = formData + (nonce ? '&_wpnonce=' + encodeURIComponent(nonce) : '');
+		
 		// Отправляем через AJAX
 		jQuery.ajax({
 			type: 'POST',
 			url: form.action,
-			data: jQuery(form).serialize(),
+			data: dataWithNonce,
 			success: function() {
 				// Обновляем фрагменты
 				jQuery.ajax({
@@ -3268,15 +3281,32 @@ const initMiniCart = () => {
 	};
 
 	const initMiniCartQuantityButtons = () => {
+		// Удаляем старые обработчики, чтобы избежать дублирования
+		const allQuantityButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--minus, .mini-cart-item__quantity-button--plus');
+		allQuantityButtons.forEach(button => {
+			// Клонируем элемент, чтобы удалить все обработчики
+			const newButton = button.cloneNode(true);
+			button.parentNode.replaceChild(newButton, button);
+		});
+
+		// Добавляем новые обработчики
 		const minusButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--minus');
 		const plusButtons = miniCart.querySelectorAll('.mini-cart-item__quantity-button--plus');
 
 		minusButtons.forEach(button => {
-			button.onclick = () => handleQuantityChange(button, -1);
+			button.addEventListener('click', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				handleQuantityChange(button, -1);
+			});
 		});
 
 		plusButtons.forEach(button => {
-			button.onclick = () => handleQuantityChange(button, 1);
+			button.addEventListener('click', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				handleQuantityChange(button, 1);
+			});
 		});
 	};
 
