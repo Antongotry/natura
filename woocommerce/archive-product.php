@@ -9,6 +9,162 @@ defined( 'ABSPATH' ) || exit;
 
 get_header( 'shop' ); ?>
 
+<?php
+// =========================
+// Категории в каталоге (дерево)
+// =========================
+$excluded_slugs = array( 'uncategorized', 'bez-kategoriyi', 'bez-kategorii' );
+$excluded_names = array( 'без категорії', 'без категории' );
+
+$current_term    = get_queried_object();
+$current_term_id = ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' ) ? (int) $current_term->term_id : 0;
+$ancestor_ids    = $current_term_id ? array_map( 'intval', get_ancestors( $current_term_id, 'product_cat' ) ) : array();
+
+// URL "Всі товари" (надежный fallback, даже если shop page не настроена)
+$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
+if ( empty( $shop_url ) && function_exists( 'wc_get_page_id' ) ) {
+	$shop_page_id = wc_get_page_id( 'shop' );
+	if ( $shop_page_id && $shop_page_id > 0 ) {
+		$shop_url = get_permalink( $shop_page_id );
+	}
+}
+if ( empty( $shop_url ) && function_exists( 'get_post_type_archive_link' ) ) {
+	$shop_url = get_post_type_archive_link( 'product' );
+}
+if ( empty( $shop_url ) ) {
+	$shop_url = home_url( '/?post_type=product' );
+}
+
+if ( ! function_exists( 'natura_is_excluded_product_cat' ) ) {
+	function natura_is_excluded_product_cat( $term, array $excluded_slugs, array $excluded_names ): bool {
+		if ( ! ( $term instanceof WP_Term ) ) {
+			return true;
+		}
+
+		if ( in_array( $term->slug, $excluded_slugs, true ) ) {
+			return true;
+		}
+
+		$name = function_exists( 'mb_strtolower' ) ? mb_strtolower( $term->name ) : strtolower( $term->name );
+
+		return in_array( $name, $excluded_names, true );
+	}
+}
+
+if ( ! function_exists( 'natura_render_product_cat_items' ) ) {
+	/**
+	 * Рендерит дерево категорий product_cat в виде <li>…</li>.
+	 * Возвращает true, если что-то вывело.
+	 */
+	function natura_render_product_cat_items(
+		int $parent_id,
+		int $current_term_id,
+		array $ancestor_ids,
+		array $excluded_slugs,
+		array $excluded_names,
+		array $opts,
+		int $depth = 0
+	): bool {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => false,
+				'parent'     => $parent_id,
+				'orderby'    => 'menu_order',
+				'order'      => 'ASC',
+			)
+		);
+
+		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+			return false;
+		}
+
+		$printed = false;
+
+		foreach ( $terms as $term ) {
+			if ( natura_is_excluded_product_cat( $term, $excluded_slugs, $excluded_names ) ) {
+				continue;
+			}
+
+			$term_id     = (int) $term->term_id;
+			$is_current  = $current_term_id && $term_id === $current_term_id;
+			$is_ancestor = $current_term_id && in_array( $term_id, $ancestor_ids, true );
+			$is_expanded = $is_current || $is_ancestor;
+
+			$base_item_class = $depth === 0 ? ( $opts['item_root'] ?? '' ) : ( $opts['item_child'] ?? '' );
+			$active_class    = $depth === 0 ? ( $opts['item_root_active'] ?? '' ) : ( $opts['item_child_active'] ?? '' );
+			$expanded_class  = $depth === 0 ? ( $opts['item_root_expanded'] ?? '' ) : ( $opts['item_child_expanded'] ?? '' );
+
+			$item_classes = trim(
+				$base_item_class
+				. ( $is_current && $active_class ? ' ' . $active_class : '' )
+				. ( $is_expanded && $expanded_class ? ' ' . $expanded_class : '' )
+			);
+
+			$link_class = $depth === 0 ? ( $opts['link_root'] ?? '' ) : ( $opts['link_child'] ?? '' );
+
+			$term_link = get_term_link( $term );
+			if ( is_wp_error( $term_link ) ) {
+				continue;
+			}
+
+			$printed = true;
+
+			echo '<li class="' . esc_attr( $item_classes ) . '">';
+			echo '<a href="' . esc_url( $term_link ) . '"' . ( $link_class ? ' class="' . esc_attr( $link_class ) . '"' : '' ) . '>';
+			echo esc_html( $term->name );
+			echo '</a>';
+
+			ob_start();
+			$child_printed = natura_render_product_cat_items(
+				$term_id,
+				$current_term_id,
+				$ancestor_ids,
+				$excluded_slugs,
+				$excluded_names,
+				$opts,
+				$depth + 1
+			);
+			$children_html = ob_get_clean();
+
+			if ( $child_printed && ! empty( $children_html ) ) {
+				echo '<ul class="' . esc_attr( $opts['sub_list'] ?? '' ) . '">';
+				echo $children_html;
+				echo '</ul>';
+			}
+
+			echo '</li>';
+		}
+
+		return $printed;
+	}
+}
+
+$mobile_opts = array(
+	'item_root'           => 'shop-filter-list__item',
+	'item_child'          => 'shop-filter-list__item shop-filter-list__item--child',
+	'item_root_active'    => 'shop-filter-list__item--active',
+	'item_child_active'   => 'shop-filter-list__item--active',
+	'item_root_expanded'  => 'shop-filter-list__item--expanded',
+	'item_child_expanded' => 'shop-filter-list__item--expanded',
+	'link_root'           => 'shop-filter-list__link',
+	'link_child'          => 'shop-filter-list__link shop-filter-list__link--child',
+	'sub_list'            => 'shop-filter-list__sublist',
+);
+
+$sidebar_opts = array(
+	'item_root'           => 'shop-archive-filters__item',
+	'item_child'          => 'shop-archive-filters__subitem',
+	'item_root_active'    => 'shop-archive-filters__item--active',
+	'item_child_active'   => 'shop-archive-filters__subitem--active',
+	'item_root_expanded'  => 'shop-archive-filters__item--expanded',
+	'item_child_expanded' => 'shop-archive-filters__subitem--expanded',
+	'link_root'           => '',
+	'link_child'          => 'shop-archive-filters__sublink',
+	'sub_list'            => 'shop-archive-filters__sublist',
+);
+?>
+
 <main id="primary" class="site-main">
 	<!-- Shop Archive Hero Banner -->
 	<section class="shop-archive-hero">
@@ -54,70 +210,21 @@ get_header( 'shop' ); ?>
 				<!-- Categories Filter -->
 				<div class="shop-filter-section">
 					<h3 class="shop-filter-section__title"><?php esc_html_e( 'Категорії', 'natura' ); ?></h3>
-					<?php
-					$shop_categories = get_terms(
-						array(
-							'taxonomy'   => 'product_cat',
-							'hide_empty' => false,
-							'parent'     => 0,
-						)
-					);
-
-					// Исключаем категорию "без категорії"
-					$excluded_slugs = array( 'uncategorized', 'bez-kategoriyi', 'bez-kategorii' );
-					$excluded_names = array( 'без категорії', 'без категории' );
-					
-					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
-						$current_term = get_queried_object();
-						// URL "Всі товари" (надежный fallback, даже если shop page не настроена)
-						$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
-						if ( empty( $shop_url ) && function_exists( 'wc_get_page_id' ) ) {
-							$shop_page_id = wc_get_page_id( 'shop' );
-							if ( $shop_page_id && $shop_page_id > 0 ) {
-								$shop_url = get_permalink( $shop_page_id );
-							}
-						}
-						if ( empty( $shop_url ) && function_exists( 'get_post_type_archive_link' ) ) {
-							$shop_url = get_post_type_archive_link( 'product' );
-						}
-						if ( empty( $shop_url ) ) {
-							$shop_url = home_url( '/?post_type=product' );
-						}
+					<ul class="shop-filter-list">
+						<?php
+						// Пункт "Все товары" — активен на странице магазина (shop)
+						$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
+						$all_item_class = 'shop-filter-list__item' . ( $is_all_active ? ' shop-filter-list__item--active' : '' );
 						?>
-						<ul class="shop-filter-list">
-							<?php
-							// Пункт "Все товары" — активен на странице магазина (shop)
-							$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
-							$all_item_class = 'shop-filter-list__item' . ( $is_all_active ? ' shop-filter-list__item--active' : '' );
-							?>
-							<li class="<?php echo esc_attr( $all_item_class ); ?>">
-								<a href="<?php echo esc_url( $shop_url ); ?>" class="shop-filter-list__link">
-									<?php esc_html_e( 'Всі товари', 'natura' ); ?>
-								</a>
-							</li>
-							<?php foreach ( $shop_categories as $cat ) : ?>
-								<?php
-								// Пропускаем исключенные категории
-								$slug_match = in_array( $cat->slug, $excluded_slugs, true );
-								$name_match = function_exists( 'mb_strtolower' )
-									? in_array( mb_strtolower( $cat->name ), $excluded_names, true )
-									: in_array( strtolower( $cat->name ), $excluded_names, true );
-								
-								if ( $slug_match || $name_match ) {
-									continue;
-								}
-								
-								$is_active = ( $current_term instanceof WP_Term ) && $current_term->taxonomy === 'product_cat' && (int) $current_term->term_id === (int) $cat->term_id;
-								$item_classes = 'shop-filter-list__item' . ( $is_active ? ' shop-filter-list__item--active' : '' );
-								?>
-								<li class="<?php echo esc_attr( $item_classes ); ?>">
-									<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>" class="shop-filter-list__link">
-										<?php echo esc_html( $cat->name ); ?>
-									</a>
-								</li>
-							<?php endforeach; ?>
-						</ul>
-					<?php endif; ?>
+						<li class="<?php echo esc_attr( $all_item_class ); ?>">
+							<a href="<?php echo esc_url( $shop_url ); ?>" class="shop-filter-list__link">
+								<?php esc_html_e( 'Всі товари', 'natura' ); ?>
+							</a>
+						</li>
+						<?php
+						natura_render_product_cat_items( 0, $current_term_id, $ancestor_ids, $excluded_slugs, $excluded_names, $mobile_opts );
+						?>
+					</ul>
 				</div>
 			</div>
 			<div class="shop-filter-drawer__footer">
@@ -133,71 +240,21 @@ get_header( 'shop' ); ?>
 			<div class="shop-archive-layout">
 				<aside class="shop-archive-sidebar">
 					<h2 class="shop-archive-sidebar__title"><?php esc_html_e( 'Категорії', 'natura' ); ?></h2>
-					<?php
-					// Выводим список категорий товаров как фильтры.
-					$shop_categories = get_terms(
-						array(
-							'taxonomy'   => 'product_cat',
-							'hide_empty' => false, // показываем даже пустые категории
-							'parent'     => 0,
-						)
-					);
-
-					// Исключаем категорию "без категорії"
-					$excluded_slugs = array( 'uncategorized', 'bez-kategoriyi', 'bez-kategorii' );
-					$excluded_names = array( 'без категорії', 'без категории' );
-
-					if ( ! is_wp_error( $shop_categories ) && ! empty( $shop_categories ) ) :
-						$current_term = get_queried_object();
-						// URL "Всі товари" (надежный fallback, даже если shop page не настроена)
-						$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
-						if ( empty( $shop_url ) && function_exists( 'wc_get_page_id' ) ) {
-							$shop_page_id = wc_get_page_id( 'shop' );
-							if ( $shop_page_id && $shop_page_id > 0 ) {
-								$shop_url = get_permalink( $shop_page_id );
-							}
-						}
-						if ( empty( $shop_url ) && function_exists( 'get_post_type_archive_link' ) ) {
-							$shop_url = get_post_type_archive_link( 'product' );
-						}
-						if ( empty( $shop_url ) ) {
-							$shop_url = home_url( '/?post_type=product' );
-						}
+					<ul class="shop-archive-filters">
+						<?php
+						// Пункт "Все товары" — активен на странице магазина (shop)
+						$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
+						$all_item_class = 'shop-archive-filters__item' . ( $is_all_active ? ' shop-archive-filters__item--active' : '' );
 						?>
-						<ul class="shop-archive-filters">
-							<?php
-							// Пункт "Все товары" — активен на странице магазина (shop)
-							$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
-							$all_item_class = 'shop-archive-filters__item' . ( $is_all_active ? ' shop-archive-filters__item--active' : '' );
-							?>
-							<li class="<?php echo esc_attr( $all_item_class ); ?>">
-								<a href="<?php echo esc_url( $shop_url ); ?>">
-									<?php esc_html_e( 'Всі товари', 'natura' ); ?>
-								</a>
-							</li>
-							<?php foreach ( $shop_categories as $cat ) : ?>
-								<?php
-								// Пропускаем исключенные категории
-								$slug_match = in_array( $cat->slug, $excluded_slugs, true );
-								$name_match = function_exists( 'mb_strtolower' )
-									? in_array( mb_strtolower( $cat->name ), $excluded_names, true )
-									: in_array( strtolower( $cat->name ), $excluded_names, true );
-								
-								if ( $slug_match || $name_match ) {
-									continue;
-								}
-								
-								$is_active = ( $current_term instanceof WP_Term ) && $current_term->taxonomy === 'product_cat' && (int) $current_term->term_id === (int) $cat->term_id;
-								$item_classes = 'shop-archive-filters__item' . ( $is_active ? ' shop-archive-filters__item--active' : '' );
-								?>
-								<li class="<?php echo esc_attr( $item_classes ); ?>">
-									<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>">
-										<?php echo esc_html( $cat->name ); ?>
-									</a>
-								</li>
-							<?php endforeach; ?>
-						</ul>
-					<?php endif; ?>
+						<li class="<?php echo esc_attr( $all_item_class ); ?>">
+							<a href="<?php echo esc_url( $shop_url ); ?>">
+								<?php esc_html_e( 'Всі товари', 'natura' ); ?>
+							</a>
+						</li>
+						<?php
+						natura_render_product_cat_items( 0, $current_term_id, $ancestor_ids, $excluded_slugs, $excluded_names, $sidebar_opts );
+						?>
+					</ul>
 				</aside>
 				<div class="shop-archive-products">
 					<?php if ( woocommerce_product_loop() ) : ?>

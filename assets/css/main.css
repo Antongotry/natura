@@ -3055,6 +3055,70 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
 }
 
+/* ===== Subcategories: sidebar (desktop) ===== */
+.shop-archive-filters__sublist {
+	list-style: none;
+	margin: 0.729vw 0 0;
+	padding: 0 0 0 1.042vw;
+	border-left: 1px solid rgba(48, 48, 48, 0.12);
+	display: none;
+}
+
+.shop-archive-filters__item--expanded > .shop-archive-filters__sublist,
+.shop-archive-filters__subitem--expanded > .shop-archive-filters__sublist {
+	display: block;
+}
+
+/* Родитель подсвечиваем, если раскрыт (когда мы в подкатегории) */
+.shop-archive-filters__item--expanded > a {
+	color: #303030;
+}
+
+.shop-archive-filters__item--expanded > a::after {
+	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
+}
+
+.shop-archive-filters__subitem {
+	padding: 0.729vw 0;
+}
+
+.shop-archive-filters__sublink {
+	display: flex;
+	align-items: center;
+	gap: 0.521vw;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 0.833vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: rgba(48, 48, 48, 0.35);
+	text-decoration: none;
+}
+
+.shop-archive-filters__sublink::before {
+	content: '';
+	width: 0.312vw;
+	height: 0.312vw;
+	border-radius: 9999px;
+	background-color: rgba(48, 48, 48, 0.2);
+	flex-shrink: 0;
+}
+
+.shop-archive-filters__sublink:hover,
+.shop-archive-filters__sublink:focus-visible {
+	color: #303030;
+}
+
+.shop-archive-filters__subitem--active > .shop-archive-filters__sublink,
+.shop-archive-filters__subitem--expanded > .shop-archive-filters__sublink {
+	color: #303030;
+}
+
+.shop-archive-filters__subitem--active > .shop-archive-filters__sublink::before,
+.shop-archive-filters__subitem--expanded > .shop-archive-filters__sublink::before {
+	background-color: #303030;
+}
+
 /* ========== MOBILE FILTER DRAWER ========== */
 
 /* Mobile Filter Button (sticky, left side, egg-shaped) */
@@ -3281,6 +3345,51 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 .shop-filter-list__item--active .shop-filter-list__link {
 	color: #303030;
+}
+
+/* ===== Subcategories: mobile drawer ===== */
+.shop-filter-list__sublist {
+	list-style: none;
+	margin: 4px 0 0;
+	padding: 0 0 0 12px;
+	border-left: 1px solid rgba(48, 48, 48, 0.12);
+	display: none;
+}
+
+.shop-filter-list__item--expanded > .shop-filter-list__sublist {
+	display: block;
+}
+
+/* Родитель подсвечиваем, если раскрыт (когда мы в подкатегории) */
+.shop-filter-list__item--expanded > .shop-filter-list__link {
+	color: #303030;
+}
+
+.shop-filter-list__link--child {
+	font-size: 13px;
+	color: rgba(48, 48, 48, 0.35);
+	padding: 6px 0;
+}
+
+.shop-filter-list__link--child::before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	border-radius: 9999px;
+	background-color: rgba(48, 48, 48, 0.2);
+	display: inline-block;
+	margin-right: 8px;
+	vertical-align: middle;
+}
+
+.shop-filter-list__item--active > .shop-filter-list__link--child,
+.shop-filter-list__item--expanded > .shop-filter-list__link--child {
+	color: #303030;
+}
+
+.shop-filter-list__item--active > .shop-filter-list__link--child::before,
+.shop-filter-list__item--expanded > .shop-filter-list__link--child::before {
+	background-color: #303030;
 }
 
 .shop-filter-price {
@@ -4435,6 +4544,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	min-height: 100%;
 	position: relative;
 	overflow: hidden;
+	border-radius: 0.26vw;
+	background-color: rgba(243, 243, 243, 0.5);
 }
 
 .single-product__image-wrapper .woocommerce-product-gallery__wrapper {
@@ -4459,13 +4570,19 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	overflow: hidden;
 }
 
+.single-product__image-wrapper .woocommerce-product-gallery__image > a {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 .single-product__image-wrapper .woocommerce-product-gallery__image img,
 .single-product__image-wrapper img.wp-post-image {
 	width: 100% !important;
 	height: 100% !important;
 	min-width: 100%;
 	min-height: 100%;
-	object-fit: cover;
+	object-fit: contain;
 	object-position: center;
 	border-radius: 0.26vw;
 	display: block;
@@ -4606,7 +4723,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.single-product__image-wrapper img.wp-post-image {
 		width: 100% !important;
 		height: 100% !important;
-		object-fit: cover !important;
+		object-fit: contain !important;
 		aspect-ratio: 1 !important;
 	}
 	
