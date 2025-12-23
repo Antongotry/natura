@@ -3980,6 +3980,12 @@ const initShopFilterDrawer = () => {
 		return;
 	}
 
+	const getShopUrl = () => {
+		const el = document.querySelector('[data-shop-url]');
+		const url = el ? el.getAttribute('data-shop-url') : '';
+		return url || '';
+	};
+
 	const openFilter = () => {
 		filterDrawer.classList.add('is-open');
 		document.body.style.overflow = 'hidden';
@@ -4017,10 +4023,19 @@ const initShopFilterDrawer = () => {
 	const resetButton = filterDrawer.querySelector('[data-filter-reset]');
 	if (resetButton) {
 		resetButton.addEventListener('click', () => {
-			const url = new URL(window.location.href);
-			url.searchParams.delete('min_price');
-			url.searchParams.delete('max_price');
-			window.location.href = url.toString();
+			// Полный сброс: возвращаемся на страницу магазина + убираем price params
+			const shopUrl = getShopUrl();
+			try {
+				const base = shopUrl ? new URL(shopUrl, window.location.href) : new URL(window.location.href);
+				base.searchParams.delete('min_price');
+				base.searchParams.delete('max_price');
+				base.searchParams.delete('paged');
+				base.searchParams.delete('product-page');
+				base.searchParams.delete('page');
+				window.location.href = base.toString();
+			} catch {
+				window.location.href = shopUrl || window.location.href;
+			}
 		});
 	}
 
@@ -4045,6 +4060,29 @@ const initShopArchiveAjaxNavigation = () => {
 	}
 
 	let controller = null;
+
+	const getShopUrl = () => {
+		const el = document.querySelector('[data-shop-url]');
+		const url = el ? el.getAttribute('data-shop-url') : '';
+		return url || '';
+	};
+
+	const buildShopUrlWithCurrentParams = () => {
+		const shopUrl = getShopUrl();
+		if (!shopUrl) return '';
+		try {
+			const base = new URL(shopUrl, window.location.href);
+			const current = new URL(window.location.href);
+			current.searchParams.forEach((value, key) => {
+				// не тащим пагинацию
+				if (key === 'paged' || key === 'product-page' || key === 'page') return;
+				base.searchParams.set(key, value);
+			});
+			return base.toString();
+		} catch {
+			return shopUrl;
+		}
+	};
 
 	const setLoading = (isLoading) => {
 		productsContainer.classList.toggle('is-loading', isLoading);
@@ -4205,11 +4243,25 @@ const initShopArchiveAjaxNavigation = () => {
 			return;
 		}
 
+		// Повторный клик по активной категории = снять фильтр (вернуться на shop)
+		const isCategoryLink = !!(link.closest('.shop-archive-filters') || link.closest('.shop-filter-list'));
+		const isActiveCategory = !!link.closest(
+			'.shop-archive-filters__item--active, .shop-archive-filters__subitem--active, .shop-filter-list__item--active'
+		);
+
+		let targetUrl = link.href;
+		if (isCategoryLink && isActiveCategory) {
+			const shopUrl = buildShopUrlWithCurrentParams();
+			if (shopUrl) {
+				targetUrl = shopUrl;
+			}
+		}
+
 		e.preventDefault();
 		e.stopPropagation();
 
 		closeFilterDrawerIfOpen();
-		loadUrl(link.href, { pushHistory: true });
+		loadUrl(targetUrl, { pushHistory: true });
 	};
 
 	// Снимаем старый обработчик, если был

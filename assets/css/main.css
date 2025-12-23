@@ -3500,6 +3500,18 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin-top: 2.083vw; /* отступ от hero-блока вниз */
 }
 
+/* Sticky sidebar (desktop) */
+@media (min-width: 1026px) {
+	.shop-archive-sidebar {
+		position: sticky;
+		top: 6.533vw;
+		align-self: start;
+		height: fit-content;
+		max-height: calc(100vh - 6.533vw - 2.083vw);
+		overflow-y: auto;
+	}
+}
+
 .shop-archive-products {
 	width: 100%;
 	transition: opacity 0.25s ease;

@@ -167,7 +167,7 @@ $sidebar_opts = array(
 );
 ?>
 
-<main id="primary" class="site-main">
+<main id="primary" class="site-main" data-shop-url="<?php echo esc_url( $shop_url ); ?>">
 	<!-- Shop Archive Hero Banner -->
 	<section class="shop-archive-hero">
 		<div class="container">
@@ -214,16 +214,6 @@ $sidebar_opts = array(
 					<h3 class="shop-filter-section__title"><?php esc_html_e( 'Категорії', 'natura' ); ?></h3>
 					<ul class="shop-filter-list">
 						<?php
-						// Пункт "Все товары" — активен на странице магазина (shop)
-						$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
-						$all_item_class = 'shop-filter-list__item' . ( $is_all_active ? ' shop-filter-list__item--active' : '' );
-						?>
-						<li class="<?php echo esc_attr( $all_item_class ); ?>">
-							<a href="<?php echo esc_url( $shop_url ); ?>" class="shop-filter-list__link">
-								<?php esc_html_e( 'Всі товари', 'natura' ); ?>
-							</a>
-						</li>
-						<?php
 						natura_render_product_cat_items( 0, $current_term_id, $ancestor_ids, $excluded_slugs, $excluded_names, $mobile_opts );
 						?>
 					</ul>
@@ -243,16 +233,6 @@ $sidebar_opts = array(
 				<aside class="shop-archive-sidebar">
 					<h2 class="shop-archive-sidebar__title"><?php esc_html_e( 'Категорії', 'natura' ); ?></h2>
 					<ul class="shop-archive-filters">
-						<?php
-						// Пункт "Все товары" — активен на странице магазина (shop)
-						$is_all_active  = function_exists( 'is_shop' ) ? is_shop() : ! ( $current_term instanceof WP_Term && $current_term->taxonomy === 'product_cat' );
-						$all_item_class = 'shop-archive-filters__item' . ( $is_all_active ? ' shop-archive-filters__item--active' : '' );
-						?>
-						<li class="<?php echo esc_attr( $all_item_class ); ?>">
-							<a href="<?php echo esc_url( $shop_url ); ?>">
-								<?php esc_html_e( 'Всі товари', 'natura' ); ?>
-							</a>
-						</li>
 						<?php
 						natura_render_product_cat_items( 0, $current_term_id, $ancestor_ids, $excluded_slugs, $excluded_names, $sidebar_opts );
 						?>
