@@ -513,94 +513,185 @@
 }
 
 /* Edit Account Form */
+.woocommerce-EditAccountForm {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25vw;
+	width: 100%;
+	max-width: 100%;
+}
+
+.woocommerce-EditAccountForm .woocommerce-form-row {
+	margin: 0;
+	float: none;
+	width: 100%;
+}
+
 .woocommerce-EditAccountForm label {
-	display: block;
-	margin-bottom: 8px;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 500;
-	color: #303030;
+	font-size: 1.25vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #30303099;
+	margin: 0 0 0.833vw 0;
+	display: block;
 }
 
 .woocommerce-EditAccountForm input[type="text"],
 .woocommerce-EditAccountForm input[type="email"],
-.woocommerce-EditAccountForm input[type="password"] {
+.woocommerce-EditAccountForm input[type="tel"],
+.woocommerce-EditAccountForm input[type="password"],
+.woocommerce-EditAccountForm textarea,
+.woocommerce-EditAccountForm select {
 	width: 100%;
-	padding: 16px 20px;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	font-size: 16px;
-	margin-bottom: 20px;
+	padding: 1.042vw;
+	border: 1px solid rgba(48, 48, 48, 0.15);
+	border-radius: 0.26vw;
+	background-color: #F3F3F366;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #303030;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.woocommerce-EditAccountForm input:focus {
+.woocommerce-EditAccountForm input:focus,
+.woocommerce-EditAccountForm textarea:focus,
+.woocommerce-EditAccountForm select:focus {
 	outline: none;
-	border-color: #4CAF50;
+	border-color: #4DBD56;
+	box-shadow: 0 0 0 2px rgba(77, 189, 86, 0.1);
+}
+
+.woocommerce-EditAccountForm fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25vw;
+	min-width: 0;
+}
+
+.woocommerce-EditAccountForm legend {
+	display: none;
 }
 
 .woocommerce-EditAccountForm .woocommerce-Button {
-	padding: 18px 32px;
-	background: #4DBD56;
-	border: 2px solid #4DBD56;
+	width: 100%;
+	padding: 1.042vw 2.604vw;
+	border: 2px solid transparent;
 	border-radius: 999px;
-	font-size: 16px;
+	background-color: #4DBD56;
+	color: #ffffff;
+	text-decoration: none;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	color: #fff;
-	cursor: pointer;
+	font-size: 0.938vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
 	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-	box-shadow: none;
+	box-sizing: border-box;
+	text-align: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	filter: none !important;
 }
 
-.woocommerce-EditAccountForm .woocommerce-Button:hover {
-	background: transparent;
-	border-color: #4DBD56;
-	color: #303030;
-}
-
+.woocommerce-EditAccountForm .woocommerce-Button:hover,
 .woocommerce-EditAccountForm .woocommerce-Button:focus-visible {
-	outline: none;
-	background: transparent;
+	background-color: transparent;
 	border-color: #4DBD56;
 	color: #303030;
 }
+
 /* Address Form */
+.woocommerce-address-fields {
+	width: 100%;
+}
+
+.woocommerce-address-fields .form-row {
+	margin: 0 0 1.25vw 0;
+	float: none;
+	width: 100%;
+}
+
 .woocommerce-address-fields label {
-	display: block;
-	margin-bottom: 8px;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 500;
-	color: #303030;
+	font-size: 1.25vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #30303099;
+	margin: 0 0 0.833vw 0;
+	display: block;
 }
 
 .woocommerce-address-fields input[type="text"],
+.woocommerce-address-fields input[type="email"],
+.woocommerce-address-fields input[type="tel"],
+.woocommerce-address-fields input[type="password"],
+.woocommerce-address-fields textarea,
 .woocommerce-address-fields select {
 	width: 100%;
-	padding: 16px 20px;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	font-size: 16px;
-	margin-bottom: 20px;
+	padding: 1.042vw;
+	border: 1px solid rgba(48, 48, 48, 0.15);
+	border-radius: 0.26vw;
+	background-color: #F3F3F366;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #303030;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.woocommerce-address-fields input:focus,
+.woocommerce-address-fields textarea:focus,
+.woocommerce-address-fields select:focus {
+	outline: none;
+	border-color: #4DBD56;
+	box-shadow: 0 0 0 2px rgba(77, 189, 86, 0.1);
 }
 
 .woocommerce-address-fields button[type="submit"] {
-	padding: 18px 32px;
-	background: #4DBD56;
-	border: 2px solid #4DBD56;
+	width: 100%;
+	padding: 1.042vw 2.604vw;
+	border: 2px solid transparent;
 	border-radius: 999px;
-	font-size: 16px;
+	background-color: #4DBD56;
+	color: #ffffff;
+	text-decoration: none;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	color: #fff;
-	cursor: pointer;
+	font-size: 0.938vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
 	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-	box-shadow: none;
+	box-sizing: border-box;
+	text-align: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	filter: none !important;
 }
 
-.woocommerce-address-fields button[type="submit"]:hover {
-	background: transparent;
-	border-color: #4DBD56;
-	color: #303030;
-}
-
+.woocommerce-address-fields button[type="submit"]:hover,
 .woocommerce-address-fields button[type="submit"]:focus-visible {
-	outline: none;
-	background: transparent;
+	background-color: transparent;
 	border-color: #4DBD56;
 	color: #303030;
 }
@@ -669,6 +760,63 @@
 	}
 
 	.account-form__submit {
+		padding: 4vw 8vw;
+		font-size: 4vw;
+		border-radius: 999999px;
+	}
+
+	/* WooCommerce edit-account / address forms (mobile) */
+	.woocommerce-EditAccountForm {
+		gap: 5.333vw;
+	}
+
+	.woocommerce-EditAccountForm label {
+		font-size: 4vw;
+		margin-bottom: 3.2vw;
+	}
+
+	.woocommerce-EditAccountForm input[type="text"],
+	.woocommerce-EditAccountForm input[type="email"],
+	.woocommerce-EditAccountForm input[type="tel"],
+	.woocommerce-EditAccountForm input[type="password"],
+	.woocommerce-EditAccountForm textarea,
+	.woocommerce-EditAccountForm select {
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	.woocommerce-EditAccountForm fieldset {
+		gap: 5.333vw;
+	}
+
+	.woocommerce-EditAccountForm .woocommerce-Button {
+		padding: 4vw 8vw;
+		font-size: 4vw;
+		border-radius: 999999px;
+	}
+
+	.woocommerce-address-fields .form-row {
+		margin-bottom: 5.333vw;
+	}
+
+	.woocommerce-address-fields label {
+		font-size: 4vw;
+		margin-bottom: 3.2vw;
+	}
+
+	.woocommerce-address-fields input[type="text"],
+	.woocommerce-address-fields input[type="email"],
+	.woocommerce-address-fields input[type="tel"],
+	.woocommerce-address-fields input[type="password"],
+	.woocommerce-address-fields textarea,
+	.woocommerce-address-fields select {
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	.woocommerce-address-fields button[type="submit"] {
 		padding: 4vw 8vw;
 		font-size: 4vw;
 		border-radius: 999999px;
