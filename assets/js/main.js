@@ -24,6 +24,58 @@ const debounce = (func, wait = 300, immediate = false) => {
 };
 
 /**
+ * Helpers for decimal quantities (например, единица "кг/kg" с шагом 0.1)
+ */
+const naturaNormalizeUnit = (unit) => String(unit || '').trim().toLowerCase().replace(/\s+/g, '');
+const naturaIsKgUnit = (unit) => ['кг', 'kg'].includes(naturaNormalizeUnit(unit));
+const naturaGetStepByUnit = (unit) => (naturaIsKgUnit(unit) ? 0.1 : 1);
+
+const naturaParseNumber = (value) => {
+	if (value === null || typeof value === 'undefined') return NaN;
+	const str = String(value).trim().replace(',', '.');
+	const num = parseFloat(str);
+	return Number.isFinite(num) ? num : NaN;
+};
+
+const naturaGetStepDecimals = (step) => {
+	const s = String(step);
+	if (s.includes('e-')) {
+		const exp = parseInt(s.split('e-')[1], 10);
+		return Number.isFinite(exp) ? exp : 0;
+	}
+	const parts = s.split('.');
+	return parts[1] ? parts[1].length : 0;
+};
+
+const naturaRoundToStep = (value, step) => {
+	const v = naturaParseNumber(value);
+	const s = naturaParseNumber(step);
+	if (!Number.isFinite(v) || !Number.isFinite(s) || s <= 0) return v;
+
+	const decimals = naturaGetStepDecimals(s);
+	const factor = Math.pow(10, decimals);
+	return Math.round(v * factor) / factor;
+};
+
+const naturaFormatQuantity = (quantity, step) => {
+	const q = naturaParseNumber(quantity);
+	const s = naturaParseNumber(step);
+	if (!Number.isFinite(q)) return '';
+	if (!Number.isFinite(s) || s <= 0) return String(q);
+
+	const decimals = naturaGetStepDecimals(s);
+	const rounded = naturaRoundToStep(q, s);
+
+	if (decimals <= 0) {
+		return String(Math.round(rounded));
+	}
+
+	return rounded
+		.toFixed(decimals)
+		.replace(/\.?0+$/, '');
+};
+
+/**
  * Универсальная функция для AJAX запросов к WooCommerce
  * @param {string} endpoint - Endpoint WooCommerce (add_to_cart, update_cart, get_refreshed_fragments, remove_from_cart)
  * @param {Object} data - Данные для отправки
@@ -247,9 +299,10 @@ const updateCartCountGlobal = debounce(() => {
 	if (typeof CartManager !== 'undefined' && CartManager && CartManager.hasLoaded) {
 		let totalQuantity = 0;
 		CartManager.cartState.forEach((item) => {
-			totalQuantity += parseInt(item?.quantity) || 0;
+			totalQuantity += naturaParseNumber(item?.quantity) || 0;
 		});
-		setCount(totalQuantity);
+		const badgeCount = totalQuantity > 0 ? Math.max(1, Math.round(totalQuantity)) : 0;
+		setCount(badgeCount);
 		return;
 	}
 
@@ -280,12 +333,13 @@ const updateCartCountGlobal = debounce(() => {
 				const quantityElement = item.querySelector('.quantity, .mini-cart-item__quantity-value, .woocommerce-mini-cart-item__quantity');
 				if (quantityElement) {
 					const quantityText = quantityElement.textContent.trim();
-					const quantity = parseInt(quantityText) || 0;
+					const quantity = naturaParseNumber(quantityText) || 0;
 					totalQuantity += quantity;
 				}
 			});
 
-			setCount(totalQuantity);
+			const badgeCount = totalQuantity > 0 ? Math.max(1, Math.round(totalQuantity)) : 0;
+			setCount(badgeCount);
 		},
 		error: function() {
 			setCount(0);
@@ -2647,12 +2701,12 @@ const CartManager = {
 			let quantity = 0;
 			const qtyValue = item.querySelector('.mini-cart-item__quantity-value');
 			if (qtyValue) {
-				quantity = parseInt(qtyValue.textContent.trim().split(' ')[0]) || 0;
+				quantity = naturaParseNumber(qtyValue.textContent) || 0;
 			} else {
 				const qtyEl = item.querySelector('.quantity, .woocommerce-mini-cart-item__quantity');
 				if (qtyEl) {
-					const match = qtyEl.textContent.match(/(\d+)/);
-					quantity = match ? (parseInt(match[1]) || 0) : 0;
+					const match = qtyEl.textContent.match(/(\d+(?:[.,]\d+)?)/);
+					quantity = match ? (naturaParseNumber(match[1]) || 0) : 0;
 				}
 			}
 			
@@ -2799,8 +2853,9 @@ const CartManager = {
 	 */
 	updateQuantity(productId, quantity, cartItemKey = null) {
 		// Валидация
-		let nextQuantity = parseInt(quantity) || 1;
-		if (nextQuantity < 1) nextQuantity = 1;
+		let nextQuantity = naturaParseNumber(quantity);
+		if (!Number.isFinite(nextQuantity)) nextQuantity = 1;
+		if (nextQuantity <= 0) nextQuantity = 1;
 		
 		const pid = String(productId);
 		
@@ -3025,8 +3080,10 @@ const CartManager = {
 				if (quantityWrapper) {
 					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
 					if (input) {
-						input.value = quantity;
-						input.setAttribute('value', quantity);
+						const step = naturaParseNumber(input.getAttribute('step')) || 1;
+						const formattedQuantity = naturaFormatQuantity(quantity, step);
+						input.value = formattedQuantity;
+						input.setAttribute('value', formattedQuantity);
 					}
 					if (addToCartButton) {
 						addToCartButton.style.display = 'none';
@@ -3071,7 +3128,9 @@ const CartManager = {
 				const quantityValue = cartItem.querySelector('.mini-cart-item__quantity-value');
 				if (quantityValue) {
 					const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
-					quantityValue.textContent = `${quantity} ${unit}`;
+					const step = naturaGetStepByUnit(unit);
+					const formattedQuantity = naturaFormatQuantity(quantity, step);
+					quantityValue.textContent = `${formattedQuantity} ${unit}`;
 				}
 			}
 		}
@@ -3098,8 +3157,10 @@ const CartManager = {
 
 			const input = qtyWrapper.querySelector('input.qty, input[type="number"]');
 			if (input) {
-				input.value = quantity;
-				input.setAttribute('value', quantity);
+				const step = naturaParseNumber(input.getAttribute('step')) || 1;
+				const formattedQuantity = naturaFormatQuantity(quantity, step);
+				input.value = formattedQuantity;
+				input.setAttribute('value', formattedQuantity);
 			}
 
 			const cartItemKey = this.getCartItemKey(productId);
@@ -3174,10 +3235,12 @@ const CartManager = {
 				if (quantityWrapper) {
 					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
 					if (input) {
-						const currentValue = parseInt(input.value) || 1;
-						if (currentValue !== quantity) {
-							input.value = quantity;
-							input.setAttribute('value', quantity);
+						const currentValue = naturaParseNumber(input.value);
+						if (!Number.isFinite(currentValue) || Math.abs(currentValue - quantity) > 1e-6) {
+							const step = naturaParseNumber(input.getAttribute('step')) || 1;
+							const formattedQuantity = naturaFormatQuantity(quantity, step);
+							input.value = formattedQuantity;
+							input.setAttribute('value', formattedQuantity);
 						}
 					}
 					if (addToCartButton) {
@@ -3235,10 +3298,12 @@ const CartManager = {
 				const input = qtyWrapper.querySelector('input.qty, input[type="number"]');
 				// Только если товар в корзине — синхронизируем значение, иначе не мешаем выбору перед добавлением
 				if (quantity > 0 && input) {
-					const currentValue = parseInt(input.value) || 1;
-					if (currentValue !== quantity) {
-						input.value = quantity;
-						input.setAttribute('value', quantity);
+					const currentValue = naturaParseNumber(input.value);
+					if (!Number.isFinite(currentValue) || Math.abs(currentValue - quantity) > 1e-6) {
+						const step = naturaParseNumber(input.getAttribute('step')) || 1;
+						const formattedQuantity = naturaFormatQuantity(quantity, step);
+						input.value = formattedQuantity;
+						input.setAttribute('value', formattedQuantity);
 					}
 				}
 
@@ -3281,10 +3346,14 @@ const initQuantityButtons = () => {
 		const productId = wrapper.getAttribute('data-product-id') || input.getAttribute('data-product-id');
 		if (!productId) return;
 		
-		const min = parseInt(input.getAttribute('min')) || 1;
-		const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
-		const step = parseInt(input.getAttribute('step')) || 1;
-		const currentVal = parseInt(input.value) || min;
+		const minParsed = naturaParseNumber(input.getAttribute('min'));
+		const min = Number.isFinite(minParsed) ? minParsed : 1;
+		const maxAttr = input.getAttribute('max');
+		const maxParsed = maxAttr ? naturaParseNumber(maxAttr) : NaN;
+		const max = Number.isFinite(maxParsed) ? maxParsed : null;
+		const step = naturaParseNumber(input.getAttribute('step')) || 1;
+		const currentParsed = naturaParseNumber(input.value);
+		const currentVal = Number.isFinite(currentParsed) ? currentParsed : min;
 		
 		let newVal;
 		if (button.classList.contains('quantity-button--minus')) {
@@ -3292,10 +3361,12 @@ const initQuantityButtons = () => {
 		} else {
 			newVal = max ? Math.min(max, currentVal + step) : currentVal + step;
 		}
+		newVal = naturaRoundToStep(newVal, step);
 		
 		// Обновляем значение в input
-		input.value = newVal;
-		input.setAttribute('value', newVal);
+		const formattedQuantity = naturaFormatQuantity(newVal, step);
+		input.value = formattedQuantity;
+		input.setAttribute('value', formattedQuantity);
 		
 		// Обновляем корзину через менеджер:
 		// - в каталоге (product-card__quantity-wrapper) всегда
@@ -3315,15 +3386,22 @@ const initQuantityButtons = () => {
 	
 	// Обработчик изменения input вручную (с debounce)
 	const debouncedUpdate = debounce(function(input, productId) {
-		const min = parseInt(input.getAttribute('min')) || 1;
-		const max = input.getAttribute('max') ? parseInt(input.getAttribute('max')) : null;
-		let value = parseInt(input.value) || min;
+		const minParsed = naturaParseNumber(input.getAttribute('min'));
+		const min = Number.isFinite(minParsed) ? minParsed : 1;
+		const maxAttr = input.getAttribute('max');
+		const maxParsed = maxAttr ? naturaParseNumber(maxAttr) : NaN;
+		const max = Number.isFinite(maxParsed) ? maxParsed : null;
+		const step = naturaParseNumber(input.getAttribute('step')) || 1;
+		let value = naturaParseNumber(input.value);
+		if (!Number.isFinite(value)) value = min;
 		
 		if (value < min) value = min;
 		if (max && value > max) value = max;
+		value = naturaRoundToStep(value, step);
 		
-		input.value = value;
-		input.setAttribute('value', value);
+		const formattedQuantity = naturaFormatQuantity(value, step);
+		input.value = formattedQuantity;
+		input.setAttribute('value', formattedQuantity);
 		
 		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
 			const wrapper = input.closest('.product-card__quantity-wrapper, .quantity-wrapper');
@@ -3465,7 +3543,9 @@ const initProductCardAddToCart = () => {
 								'input.qty, input[type="number"], .product-card__quantity-input'
 							);
 							if (quantityInput) {
-								quantity = parseInt(quantityInput.value) || 1;
+								const step = naturaParseNumber(quantityInput.getAttribute('step')) || 1;
+								const parsed = naturaParseNumber(quantityInput.value);
+								quantity = Number.isFinite(parsed) ? naturaRoundToStep(parsed, step) : 1;
 							}
 						}
 					}
@@ -3897,14 +3977,17 @@ const initMiniCart = () => {
 			return;
 		}
 
-		const currentQuantity = parseInt(quantityValue.textContent.trim().split(' ')[0]) || 1;
-		const newQuantity = Math.max(1, currentQuantity + delta);
 		const unit = quantityValue.textContent.trim().split(' ').slice(1).join(' ') || 'шт';
+		const step = naturaGetStepByUnit(unit);
+		const min = step; // для кг: 0.1, для шт: 1
+		const currentQuantity = naturaParseNumber(quantityValue.textContent) || min;
+		let newQuantity = Math.max(min, currentQuantity + delta * step);
+		newQuantity = naturaRoundToStep(newQuantity, step);
 
 		// Обновляем через CartManager (коалесинг + без лишних запросов)
 		CartManager.updateQuantity(productId, newQuantity, cartItemKey).catch(() => {
 			// Откатываем при ошибке
-			quantityValue.textContent = `${currentQuantity} ${unit}`;
+			quantityValue.textContent = `${naturaFormatQuantity(currentQuantity, step)} ${unit}`;
 			CartManager.updateStateFromDOM();
 			CartManager.syncUI();
 			if (typeof updateCartCountGlobal === 'function') {

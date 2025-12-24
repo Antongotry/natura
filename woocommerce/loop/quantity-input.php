@@ -28,6 +28,22 @@ if ( empty( $product_unit ) ) {
 	$product_unit = get_option( 'woocommerce_weight_unit', 'кг' );
 }
 
+// Если единица измерения "кг"/"kg" — шаг 100г (0.1)
+$unit_normalized = trim( (string) $product_unit );
+$unit_normalized = function_exists( 'mb_strtolower' ) ? mb_strtolower( $unit_normalized ) : strtolower( $unit_normalized );
+$unit_normalized = preg_replace( '/\s+/', '', $unit_normalized );
+$is_kg_unit       = in_array( $unit_normalized, array( 'кг', 'kg' ), true );
+
+if ( $is_kg_unit ) {
+	$step      = 0.1;
+	$min_value = 0.1;
+	if ( empty( $input_value ) || (float) $input_value < 0.1 ) {
+		$input_value = 1;
+	}
+}
+
+$input_mode = $is_kg_unit ? 'decimal' : 'numeric';
+
 $input_id = 'quantity_' . $product->get_id() . '_' . wp_unique_id();
 ?>
 <div class="product-card__quantity-wrapper quantity-wrapper" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" style="display: none;">
@@ -50,7 +66,7 @@ $input_id = 'quantity_' . $product->get_id() . '_' . wp_unique_id();
 			<?php endif; ?>
 			step="<?php echo esc_attr( $step ); ?>"
 			placeholder=""
-			inputmode="numeric"
+			inputmode="<?php echo esc_attr( $input_mode ); ?>"
 			autocomplete="off"
 			data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
 		/>

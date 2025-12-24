@@ -317,6 +317,59 @@ function natura_force_shipping_fields($needs_shipping) {
 add_filter('woocommerce_cart_needs_shipping_address', 'natura_force_shipping_fields');
 
 /**
+ * Дробное количество для товаров в кг (0.1 = 100г)
+ */
+function natura_normalize_unit_label( $unit ): string {
+	$unit = trim( (string) $unit );
+	$unit = function_exists( 'mb_strtolower' ) ? mb_strtolower( $unit ) : strtolower( $unit );
+	$unit = preg_replace( '/\s+/', '', $unit );
+	return $unit;
+}
+
+function natura_is_kg_unit( $unit ): bool {
+	$unit = natura_normalize_unit_label( $unit );
+	return in_array( $unit, array( 'кг', 'kg' ), true );
+}
+
+/**
+ * WooCommerce по умолчанию приводит количество к целому — разрешаем дробные значения
+ * (нужно для 0.9 кг, 1.1 кг и т.д.)
+ */
+function natura_allow_decimal_stock_amount( $amount ) {
+	if ( is_string( $amount ) ) {
+		$amount = str_replace( ',', '.', $amount );
+	}
+	return (float) $amount;
+}
+add_filter( 'woocommerce_stock_amount', 'natura_allow_decimal_stock_amount', 10, 1 );
+
+/**
+ * Если где-то используется стандартный quantity input WooCommerce — тоже выставляем шаг 0.1 для "кг"
+ */
+function natura_quantity_input_args_for_kg( $args, $product ) {
+	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+		return $args;
+	}
+
+	$product_id = method_exists( $product, 'get_id' ) ? (int) $product->get_id() : 0;
+	$unit       = $product_id ? get_post_meta( $product_id, '_product_unit', true ) : '';
+	if ( empty( $unit ) ) {
+		$unit = get_option( 'woocommerce_weight_unit', 'kg' );
+	}
+
+	if ( natura_is_kg_unit( $unit ) ) {
+		$args['step']      = 0.1;
+		$args['min_value'] = 0.1;
+		if ( empty( $args['input_value'] ) || (float) $args['input_value'] < 0.1 ) {
+			$args['input_value'] = 1;
+		}
+	}
+
+	return $args;
+}
+add_filter( 'woocommerce_quantity_input_args', 'natura_quantity_input_args_for_kg', 10, 2 );
+
+/**
  * AJAX: Обновление количества товара в корзине (по cart_item_key) + возврат fragments
  */
 function natura_update_cart_item_quantity_ajax() {
@@ -347,11 +400,9 @@ function natura_update_cart_item_quantity_ajax() {
 	}
 
 	$cart_item_key = isset( $_POST['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_POST['cart_item_key'] ) ) : '';
-	$quantity      = isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1;
-
-	if ( $quantity < 1 ) {
-		$quantity = 1;
-	}
+	$quantity_raw  = isset( $_POST['quantity'] ) ? wc_clean( wp_unslash( $_POST['quantity'] ) ) : '1';
+	$quantity_raw  = str_replace( ',', '.', (string) $quantity_raw );
+	$quantity      = is_numeric( $quantity_raw ) ? (float) $quantity_raw : 1.0;
 
 	if ( empty( $cart_item_key ) ) {
 		wp_send_json_error(
@@ -366,6 +417,25 @@ function natura_update_cart_item_quantity_ajax() {
 			array( 'message' => 'Cart item not found' ),
 			404
 		);
+	}
+
+	$product_id = isset( $cart[ $cart_item_key ]['product_id'] ) ? (int) $cart[ $cart_item_key ]['product_id'] : 0;
+	$unit       = $product_id ? get_post_meta( $product_id, '_product_unit', true ) : '';
+	if ( empty( $unit ) ) {
+		$unit = get_option( 'woocommerce_weight_unit', 'kg' );
+	}
+
+	$is_kg_unit = natura_is_kg_unit( $unit );
+	$min_qty    = $is_kg_unit ? 0.1 : 1;
+
+	if ( $is_kg_unit ) {
+		$quantity = round( $quantity, 1 );
+	} else {
+		$quantity = (float) absint( $quantity );
+	}
+
+	if ( $quantity < $min_qty ) {
+		$quantity = $min_qty;
 	}
 
 	WC()->cart->set_quantity( $cart_item_key, $quantity, true );

@@ -29,6 +29,23 @@ if ( ! empty( $product_unit ) ) {
 	$unit_label  = $weight_unit;
 }
 
+// Если единица измерения "кг"/"kg" — шаг 100г (0.1), чтобы было 1 -> 1.1 -> 0.9 и т.д.
+$unit_normalized = trim( (string) $unit_label );
+$unit_normalized = function_exists( 'mb_strtolower' ) ? mb_strtolower( $unit_normalized ) : strtolower( $unit_normalized );
+$unit_normalized = preg_replace( '/\s+/', '', $unit_normalized );
+$is_kg_unit       = in_array( $unit_normalized, array( 'кг', 'kg' ), true );
+
+if ( $is_kg_unit ) {
+	$step      = 0.1;
+	$min_value = 0.1;
+	// По умолчанию хотим стартовать с 1кг, даже если min=0.1
+	if ( empty( $input_value ) || (float) $input_value < 0.1 ) {
+		$input_value = 1;
+	}
+}
+
+$input_mode = $is_kg_unit ? 'decimal' : 'numeric';
+
 ?>
 <div class="quantity-wrapper" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
 	<button type="button" class="quantity-button quantity-button--minus" aria-label="<?php esc_attr_e( 'Зменшити кількість', 'natura' ); ?>">
@@ -50,7 +67,7 @@ if ( ! empty( $product_unit ) ) {
 			<?php endif; ?>
 			step="<?php echo esc_attr( $step ); ?>"
 			placeholder=""
-			inputmode="numeric"
+			inputmode="<?php echo esc_attr( $input_mode ); ?>"
 			autocomplete="off"
 			data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
 		/>
