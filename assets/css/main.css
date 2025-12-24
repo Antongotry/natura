@@ -3536,6 +3536,16 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
    Thank you page (order received) – minimal
    ========================== */
 
+@media (min-width: 769px) {
+	.thankyou-page .thankyou-page__container {
+		/* ~в 2 раза уже относительно стандартного container-width-desktop (93.75vw) */
+		width: 46.875vw;
+		max-width: 46.875vw;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
 .thankyou-page__card {
 	background-color: #ffffff;
 	border-radius: 0.26vw;
