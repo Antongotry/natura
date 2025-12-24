@@ -17,17 +17,19 @@
 
 /* Sidebar */
 .account-page__sidebar {
-	background: transparent;
-	border-radius: 16px;
-	padding: 32px;
+	background-color: #ffffff;
+	border-radius: 0.26vw;
+	border: 1px solid rgba(48, 48, 48, 0.1);
+	padding: 1.563vw;
+	box-sizing: border-box;
 }
 
 .account-page__title {
 	font-family: 'Inter Tight', sans-serif;
-	font-size: 24px;
+	font-size: 1.875vw;
 	font-weight: 600;
-	color: #303030;
-	margin: 0 0 24px 0;
+	color: rgba(48, 48, 48, 0.4);
+	margin: 0 0 1.563vw 0;
 }
 
 .account-page__menu {
@@ -39,17 +41,21 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 16px 0;
-	border-top: 1px solid #e0e0e0;
+	padding: 1.25vw 0;
+	border-bottom: 1px solid rgba(48, 48, 48, 0.4);
 	font-family: 'Inter Tight', sans-serif;
-	font-size: 16px;
-	color: rgba(48, 48, 48, 0.6);
+	font-size: 0.938vw;
+	color: rgba(48, 48, 48, 0.4);
 	text-decoration: none;
 	transition: color 0.2s;
 }
 
+.account-page__menu-item:first-child {
+	border-top: 1px solid rgba(48, 48, 48, 0.4);
+}
+
 .account-page__menu-item:last-child {
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: none;
 }
 
 .account-page__menu-item:hover {
@@ -89,9 +95,11 @@
 
 /* Content */
 .account-page__content {
-	background: transparent;
-	border-radius: 16px;
-	padding: 40px;
+	background-color: #ffffff;
+	border-radius: 0.26vw;
+	border: 1px solid rgba(48, 48, 48, 0.1);
+	padding: 2.083vw;
+	box-sizing: border-box;
 }
 
 /* Section Title */
@@ -471,10 +479,12 @@
 	}
 
 	.account-page__sidebar {
+		border-radius: 16px;
 		padding: 24px;
 	}
 
 	.account-page__content {
+		border-radius: 16px;
 		padding: 24px;
 	}
 }
@@ -482,6 +492,11 @@
 @media (max-width: 768px) {
 	.account-page__title {
 		font-size: 20px;
+	}
+
+	.account-page__menu-item {
+		padding: 16px 0;
+		font-size: 16px;
 	}
 
 	.woocommerce-orders-table {
