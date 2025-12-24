@@ -36,8 +36,6 @@ $company = get_user_meta($customer_id, 'shipping_company', true);
 ?>
 
 <div class="account-address">
-	<h2 class="account-section__title">Адреса доставки</h2>
-	
 	<?php if ($message) : ?>
 		<div class="account-form__message account-form__message--<?php echo esc_attr($message_type); ?>">
 			<?php echo esc_html($message); ?>
@@ -60,7 +58,7 @@ $company = get_user_meta($customer_id, 'shipping_company', true);
 		<div class="account-form__field">
 			<label class="account-form__label" for="address_details">Під'їзд / Поверх / Квартира *</label>
 			<input type="text" class="account-form__input" id="address_details" name="address_details" 
-				   value="<?php echo esc_attr($address_details); ?>" placeholder="19/1/192" required>
+				   value="<?php echo esc_attr($address_details); ?>" placeholder="19/176/1199" required>
 		</div>
 
 		<div class="account-form__field">
