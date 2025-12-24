@@ -73,12 +73,11 @@ $menu_items = [
 				<h1 class="account-page__title">Особистий кабінет</h1>
 				<nav class="account-page__menu">
 					<?php foreach ($menu_items as $endpoint => $label) : 
-						$url = ($endpoint === 'support') ? '#support' : wc_get_account_endpoint_url($endpoint);
-						$is_active = ($current_endpoint === $endpoint) || ($endpoint === 'orders' && $current_endpoint === 'dashboard');
+				$url = ($endpoint === 'support') ? 'tel:+380932002211' : wc_get_account_endpoint_url($endpoint);
+				$is_active = ($current_endpoint === $endpoint) || ($endpoint === 'orders' && $current_endpoint === 'dashboard');
 					?>
 						<a href="<?php echo esc_url($url); ?>" 
-						   class="account-page__menu-item <?php echo $is_active ? 'account-page__menu-item--active' : ''; ?>"
-						   <?php echo ($endpoint === 'support') ? 'data-support-link' : ''; ?>>
+						   class="account-page__menu-item <?php echo $is_active ? 'account-page__menu-item--active' : ''; ?>">
 							<span class="account-page__menu-text"><?php echo esc_html($label); ?></span>
 							<span class="account-page__menu-arrow">
 								<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -105,58 +104,6 @@ $menu_items = [
 		</div>
 	</div>
 </div>
-
-<!-- Support Modal -->
-<div class="account-support-modal" data-support-modal style="display: none;">
-	<div class="account-support-modal__overlay" data-support-close></div>
-	<div class="account-support-modal__content">
-		<button type="button" class="account-support-modal__close" data-support-close>&times;</button>
-		<h2 class="account-section__title">Підтримка</h2>
-		<div class="account-support__info">
-			<div class="account-support__item">
-				<span>📞</span>
-				<span>Телефон:</span>
-				<a href="tel:+380932002211">+38 (093) 200 22 11</a>
-			</div>
-			<div class="account-support__item">
-				<span>📞</span>
-				<span>Телефон:</span>
-				<a href="tel:+380962002211">+38 (096) 200 22 11</a>
-			</div>
-			<div class="account-support__item">
-				<span>✉️</span>
-				<span>Email:</span>
-				<a href="mailto:zakaz@naturamarket.kiev.ua">zakaz@naturamarket.kiev.ua</a>
-			</div>
-			<div class="account-support__item">
-				<span>🕐</span>
-				<span>Графік роботи:</span>
-				<span>Пн-Сб: 09:00 – 17:00</span>
-			</div>
-		</div>
-	</div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-	const supportLinks = document.querySelectorAll('[data-support-link]');
-	const modal = document.querySelector('[data-support-modal]');
-	const closeButtons = document.querySelectorAll('[data-support-close]');
-	
-	supportLinks.forEach(link => {
-		link.addEventListener('click', function(e) {
-			e.preventDefault();
-			modal.style.display = 'flex';
-		});
-	});
-	
-	closeButtons.forEach(btn => {
-		btn.addEventListener('click', function() {
-			modal.style.display = 'none';
-		});
-	});
-});
-</script>
 
 
 

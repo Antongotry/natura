@@ -79,8 +79,12 @@ $menu_items = [
 				<h1 class="account-page__title">Особистий кабінет</h1>
 				<nav class="account-page__menu">
 					<?php foreach ($menu_items as $key => $item) : ?>
-						<a href="?section=<?php echo esc_attr($key); ?>" 
-						   class="account-page__menu-item <?php echo $current_section === $key ? 'account-page__menu-item--active' : ''; ?>">
+						<?php
+						$is_support = ($key === 'support');
+						$url = $is_support ? 'tel:+380932002211' : ('?section=' . $key);
+						?>
+						<a href="<?php echo esc_url($url); ?>" 
+						   class="account-page__menu-item <?php echo (!$is_support && $current_section === $key) ? 'account-page__menu-item--active' : ''; ?>">
 							<span class="account-page__menu-text"><?php echo esc_html($item['title']); ?></span>
 							<span class="account-page__menu-arrow">
 								<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
