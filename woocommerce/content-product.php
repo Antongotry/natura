@@ -19,6 +19,9 @@ $product_unit = get_post_meta( $product->get_id(), '_product_unit', true );
 if ( empty( $product_unit ) ) {
 	$product_unit = get_option( 'woocommerce_weight_unit', 'кг' ); // Fallback to WooCommerce weight unit
 }
+
+// Optional: custom title for product cards only (catalog/loops). Allows manual line breaks.
+$product_card_title = get_post_meta( $product->get_id(), '_product_card_title', true );
 ?>
 <li <?php wc_product_class( '', $product ); ?>>
 	<div class="product-card">
@@ -39,7 +42,14 @@ if ( empty( $product_unit ) ) {
 				<div class="product-card__title-wrapper">
 					<a href="<?php echo esc_url( get_permalink() ); ?>" class="product-card__title-link">
 						<span class="woocommerce-loop-product__title">
-							<?php echo esc_html( get_the_title() ); ?>
+							<?php
+							if ( ! empty( $product_card_title ) ) {
+								// Newline (Enter) -> <br>, and escape everything else.
+								echo nl2br( esc_html( $product_card_title ) );
+							} else {
+								echo esc_html( get_the_title() );
+							}
+							?>
 						</span>
 					</a>
 				</div>
