@@ -15,10 +15,10 @@
 
 /* Layout */
 .account-page__layout {
-	display: grid;
-	grid-template-columns: 320px 1fr;
-	gap: 40px;
-	align-items: start;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 0;
 }
 
 /* Sidebar */
@@ -28,6 +28,8 @@
 	border: 1px solid rgba(48, 48, 48, 0.1);
 	padding: 1.563vw;
 	box-sizing: border-box;
+	width: 22.656vw;
+	flex: 0 0 auto;
 }
 
 .account-page__title {
@@ -107,6 +109,8 @@
 	border: 1px solid rgba(48, 48, 48, 0.1);
 	padding: 2.083vw;
 	box-sizing: border-box;
+	width: 70.052vw;
+	flex: 0 0 auto;
 }
 
 /* Section Title */
@@ -572,16 +576,18 @@
 /* Mobile */
 @media (max-width: 1024px) {
 	.account-page__layout {
-		grid-template-columns: 1fr;
+		flex-direction: column;
 		gap: 24px;
 	}
 
 	.account-page__sidebar {
+		width: 100%;
 		border-radius: 16px;
 		padding: 24px;
 	}
 
 	.account-page__content {
+		width: 100%;
 		border-radius: 16px;
 		padding: 24px;
 	}
