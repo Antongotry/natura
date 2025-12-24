@@ -50,6 +50,22 @@ function natura_customize_woocommerce_breadcrumbs($args) {
 add_filter('woocommerce_breadcrumb_defaults', 'natura_customize_woocommerce_breadcrumbs');
 
 /**
+ * Убираем "Сторінка X" из хлебных крошек на пагинации (catalog page 2, 3, ...)
+ */
+add_filter( 'woocommerce_get_breadcrumb', 'natura_woocommerce_breadcrumb_remove_paged', 10, 2 );
+function natura_woocommerce_breadcrumb_remove_paged( $crumbs, $breadcrumb ) {
+	if ( is_paged() && ! empty( $crumbs ) ) {
+		$last = end( $crumbs );
+		// Woo добавляет "Page X" последним элементом без ссылки
+		if ( is_array( $last ) && isset( $last[1] ) && '' === (string) $last[1] ) {
+			array_pop( $crumbs );
+		}
+	}
+
+	return $crumbs;
+}
+
+/**
  * Переопределяем шаблон страницы checkout
  */
 function natura_override_checkout_page_template( $template ) {
