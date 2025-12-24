@@ -130,7 +130,7 @@
 	flex-direction: column;
 	gap: 1.25vw;
 	width: 100%;
-	max-width: 45.833vw; /* как колонка checkout */
+	max-width: 100%;
 }
 
 .account-form__field {
