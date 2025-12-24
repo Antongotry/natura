@@ -107,6 +107,125 @@ function natura_ajax_login() {
 }
 
 /**
+ * AJAX: Soft registration (create account from guest order on thank you page)
+ * Security: requires both order_id and order_key.
+ */
+add_action( 'wp_ajax_nopriv_natura_create_account_from_order', 'natura_ajax_create_account_from_order' );
+add_action( 'wp_ajax_natura_create_account_from_order', 'natura_ajax_create_account_from_order' );
+function natura_ajax_create_account_from_order() {
+	// Nonce
+	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'natura_soft_account_nonce' ) ) {
+		wp_send_json_error( array( 'message' => 'Помилка безпеки. Оновіть сторінку.' ), 403 );
+		return;
+	}
+
+	if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_order' ) ) {
+		wp_send_json_error( array( 'message' => 'WooCommerce недоступний.' ), 500 );
+		return;
+	}
+
+	// Already logged in — just send to orders
+	if ( is_user_logged_in() ) {
+		$redirect = function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'orders' ) : home_url( '/my-account/' );
+		wp_send_json_success(
+			array(
+				'message'  => 'Ви вже в акаунті.',
+				'redirect' => $redirect,
+			)
+		);
+		return;
+	}
+
+	$order_id  = isset( $_POST['order_id'] ) ? absint( wp_unslash( $_POST['order_id'] ) ) : 0;
+	$order_key = isset( $_POST['order_key'] ) ? sanitize_text_field( wp_unslash( $_POST['order_key'] ) ) : '';
+	$password  = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
+
+	if ( $order_id <= 0 || empty( $order_key ) ) {
+		wp_send_json_error( array( 'message' => 'Некоректні дані замовлення.' ), 400 );
+		return;
+	}
+
+	if ( strlen( $password ) < 6 ) {
+		wp_send_json_error( array( 'message' => 'Пароль має містити мінімум 6 символів.' ), 400 );
+		return;
+	}
+
+	$order = wc_get_order( $order_id );
+	if ( ! $order ) {
+		wp_send_json_error( array( 'message' => 'Замовлення не знайдено.' ), 404 );
+		return;
+	}
+
+	// Validate order key
+	$current_key = (string) $order->get_order_key();
+	if ( empty( $current_key ) || ! hash_equals( $current_key, (string) $order_key ) ) {
+		wp_send_json_error( array( 'message' => 'Невірний ключ замовлення.' ), 403 );
+		return;
+	}
+
+	// Only for guest orders
+	if ( (int) $order->get_customer_id() > 0 ) {
+		wp_send_json_error( array( 'message' => 'Це замовлення вже привʼязане до акаунту.' ), 409 );
+		return;
+	}
+
+	$email = (string) $order->get_billing_email();
+	if ( empty( $email ) || ! is_email( $email ) ) {
+		wp_send_json_error( array( 'message' => 'У замовленні немає коректного email.' ), 400 );
+		return;
+	}
+
+	// If user exists — ask to login
+	if ( email_exists( $email ) ) {
+		$auth_url = function_exists( 'natura_get_auth_url' ) ? natura_get_auth_url( 'login' ) : wp_login_url();
+		wp_send_json_error(
+			array(
+				'code'     => 'email_exists',
+				'message'  => 'Цей email вже має акаунт. Будь ласка, увійдіть.',
+				'auth_url' => $auth_url,
+			),
+			409
+		);
+		return;
+	}
+
+	$user_id = wp_create_user( $email, $password, $email );
+	if ( is_wp_error( $user_id ) ) {
+		wp_send_json_error( array( 'message' => 'Помилка при створенні акаунту. Спробуйте пізніше.' ), 500 );
+		return;
+	}
+
+	$user = new WP_User( $user_id );
+	$user->set_role( 'customer' );
+
+	// Basic profile from order
+	$first_name = method_exists( $order, 'get_billing_first_name' ) ? (string) $order->get_billing_first_name() : '';
+	$last_name  = method_exists( $order, 'get_billing_last_name' ) ? (string) $order->get_billing_last_name() : '';
+	if ( $first_name ) {
+		update_user_meta( $user_id, 'first_name', sanitize_text_field( $first_name ) );
+	}
+	if ( $last_name ) {
+		update_user_meta( $user_id, 'last_name', sanitize_text_field( $last_name ) );
+	}
+
+	// Link order to newly created user
+	$order->set_customer_id( $user_id );
+	$order->save();
+
+	// Log in
+	wp_set_current_user( $user_id );
+	wp_set_auth_cookie( $user_id, true );
+
+	$redirect = function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'orders' ) : home_url( '/my-account/' );
+	wp_send_json_success(
+		array(
+			'message'  => 'Кабінет створено. Перенаправляємо…',
+			'redirect' => $redirect,
+		)
+	);
+}
+
+/**
  * AJAX: Вихід користувача
  */
 add_action('wp_ajax_natura_logout', 'natura_ajax_logout');

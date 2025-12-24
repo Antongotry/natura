@@ -3532,6 +3532,133 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	padding-bottom: 4.167vw;
 }
 
+/* ==========================
+   Thank you page (order received) – minimal
+   ========================== */
+
+.thankyou-page__card {
+	background-color: #ffffff;
+	border-radius: 0.26vw;
+	border: 1px solid rgba(48, 48, 48, 0.1);
+	padding: 2.083vw;
+	box-sizing: border-box;
+}
+
+.thankyou-page__card + .thankyou-page__card {
+	margin-top: 1.563vw;
+}
+
+.thankyou-page__title {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 2.5vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: #303030;
+	margin: 0 0 1.25vw 0;
+}
+
+.thankyou-page__subtitle {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 1.875vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	color: #303030;
+	margin: 0 0 1.25vw 0;
+}
+
+.thankyou-page__text {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 1.25vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #303030;
+	margin: 0;
+}
+
+.thankyou-page__text + .thankyou-page__text {
+	margin-top: 0.833vw;
+}
+
+.thankyou-page__text--muted {
+	color: rgba(48, 48, 48, 0.4);
+}
+
+.thankyou-page__form {
+	margin-top: 1.25vw;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25vw;
+}
+
+.thankyou-page__field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.833vw;
+}
+
+.thankyou-page__label {
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 1.25vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #30303099;
+	margin: 0;
+}
+
+.thankyou-page__input {
+	width: 100%;
+	padding: 1.042vw;
+	border: 1px solid rgba(48, 48, 48, 0.15);
+	border-radius: 0.26vw;
+	background-color: #F3F3F366;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+	color: #303030;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.thankyou-page__input:focus {
+	outline: none;
+	border-color: #4DBD56;
+	box-shadow: 0 0 0 2px rgba(77, 189, 86, 0.1);
+}
+
+.thankyou-page__submit:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+.thankyou-page__message {
+	margin: 0;
+	min-height: 1.1em;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 110%;
+	letter-spacing: -0.02em;
+}
+
+.thankyou-page__message--error {
+	color: #d63638;
+}
+
+.thankyou-page__message--success {
+	color: #4DBD56;
+}
+
+.thankyou-page__login-hint a {
+	color: inherit;
+	text-decoration: underline;
+}
+
 .checkout-page__container {
 	width: var(--container-width-desktop);
 	max-width: var(--container-width-desktop);
@@ -4145,6 +4272,64 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page {
 		padding-top: 0;
 		padding-bottom: 10.667vw;
+	}
+
+	/* Thank you page (order received) – mobile */
+	.thankyou-page__card {
+		border-radius: 2.667vw;
+		padding: 5.333vw;
+	}
+
+	.thankyou-page__card + .thankyou-page__card {
+		margin-top: 5.333vw;
+	}
+
+	.thankyou-page__title {
+		font-size: 6.4vw;
+		margin-bottom: 4vw;
+	}
+
+	.thankyou-page__subtitle {
+		font-size: 5.333vw;
+		margin-bottom: 4vw;
+	}
+
+	.thankyou-page__text {
+		font-size: 4vw;
+	}
+
+	.thankyou-page__text + .thankyou-page__text {
+		margin-top: 3.2vw;
+	}
+
+	.thankyou-page__form {
+		margin-top: 4vw;
+		gap: 4vw;
+	}
+
+	.thankyou-page__field {
+		gap: 3.2vw;
+	}
+
+	.thankyou-page__label {
+		font-size: 4vw;
+		margin-bottom: 0;
+	}
+
+	.thankyou-page__input {
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	.thankyou-page__message {
+		font-size: 4vw;
+	}
+
+	.thankyou-page .checkout-submit-button {
+		padding: 4vw 8vw;
+		font-size: 4vw;
+		border-radius: 999999px;
 	}
 
 	.checkout-page__container {

@@ -1459,6 +1459,93 @@ const updateCartCountGlobal = debounce(() => {
 		});
 	};
 
+	/**
+	 * Soft registration on Thank You page (guest -> create account with password)
+	 */
+	const initSoftAccountThankYou = () => {
+		const form = document.querySelector('[data-soft-account-form]');
+		if (!form) {
+			return;
+		}
+
+		if (typeof naturaSoftAccount === 'undefined' || !naturaSoftAccount?.ajax_url || !naturaSoftAccount?.nonce) {
+			return;
+		}
+
+		const messageEl = form.querySelector('[data-soft-account-message]');
+		const submitBtn = form.querySelector('button[type="submit"]');
+		const passwordInput = form.querySelector('input[name="password"]');
+		const orderId = form.getAttribute('data-order-id');
+		const orderKey = form.getAttribute('data-order-key');
+
+		const setMessage = (text, type = '') => {
+			if (!messageEl) return;
+			messageEl.textContent = text || '';
+			messageEl.classList.remove('thankyou-page__message--error', 'thankyou-page__message--success');
+			if (type === 'error') {
+				messageEl.classList.add('thankyou-page__message--error');
+			}
+			if (type === 'success') {
+				messageEl.classList.add('thankyou-page__message--success');
+			}
+		};
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			const password = String(passwordInput?.value || '').trim();
+			if (!orderId || !orderKey) {
+				setMessage('Некоректні дані замовлення.', 'error');
+				return;
+			}
+			if (!password || password.length < 6) {
+				setMessage('Пароль має містити мінімум 6 символів.', 'error');
+				return;
+			}
+
+			if (submitBtn) {
+				submitBtn.disabled = true;
+			}
+			setMessage('');
+
+			try {
+				const body = new URLSearchParams();
+				body.set('action', 'natura_create_account_from_order');
+				body.set('nonce', naturaSoftAccount.nonce);
+				body.set('order_id', orderId);
+				body.set('order_key', orderKey);
+				body.set('password', password);
+
+				const res = await fetch(naturaSoftAccount.ajax_url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+					},
+					credentials: 'same-origin',
+					body: body.toString(),
+				});
+
+				const json = await res.json().catch(() => null);
+				if (json && json.success) {
+					setMessage(json?.data?.message || 'Кабінет створено. Перенаправляємо…', 'success');
+					const redirect = json?.data?.redirect;
+					if (redirect) {
+						window.location.href = redirect;
+					}
+					return;
+				}
+
+				setMessage(json?.data?.message || 'Помилка. Спробуйте пізніше.', 'error');
+			} catch (err) {
+				setMessage('Помилка. Спробуйте пізніше.', 'error');
+			} finally {
+				if (submitBtn) {
+					submitBtn.disabled = false;
+				}
+			}
+		});
+	};
+
 	const initFAQAccordion = () => {
 		const accordionItems = document.querySelectorAll('[data-faq-item]');
 
@@ -2540,6 +2627,7 @@ const updateCartCountGlobal = debounce(() => {
 		initPaymentModal();
 		initCollaborationModal();
 		initFeedbackModal();
+		initSoftAccountThankYou();
 		initFAQAccordion();
 		initInsightsPreview();
 		initParallax(lenis);

@@ -62,6 +62,13 @@ function natura_register_assets(): void {
 		'ajax_url' => admin_url('admin-ajax.php'),
 		'nonce'    => wp_create_nonce('natura_cart_nonce'),
 	));
+
+	// Soft registration on thank you page (guest -> create account from order)
+	wp_localize_script('natura-main', 'naturaSoftAccount', array(
+		'ajax_url'  => admin_url('admin-ajax.php'),
+		'nonce'     => wp_create_nonce('natura_soft_account_nonce'),
+		'auth_url'  => function_exists('natura_get_auth_url') ? natura_get_auth_url('login') : wp_login_url(),
+	));
 }
 add_action('wp_enqueue_scripts', 'natura_register_assets');
 
