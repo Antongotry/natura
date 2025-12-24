@@ -5055,7 +5055,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
 	font-style: normal;
-	font-size: 5.208vw; /* 100px / 1920 */
+	font-size: 2.604vw; /* 50px / 1920 */
 	line-height: 100%;
 	letter-spacing: -0.03em; /* -3% */
 	vertical-align: middle;
