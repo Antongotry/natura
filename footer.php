@@ -159,6 +159,11 @@
 			</div>
 		</footer>
 		
+		<?php
+		// Global form popups (collaboration & feedback) should be available on all pages.
+		get_template_part( 'template-parts/modals' );
+		?>
+
 		<?php if ( class_exists( 'WooCommerce' ) ) : ?>
 		<!-- Mini Cart Sidebar -->
 		<div class="mini-cart-sidebar" id="mini-cart-sidebar" data-mini-cart>
