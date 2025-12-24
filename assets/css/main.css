@@ -5771,7 +5771,7 @@ li.product .product-card,
 .product-card__title-wrapper .woocommerce-loop-product__title {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	font-size: 1.25vw;
+	font-size: 1.042vw;
 	line-height: 1.2;
 	letter-spacing: -0.03em;
 	color: #303030;
@@ -5788,13 +5788,14 @@ li.product .product-card,
 .product-card__unit {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	font-size: 1.25vw;
+	font-size: 1.042vw;
 	line-height: 100%;
 	letter-spacing: -0.03em;
 	color: rgba(48, 48, 48, 0.4);
 	vertical-align: middle;
 	flex-shrink: 0;
 	white-space: nowrap;
+	margin-left: 0.35em;
 }
 
 .product-card__price-wrapper {
@@ -5809,7 +5810,7 @@ li.product .product-card,
 .product-card__price-wrapper .price {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	font-size: 1.25vw;
+	font-size: 1.042vw;
 	line-height: 100%;
 	letter-spacing: -0.03em;
 	color: #303030;

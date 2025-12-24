@@ -50,15 +50,15 @@ $product_card_title = get_post_meta( $product->get_id(), '_product_card_title', 
 								echo esc_html( get_the_title() );
 							}
 							?>
+							<?php if ( $product_unit ) : ?>
+								<span class="product-card__unit">( <?php echo esc_html( $product_unit ); ?> )</span>
+							<?php endif; ?>
 						</span>
 					</a>
 				</div>
 
 				<div class="product-card__price-wrapper">
 					<?php woocommerce_template_loop_price(); ?>
-					<?php if ( $product_unit ) : ?>
-						<span class="product-card__unit">(<?php echo esc_html( $product_unit ); ?>)</span>
-					<?php endif; ?>
 				</div>
 			</div>
 
