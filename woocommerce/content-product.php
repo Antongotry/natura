@@ -27,7 +27,7 @@ $product_card_title = get_post_meta( $product->get_id(), '_product_card_title', 
 	<div class="product-card">
 		<div class="product-card__image-wrapper">
 			<a href="<?php echo esc_url( get_permalink() ); ?>" class="woocommerce-LoopProduct-link woocommerce-loop-product__link">
-				<?php woocommerce_template_loop_product_thumbnail(); ?>
+				<?php echo $product->get_image( 'medium' ); ?>
 			</a>
 		</div>
 
