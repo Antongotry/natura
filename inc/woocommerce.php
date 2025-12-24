@@ -134,17 +134,6 @@ function natura_add_product_unit_field() {
 			'description' => __('Вкажіть одиницю виміру для цього товару (наприклад: кг, г, шт)', 'natura'),
 		)
 	);
-
-	woocommerce_wp_textarea_input(
-		array(
-			'id'          => '_product_card_title',
-			'label'       => __( 'Назва для картки (каталог)', 'natura' ),
-			'placeholder' => __( 'Опціонально. Можна зробити перенос (Enter)', 'natura' ),
-			'desc_tip'    => true,
-			'description' => __( 'Використовується лише в каталозі/каруселях товарів. Не впливає на кошик/checkout/сторінку товару.', 'natura' ),
-			'rows'        => 2,
-		)
-	);
 	
 	echo '</div>';
 }
@@ -154,16 +143,56 @@ add_action('woocommerce_product_options_general_product_data', 'natura_add_produ
  * Сохраняем кастомные поля товара
  */
 function natura_save_product_unit_field($post_id) {
-	$product_unit = isset( $_POST['_product_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['_product_unit'] ) ) : '';
-	update_post_meta( $post_id, '_product_unit', $product_unit );
+	// Unit
+	if ( isset( $_POST['_product_unit'] ) ) {
+		$product_unit = sanitize_text_field( wp_unslash( $_POST['_product_unit'] ) );
+		update_post_meta( $post_id, '_product_unit', $product_unit );
+	}
 
-	// Назва для картки (каталог): поддерживаем перенос строки (Enter) и также <br>, если вставили.
-	$card_title_raw = isset( $_POST['_product_card_title'] ) ? wp_unslash( $_POST['_product_card_title'] ) : '';
-	$card_title_raw = preg_replace( '/<br\s*\/?>/i', "\n", (string) $card_title_raw );
-	$card_title     = sanitize_textarea_field( (string) $card_title_raw );
-	update_post_meta( $post_id, '_product_card_title', $card_title );
+	// Назва для картки (каталог): сохраняем только если поле было отправлено (чтобы quick edit не затирал)
+	if ( isset( $_POST['_product_card_title'] ) ) {
+		$card_title_raw = wp_unslash( $_POST['_product_card_title'] );
+		$card_title_raw = preg_replace( '/<br\s*\/?>/i', "\n", (string) $card_title_raw );
+		$card_title     = sanitize_textarea_field( (string) $card_title_raw );
+
+		if ( '' === trim( $card_title ) ) {
+			delete_post_meta( $post_id, '_product_card_title' );
+		} else {
+			update_post_meta( $post_id, '_product_card_title', $card_title );
+		}
+	}
 }
 add_action('woocommerce_process_product_meta', 'natura_save_product_unit_field');
+
+/**
+ * Поле "Назва для картки (каталог)" прямо под основным названием товара (post_title)
+ * Чтобы переносы в названии не влияли на корзину/checkout/страницу товара.
+ */
+function natura_render_product_card_title_under_main_title( $post ) {
+	if ( ! $post || 'product' !== $post->post_type ) {
+		return;
+	}
+
+	$value = get_post_meta( $post->ID, '_product_card_title', true );
+	?>
+	<div class="natura-product-card-title-field" style="margin: 12px 0 0;">
+		<label for="_product_card_title" style="display:block; font-weight:600; margin: 0 0 4px;">
+			<?php echo esc_html__( 'Назва для картки (каталог)', 'natura' ); ?>
+		</label>
+		<textarea
+			id="_product_card_title"
+			name="_product_card_title"
+			rows="2"
+			class="widefat"
+			placeholder="<?php echo esc_attr__( 'Опціонально. Можна зробити перенос (Enter)', 'natura' ); ?>"
+		><?php echo esc_textarea( $value ); ?></textarea>
+		<p class="description" style="margin: 6px 0 0;">
+			<?php echo esc_html__( 'Використовується лише в каталозі/каруселях товарів. Не впливає на кошик/checkout/сторінку товару.', 'natura' ); ?>
+		</p>
+	</div>
+	<?php
+}
+add_action( 'edit_form_after_title', 'natura_render_product_card_title_under_main_title' );
 
 /**
  * Кастомизация полей чекаута - лейблы и плейсхолдеры
