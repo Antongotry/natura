@@ -584,6 +584,21 @@ function natura_custom_order_statuses_labels( $order_statuses ) {
 	return $new_statuses;
 }
 
+/**
+ * Новые заказы: чтобы "когда только надійшло" было "Обробляється".
+ * Некоторые способы оплаты создают заказ в статусе pending/on-hold — приводим к processing.
+ */
+add_filter( 'woocommerce_new_order_status', 'natura_force_new_order_status_processing', 10, 2 );
+function natura_force_new_order_status_processing( $status, $order_id ) {
+	$normalized = str_replace( 'wc-', '', (string) $status );
+
+	if ( in_array( $normalized, array( 'pending', 'on-hold' ), true ) ) {
+		return 'processing';
+	}
+
+	return $normalized ?: $status;
+}
+
 
 
 
