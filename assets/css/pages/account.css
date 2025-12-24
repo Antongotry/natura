@@ -240,7 +240,7 @@
 /* Orders Table */
 .account-orders {
 	width: 100%;
-	--account-orders-thumb-size: 4.688vw; /* bigger thumbnail so name+price fit within its height */
+	--account-orders-thumb-size: 6.606vw; /* match checkout order review image width */
 }
 
 .account-orders__empty {
@@ -338,7 +338,7 @@
 
 .account-orders__product {
 	display: flex;
-	align-items: flex-start;
+	align-items: stretch;
 	gap: 1.042vw;
 }
 
@@ -349,6 +349,7 @@
 	overflow: hidden;
 	background: #F3F3F3;
 	flex-shrink: 0;
+	align-self: flex-start;
 }
 
 .account-orders__product-thumb img,
@@ -368,7 +369,6 @@
 	justify-content: space-between;
 	gap: 0;
 	min-width: 0;
-	min-height: var(--account-orders-thumb-size);
 }
 
 .account-orders__product-name {
@@ -859,7 +859,7 @@
 	}
 
 	.account-orders {
-		--account-orders-thumb-size: 13.333vw;
+		--account-orders-thumb-size: 17.6vw;
 	}
 
 	.account-orders__product {
