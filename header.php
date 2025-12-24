@@ -9,6 +9,8 @@
 		<?php wp_body_open(); ?>
 		<?php
 		$is_home = is_front_page();
+		$home_url = home_url('/');
+		$home_hash_prefix = $is_home ? '' : $home_url;
 		$current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$is_sales = strpos($current_url, '/sales') !== false || is_page('sales');
 		$is_alt_header = !$is_home && !$is_sales;
@@ -37,12 +39,12 @@
 											$catalog_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : (function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : home_url('/catalog'));
 											?>
 											<li class="site-header__menu-item"><a class="site-header__catalog" href="<?php echo esc_url($catalog_url); ?>">Каталог</a></li>
-											<li class="site-header__menu-item"><a href="#insights">Про нас</a></li>
-											<li class="site-header__menu-item"><a href="#trusted">Клієнти</a></li>
-											<li class="site-header__menu-item"><a href="#payment">Оплата і доставка</a></li>
-											<li class="site-header__menu-item"><a href="#cooperation" data-collaboration-modal-open>Співпраця</a></li>
+											<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#insights'); ?>">Про нас</a></li>
+											<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#trusted'); ?>">Клієнти</a></li>
+											<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#payment'); ?>">Оплата і доставка</a></li>
+											<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#cooperation'); ?>" data-collaboration-modal-open>Співпраця</a></li>
 											<li class="site-header__menu-item"><a href="<?php echo esc_url(home_url('/sales')); ?>">Акції</a></li>
-											<li class="site-header__menu-item"><a href="#feedback" data-feedback-modal-open>Залишити відгук</a></li>
+											<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#feedback'); ?>" data-feedback-modal-open>Залишити відгук</a></li>
 										</ul>
 									</nav>
 								</div>
@@ -81,17 +83,17 @@
 					<?php if (!$is_alt_header) : ?>
 						<nav class="site-header__nav" aria-label="<?php esc_attr_e('Основное меню', 'natura'); ?>">
 							<ul class="site-header__menu">
-								<li class="site-header__menu-item"><a href="#insights">Про нас</a></li>
+								<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#insights'); ?>">Про нас</a></li>
 								<li class="site-header__separator" aria-hidden="true"></li>
-								<li class="site-header__menu-item"><a href="#trusted">Клієнти</a></li>
+								<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#trusted'); ?>">Клієнти</a></li>
 								<li class="site-header__separator" aria-hidden="true"></li>
-								<li class="site-header__menu-item"><a href="#payment">Оплата і доставка</a></li>
+								<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#payment'); ?>">Оплата і доставка</a></li>
 								<li class="site-header__separator" aria-hidden="true"></li>
-								<li class="site-header__menu-item"><a href="#cooperation" data-collaboration-modal-open>Співпраця</a></li>
+								<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#cooperation'); ?>" data-collaboration-modal-open>Співпраця</a></li>
 								<li class="site-header__separator" aria-hidden="true"></li>
 								<li class="site-header__menu-item"><a href="<?php echo esc_url(home_url('/sales')); ?>">Акції</a></li>
 								<li class="site-header__separator" aria-hidden="true"></li>
-								<li class="site-header__menu-item"><a href="#feedback" data-feedback-modal-open>Залишити відгук</a></li>
+								<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#feedback'); ?>" data-feedback-modal-open>Залишити відгук</a></li>
 							</ul>
 						</nav>
 					<?php endif; ?>
@@ -160,17 +162,17 @@
 						<!-- Головна - second item -->
 						<li class="site-header__menu-item"><a href="<?php echo esc_url(home_url('/')); ?>">Головна</a></li>
 						<li class="site-header__separator" aria-hidden="true"></li>
-						<li class="site-header__menu-item"><a href="#insights">Про нас</a></li>
+						<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#insights'); ?>">Про нас</a></li>
 						<li class="site-header__separator" aria-hidden="true"></li>
-						<li class="site-header__menu-item"><a href="#trusted">Клієнти</a></li>
+						<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#trusted'); ?>">Клієнти</a></li>
 						<li class="site-header__separator" aria-hidden="true"></li>
-						<li class="site-header__menu-item"><a href="#payment">Оплата і доставка</a></li>
+						<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#payment'); ?>">Оплата і доставка</a></li>
 						<li class="site-header__separator" aria-hidden="true"></li>
-						<li class="site-header__menu-item"><a href="#cooperation" data-collaboration-modal-open>Співпраця</a></li>
+						<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#cooperation'); ?>" data-collaboration-modal-open>Співпраця</a></li>
 						<li class="site-header__separator" aria-hidden="true"></li>
 						<li class="site-header__menu-item"><a href="<?php echo esc_url(home_url('/sales')); ?>">Акції</a></li>
 						<li class="site-header__separator" aria-hidden="true"></li>
-						<li class="site-header__menu-item"><a href="#feedback" data-feedback-modal-open>Залишити відгук</a></li>
+						<li class="site-header__menu-item"><a href="<?php echo esc_url($home_hash_prefix . '#feedback'); ?>" data-feedback-modal-open>Залишити відгук</a></li>
 					</ul>
 				</nav>
 					<div class="site-header__mobile-contacts">

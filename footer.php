@@ -1,4 +1,9 @@
 		<footer class="site-footer">
+			<?php
+			$is_home = is_front_page();
+			$home_url = home_url('/');
+			$home_hash_prefix = $is_home ? '' : $home_url;
+			?>
 			<div class="site-footer__container container">
 				<div class="site-footer__brand">
 					<a class="site-footer__logo" href="<?php echo esc_url(home_url('/')); ?>" aria-label="<?php esc_attr_e('На головну', 'natura'); ?>">
@@ -12,10 +17,10 @@
 				<div class="site-footer__section site-footer__section--mobile-menu">
 					<p class="site-footer__title"><?php esc_html_e('Меню', 'natura'); ?></p>
 					<ul class="site-footer__list" aria-label="<?php esc_attr_e('Меню сайту', 'natura'); ?>">
-						<li class="site-footer__item"><a class="site-footer__link" href="#insights"><?php esc_html_e('Про нас', 'natura'); ?></a></li>
-						<li class="site-footer__item"><a class="site-footer__link" href="#trusted"><?php esc_html_e('Клієнти', 'natura'); ?></a></li>
-						<li class="site-footer__item"><a class="site-footer__link" href="#payment"><?php esc_html_e('Оплата і доставка', 'natura'); ?></a></li>
-						<li class="site-footer__item"><a class="site-footer__link" href="#cooperation"><?php esc_html_e('Співпраця', 'natura'); ?></a></li>
+						<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#insights'); ?>"><?php esc_html_e('Про нас', 'natura'); ?></a></li>
+						<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#trusted'); ?>"><?php esc_html_e('Клієнти', 'natura'); ?></a></li>
+						<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#payment'); ?>"><?php esc_html_e('Оплата і доставка', 'natura'); ?></a></li>
+						<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#cooperation'); ?>"><?php esc_html_e('Співпраця', 'natura'); ?></a></li>
 						<li class="site-footer__item"><a class="site-footer__link" href="#sales"><?php esc_html_e('Акції', 'natura'); ?></a></li>
 					</ul>
 				</div>
@@ -83,10 +88,10 @@
 					<div class="site-footer__section">
 						<p class="site-footer__title"><?php esc_html_e('Меню', 'natura'); ?></p>
 						<ul class="site-footer__list" aria-label="<?php esc_attr_e('Меню сайту', 'natura'); ?>">
-							<li class="site-footer__item"><a class="site-footer__link" href="#insights"><?php esc_html_e('Про нас', 'natura'); ?></a></li>
-							<li class="site-footer__item"><a class="site-footer__link" href="#trusted"><?php esc_html_e('Клієнти', 'natura'); ?></a></li>
-							<li class="site-footer__item"><a class="site-footer__link" href="#payment"><?php esc_html_e('Оплата і доставка', 'natura'); ?></a></li>
-							<li class="site-footer__item"><a class="site-footer__link" href="#cooperation"><?php esc_html_e('Співпраця', 'natura'); ?></a></li>
+							<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#insights'); ?>"><?php esc_html_e('Про нас', 'natura'); ?></a></li>
+							<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#trusted'); ?>"><?php esc_html_e('Клієнти', 'natura'); ?></a></li>
+							<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#payment'); ?>"><?php esc_html_e('Оплата і доставка', 'natura'); ?></a></li>
+							<li class="site-footer__item"><a class="site-footer__link" href="<?php echo esc_url($home_hash_prefix . '#cooperation'); ?>"><?php esc_html_e('Співпраця', 'natura'); ?></a></li>
 							<li class="site-footer__item"><a class="site-footer__link" href="#sales"><?php esc_html_e('Акції', 'natura'); ?></a></li>
 							<li class="site-footer__item"><a class="site-footer__link" href="#schedule"><?php esc_html_e('Графік роботи', 'natura'); ?></a></li>
 						</ul>
