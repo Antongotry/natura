@@ -63,8 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['natura_profile_nonce'
 ?>
 
 <div class="account-profile">
-	<h2 class="account-section__title">Профіль</h2>
-	
 	<?php if ($message) : ?>
 		<div class="account-form__message account-form__message--<?php echo esc_attr($message_type); ?>">
 			<?php echo esc_html($message); ?>
