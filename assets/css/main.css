@@ -5263,9 +5263,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin: 0;
 	padding: 0;
 	flex: 1;
-	display: flex;
-	align-items: flex-start;
-	gap: 0.521vw;
+	display: block;
 }
 
 /* Единица измерения в заголовке */
@@ -5281,7 +5279,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin: 0;
 	padding: 0;
 	display: inline-block;
-	align-self: flex-start;
+	white-space: nowrap;
 }
 
 /* Product Price - same row as title, right aligned */
