@@ -534,6 +534,56 @@ function natura_redirect_order_received_to_account_orders() {
 	exit;
 }
 
+/**
+ * Статусы заказов:
+ * - "Обробляється" (когда только поступил)
+ * - "В дорозі" (когда едет)
+ * - "Виконано" (когда получено)
+ */
+add_action( 'init', 'natura_register_order_status_in_transit' );
+function natura_register_order_status_in_transit() {
+	register_post_status(
+		'wc-in-transit',
+		array(
+			'label'                     => _x( 'В дорозі', 'Order status', 'natura' ),
+			'public'                    => true,
+			'exclude_from_search'       => false,
+			'show_in_admin_all_list'    => true,
+			'show_in_admin_status_list' => true,
+			'label_count'               => _n_noop( 'В дорозі <span class="count">(%s)</span>', 'В дорозі <span class="count">(%s)</span>', 'natura' ),
+		)
+	);
+}
+
+add_filter( 'wc_order_statuses', 'natura_custom_order_statuses_labels' );
+function natura_custom_order_statuses_labels( $order_statuses ) {
+	$new_statuses = array();
+
+	foreach ( $order_statuses as $status_key => $status_label ) {
+		// Rename core statuses
+		if ( 'wc-processing' === $status_key ) {
+			$new_statuses[ $status_key ] = __( 'Обробляється', 'natura' );
+			// Insert our custom status right after "processing"
+			$new_statuses['wc-in-transit'] = __( 'В дорозі', 'natura' );
+			continue;
+		}
+
+		if ( 'wc-completed' === $status_key ) {
+			$new_statuses[ $status_key ] = __( 'Виконано', 'natura' );
+			continue;
+		}
+
+		$new_statuses[ $status_key ] = $status_label;
+	}
+
+	// Fallback: if processing wasn't in the list for any reason, still ensure our custom status exists.
+	if ( ! isset( $new_statuses['wc-in-transit'] ) ) {
+		$new_statuses['wc-in-transit'] = __( 'В дорозі', 'natura' );
+	}
+
+	return $new_statuses;
+}
+
 
 
 
