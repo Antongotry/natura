@@ -56,36 +56,45 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 								</a>
 							<?php endif; ?>
 						</div>
-						<div class="mini-cart-item__quantity-wrapper">
-							<button
-								type="button"
-								class="mini-cart-item__quantity-button mini-cart-item__quantity-button--minus"
-								data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>"
-								data-product-id="<?php echo esc_attr( $product_id ); ?>"
-								aria-label="<?php esc_attr_e( 'Зменшити кількість', 'natura' ); ?>"
-							>−</button>
-							<span class="mini-cart-item__quantity-value"><?php echo esc_html( $cart_item['quantity'] ); ?> <?php echo esc_html( $product_unit ); ?></span>
-							<button
-								type="button"
-								class="mini-cart-item__quantity-button mini-cart-item__quantity-button--plus"
-								data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>"
-								data-product-id="<?php echo esc_attr( $product_id ); ?>"
-								aria-label="<?php esc_attr_e( 'Збільшити кількість', 'natura' ); ?>"
-							>+</button>
+						<div class="mini-cart-item__controls-row">
+							<div class="mini-cart-item__quantity-wrapper">
+								<button
+									type="button"
+									class="mini-cart-item__quantity-button mini-cart-item__quantity-button--minus"
+									data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>"
+									data-product-id="<?php echo esc_attr( $product_id ); ?>"
+									aria-label="<?php esc_attr_e( 'Зменшити кількість', 'natura' ); ?>"
+								>−</button>
+								<span class="mini-cart-item__quantity-value"><?php echo esc_html( $cart_item['quantity'] ); ?> <?php echo esc_html( $product_unit ); ?></span>
+								<button
+									type="button"
+									class="mini-cart-item__quantity-button mini-cart-item__quantity-button--plus"
+									data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>"
+									data-product-id="<?php echo esc_attr( $product_id ); ?>"
+									aria-label="<?php esc_attr_e( 'Збільшити кількість', 'natura' ); ?>"
+								>+</button>
+							</div>
+
+							<a
+								href="<?php echo esc_url( wc_get_cart_remove_url( $cart_item_key ) ); ?>"
+								class="mini-cart-item__remove"
+								data-product_id="<?php echo esc_attr( $product_id ); ?>"
+								data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>"
+								aria-label="<?php echo esc_attr( sprintf( __( 'Видалити %s з кошика', 'natura' ), wp_strip_all_tags( $product_name ) ) ); ?>"
+							>
+								<img
+									class="mini-cart-item__remove-icon"
+									src="<?php echo esc_url( 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/group-85.svg' ); ?>"
+									alt="<?php esc_attr_e( 'Видалити товар з кошика', 'natura' ); ?>"
+									loading="lazy"
+								/>
+							</a>
 						</div>
 						<div class="mini-cart-item__price">
 							<span class="mini-cart-item__price-label">Вартість товару : </span>
 							<?php echo wp_kses_post( $product_price ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</div>
 					</div>
-					<a href="<?php echo esc_url( wc_get_cart_remove_url( $cart_item_key ) ); ?>" class="mini-cart-item__remove" data-product_id="<?php echo esc_attr( $product_id ); ?>" data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Видалити %s з кошика', 'natura' ), wp_strip_all_tags( $product_name ) ) ); ?>">
-						<img
-							class="mini-cart-item__remove-icon"
-							src="<?php echo esc_url( 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/group-85.svg' ); ?>"
-							alt="<?php esc_attr_e( 'Видалити товар з кошика', 'natura' ); ?>"
-							loading="lazy"
-						/>
-					</a>
 				</li>
 				<?php
 			}

@@ -5989,6 +5989,26 @@ li.product .product-card,
 	display: flex;
 	flex-direction: column;
 	gap: 0.521vw;
+	min-width: 0;
+}
+
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
+	display: flex;
+	align-items: center;
+	gap: 1.042vw;
+	min-width: 0;
+}
+
+/* В рядку керування: quantity займає весь доступний простір, remove не "стрибає" по висоті */
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__quantity-wrapper {
+	flex: 1;
+	width: auto;
+	max-width: 100%;
+}
+
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__remove {
+	margin-left: 0; /* gap уже є */
+	align-self: center;
 }
 
 .mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name {
@@ -6126,8 +6146,8 @@ li.product .product-card,
 	text-decoration: none;
 	transition: color 0.3s ease;
 	margin: 0;
-	margin-left: 1.042vw; /* справа от quantity-wrapper */
-	align-self: center; /* выравниваем по центру относительно родителя */
+	margin-left: 1.042vw; /* fallback (если remove вне controls-row) */
+	align-self: center;
 	box-sizing: border-box;
 }
 
