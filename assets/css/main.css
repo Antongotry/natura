@@ -5818,6 +5818,13 @@ li.product .product-card,
 	padding: 0;
 }
 
+/* Ensure Woo price inner spans don't add extra line-height (keeps price aligned with first title line) */
+.product-card__price-wrapper .woocommerce-Price-amount,
+.product-card__price-wrapper .woocommerce-Price-amount bdi,
+.product-card__price-wrapper .woocommerce-Price-currencySymbol {
+	line-height: 100% !important;
+}
+
 .product-card__button-wrapper {
 	width: 100%;
 	margin-top: auto;
