@@ -53,7 +53,10 @@ add_filter('woocommerce_breadcrumb_defaults', 'natura_customize_woocommerce_brea
  * Переопределяем шаблон страницы checkout
  */
 function natura_override_checkout_page_template( $template ) {
-	if ( is_checkout() && ! is_wc_endpoint_url() ) {
+	// Для основного checkout используем кастомный шаблон.
+	// ВАЖНО: для order-received тоже используем кастомный шаблон, иначе если в странице checkout нет shortcode,
+	// endpoint будет пустым (header/footer есть, а контента нет).
+	if ( is_checkout() && ( ! is_wc_endpoint_url() || is_wc_endpoint_url( 'order-received' ) ) ) {
 		$custom_template = locate_template( array( 'woocommerce/checkout.php' ) );
 		if ( $custom_template ) {
 			return $custom_template;

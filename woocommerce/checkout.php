@@ -16,6 +16,14 @@ if ( ! is_checkout() ) {
 	wp_die( 'This is not a checkout page' );
 }
 
+// Endpoint: order received (thank you page).
+// Рендерим стандартную логику WooCommerce, чтобы подтянулся наш шаблон woocommerce/checkout/thankyou.php.
+if ( is_wc_endpoint_url( 'order-received' ) && function_exists( 'woocommerce_checkout_order_received' ) ) {
+	woocommerce_checkout_order_received();
+	get_footer();
+	return;
+}
+
 // Получаем объект checkout
 $checkout = WC()->checkout();
 
