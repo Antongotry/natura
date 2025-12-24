@@ -73,9 +73,10 @@ $customer_orders = wc_get_orders([
 
 										$thumb_html = '';
 										if ( $product ) {
-											$thumb_html = $product->get_image( 'woocommerce_thumbnail' );
+											// Use woocommerce_single to keep proportions (like checkout), thumbnails can be square-cropped.
+											$thumb_html = $product->get_image( 'woocommerce_single' );
 										} elseif ( function_exists( 'wc_placeholder_img' ) ) {
-											$thumb_html = wc_placeholder_img( 'woocommerce_thumbnail' );
+											$thumb_html = wc_placeholder_img( 'woocommerce_single' );
 										}
 
 										$line_total_html = method_exists( $order, 'get_formatted_line_subtotal' )
