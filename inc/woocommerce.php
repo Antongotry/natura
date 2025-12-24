@@ -501,6 +501,36 @@ function natura_update_cart_item_quantity_ajax() {
 add_action( 'wp_ajax_natura_update_cart_item_quantity', 'natura_update_cart_item_quantity_ajax' );
 add_action( 'wp_ajax_nopriv_natura_update_cart_item_quantity', 'natura_update_cart_item_quantity_ajax' );
 
+/**
+ * После успешного оформления заказа (страница order-received) — редирект в кабинет на "Мої замовлення"
+ */
+add_action( 'template_redirect', 'natura_redirect_order_received_to_account_orders', 20 );
+function natura_redirect_order_received_to_account_orders() {
+	if ( is_admin() || wp_doing_ajax() ) {
+		return;
+	}
+
+	if ( ! function_exists( 'is_order_received_page' ) || ! is_order_received_page() ) {
+		return;
+	}
+
+	// Редиректим только залогиненных — у гостя нет "кабинета"
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+
+	$orders_url = function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'orders' ) : '';
+	if ( empty( $orders_url ) && function_exists( 'natura_get_account_url' ) ) {
+		$orders_url = natura_get_account_url();
+	}
+	if ( empty( $orders_url ) ) {
+		$orders_url = home_url( '/' );
+	}
+
+	wp_safe_redirect( $orders_url );
+	exit;
+}
+
 
 
 
