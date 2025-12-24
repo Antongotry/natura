@@ -717,18 +717,41 @@
 }
 
 @media (max-width: 768px) {
-	.account-page .shop-archive-hero {
-		margin-top: 26.667vw;
-		margin-bottom: 5.333vw;
+	/* Mobile: no hero banner on account page */
+	.shop-archive-hero {
+		display: none !important;
+	}
+
+	/* Header is fixed; add top spacing when hero is hidden */
+	.account-page {
+		padding-top: 21.333vw;
+		padding-bottom: 10.667vw;
+	}
+
+	.account-page__layout {
+		gap: 5.333vw;
+	}
+
+	.account-page__sidebar,
+	.account-page__content {
+		border-radius: 2.667vw;
+		padding: 5.333vw;
 	}
 
 	.account-page__title {
-		font-size: 20px;
+		font-size: 6.4vw;
+		margin-bottom: 4vw;
 	}
 
 	.account-page__menu-item {
-		padding: 16px 0;
-		font-size: 16px;
+		padding: 4.267vw 0;
+		font-size: 4.267vw;
+	}
+
+	.account-page__menu-item::after {
+		width: 8.533vw;
+		height: 8.533vw;
+		margin-left: 3.2vw;
 	}
 
 	.account-section__title {
