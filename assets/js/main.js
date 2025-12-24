@@ -3256,13 +3256,9 @@ const CartManager = {
 				qtyWrapper.setAttribute('data-cart-item-key', cartItemKey);
 			}
 
-			// Если товар уже в корзине — скрываем кнопку "Додати в кошик", количество меняем селектором
+			// На странице товара кнопку "Додати в кошик" не прячем — пусть остается доступной всегда.
 			if (submitBtn) {
-				if (quantity > 0) {
-					submitBtn.style.display = 'none';
-				} else {
-					submitBtn.style.display = '';
-				}
+				submitBtn.style.display = '';
 			}
 		});
 	},
@@ -3402,12 +3398,9 @@ const CartManager = {
 				}
 			}
 
+			// На странице товара кнопку "Додати в кошик" не прячем — пусть остается доступной всегда.
 			if (submitBtn) {
-				if (quantity > 0) {
-					submitBtn.style.display = 'none';
-				} else {
-					submitBtn.style.display = '';
-				}
+				submitBtn.style.display = '';
 			}
 		});
 	}
