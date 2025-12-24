@@ -5593,13 +5593,17 @@ li.product .product-card,
 	letter-spacing: -0.03em;
 	color: rgba(48, 48, 48, 0.4);
 	vertical-align: middle;
-	align-self: flex-start;
 	flex-shrink: 0;
+	white-space: nowrap;
 }
 
 .product-card__price-wrapper {
 	flex-shrink: 0;
-	align-self: flex-end;
+	align-self: flex-start;
+	display: flex;
+	align-items: baseline;
+	gap: 0.35em;
+	white-space: nowrap;
 }
 
 .product-card__price-wrapper .price {
@@ -6810,6 +6814,7 @@ body.mini-cart-open {
 		letter-spacing: -0.03em;
 		vertical-align: middle;
 		color: rgba(48, 48, 48, 0.4);
+		white-space: nowrap;
 	}
 
 	.product-card__price-wrapper {
@@ -6820,6 +6825,10 @@ body.mini-cart-open {
 		text-align: left !important;
 		width: 100% !important;
 		order: 2 !important;
+		display: flex !important;
+		align-items: baseline !important;
+		gap: 1.6vw !important;
+		white-space: nowrap;
 	}
 
 	.product-card__title-wrapper {

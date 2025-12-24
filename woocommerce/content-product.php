@@ -41,14 +41,14 @@ if ( empty( $product_unit ) ) {
 						<span class="woocommerce-loop-product__title">
 							<?php echo esc_html( get_the_title() ); ?>
 						</span>
-						<?php if ( $product_unit ) : ?>
-							<span class="product-card__unit">(<?php echo esc_html( $product_unit ); ?>)</span>
-						<?php endif; ?>
 					</a>
 				</div>
 
 				<div class="product-card__price-wrapper">
 					<?php woocommerce_template_loop_price(); ?>
+					<?php if ( $product_unit ) : ?>
+						<span class="product-card__unit">(<?php echo esc_html( $product_unit ); ?>)</span>
+					<?php endif; ?>
 				</div>
 			</div>
 
