@@ -17,9 +17,18 @@ if ( ! is_checkout() ) {
 }
 
 // Endpoint: order received (thank you page).
-// Рендерим стандартную логику WooCommerce, чтобы подтянулся наш шаблон woocommerce/checkout/thankyou.php.
-if ( is_wc_endpoint_url( 'order-received' ) && function_exists( 'woocommerce_checkout_order_received' ) ) {
-	woocommerce_checkout_order_received();
+// ВАЖНО: is_wc_endpoint_url('order-received') тут не срабатывает стабильно, поэтому используем is_order_received_page().
+// Рендерим наш woocommerce/checkout/thankyou.php, иначе будет показываться форма checkout с пустой корзиной.
+if ( function_exists( 'is_order_received_page' ) && is_order_received_page() && function_exists( 'wc_get_order' ) ) {
+	$order_id  = absint( get_query_var( 'order-received' ) );
+	$order_key = isset( $_GET['key'] ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : '';
+
+	$order = $order_id ? wc_get_order( $order_id ) : false;
+	if ( $order && $order_key && ! hash_equals( (string) $order->get_order_key(), (string) $order_key ) ) {
+		$order = false;
+	}
+
+	wc_get_template( 'checkout/thankyou.php', array( 'order' => $order ) );
 	get_footer();
 	return;
 }
