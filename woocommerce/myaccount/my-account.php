@@ -86,7 +86,8 @@ $menu_items = [
 							</span>
 						</a>
 					<?php endforeach; ?>
-					<a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="account-page__menu-item account-page__menu-item--logout">
+					<?php $logout_redirect = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/catalog'); ?>
+					<a href="<?php echo esc_url(wp_logout_url($logout_redirect)); ?>" class="account-page__menu-item account-page__menu-item--logout">
 						<span class="account-page__menu-text">Вийти</span>
 						<span class="account-page__menu-arrow">
 							<svg width="24" height="24" viewBox="0 0 24 24" fill="none">

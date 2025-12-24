@@ -231,9 +231,10 @@ function natura_ajax_create_account_from_order() {
 add_action('wp_ajax_natura_logout', 'natura_ajax_logout');
 function natura_ajax_logout() {
 	wp_logout();
+	$shop_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/catalog');
 	wp_send_json_success([
 		'message' => 'Ви вийшли з акаунту',
-		'redirect' => home_url('/'),
+		'redirect' => $shop_url,
 	]);
 }
 
@@ -368,12 +369,24 @@ function natura_wc_registration_redirect($redirect) {
  */
 add_filter( 'woocommerce_logout_redirect', 'natura_wc_logout_redirect', 10, 1 );
 function natura_wc_logout_redirect( $redirect_to ) {
-	return home_url( '/' );
+	if ( ! empty( $redirect_to ) ) {
+		return $redirect_to;
+	}
+
+	return function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/catalog');
 }
 
 add_filter( 'logout_redirect', 'natura_wp_logout_redirect', 10, 3 );
 function natura_wp_logout_redirect( $redirect_to, $requested_redirect_to, $user ) {
-	return home_url( '/' );
+	// Respect explicit redirect_to if provided (e.g., wp_logout_url($url))
+	if ( ! empty( $requested_redirect_to ) ) {
+		return $requested_redirect_to;
+	}
+	if ( ! empty( $redirect_to ) ) {
+		return $redirect_to;
+	}
+
+	return function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/catalog');
 }
 
 /**
