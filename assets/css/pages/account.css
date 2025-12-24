@@ -284,16 +284,22 @@
 }
 
 /* Column widths (desktop) */
-.account-orders__th--products { width: 44%; }
+.account-orders__th--products { width: 40%; }
 .account-orders__th--date { width: 14%; }
 .account-orders__th--number { width: 16%; }
 .account-orders__th--status { width: 16%; }
-.account-orders__th--total { width: 10%; }
+.account-orders__th--total { width: 14%; }
 
 /* Add horizontal spacing between columns (container already adds side padding) */
 .account-orders__table th:not(:first-child),
 .account-orders__table td:not(:first-child) {
 	padding-left: 2.083vw;
+}
+
+/* Give the last column a bit more room for the header text */
+.account-orders__table th.account-orders__th--total,
+.account-orders__table td.account-orders__cell--total {
+	padding-left: 1.042vw;
 }
 
 /* Products column */
