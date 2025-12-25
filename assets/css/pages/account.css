@@ -286,6 +286,14 @@
 	vertical-align: top;
 }
 
+/* Normalize nested elements (span/a/bdi/etc) inside the orders table
+   to keep all columns aligned by the same top text line (override global readability rule). */
+.account-orders__table th *,
+.account-orders__table td * {
+	line-height: inherit;
+	letter-spacing: inherit;
+}
+
 .account-orders__status {
 	display: inline;
 	padding: 0;
