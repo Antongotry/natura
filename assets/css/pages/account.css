@@ -17,7 +17,7 @@
 .account-page__layout {
 	display: flex;
 	justify-content: space-between;
-	align-items: flex-start;
+	align-items: stretch;
 	gap: 0;
 }
 
