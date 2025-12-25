@@ -2968,7 +2968,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .shop-archive-content {
 	margin-top: 0;
 	padding: 0;
-	margin-bottom: 80px; /* отступ снизу каталога до футера на десктопе */
+	margin-bottom: 40px; /* отступ снизу каталога до футера на десктопе */
 }
 
 /* Левая колонка каталога (фильтры / категории) */
@@ -5542,8 +5542,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Related Products Section */
 .single-product__related-section {
 	width: 100%;
-	margin-top: 360px;
-	margin-bottom: 360px;
+	margin-top: 180px;
+	margin-bottom: 180px;
 	padding: 0;
 }
 
