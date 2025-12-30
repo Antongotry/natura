@@ -2462,6 +2462,7 @@ const updateCartCountGlobal = debounce(() => {
 									if (miniCart) {
 										miniCart.classList.add('is-open');
 										document.body.classList.add('mini-cart-open');
+										document.documentElement.classList.add('mini-cart-open');
 										console.log('[search] Товар добавлен, мини-корзина открыта');
 										return true;
 									}
@@ -3756,6 +3757,7 @@ const initMiniCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
 		miniCart.classList.add('is-open');
 		document.body.classList.add('mini-cart-open');
+		document.documentElement.classList.add('mini-cart-open');
 	};
 
 	const updateCartCount = () => {
@@ -3779,6 +3781,7 @@ const initMiniCart = () => {
 		console.log('[initMiniCart] Закрытие корзины');
 		miniCart.classList.remove('is-open');
 		document.body.classList.remove('mini-cart-open');
+		document.documentElement.classList.remove('mini-cart-open');
 	};
 
 	// Обработчики закрытия

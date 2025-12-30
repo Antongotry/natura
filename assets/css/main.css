@@ -6655,8 +6655,21 @@ li.product .product-card,
 }
 
 /* Prevent body scroll when cart is open */
+html.mini-cart-open,
 body.mini-cart-open {
 	overflow: hidden;
+}
+
+/* Prevent scroll chaining to the page; keep scroll inside the mini-cart */
+.mini-cart-sidebar__content,
+.mini-cart-sidebar__body,
+.mini-cart-sidebar .woocommerce-mini-cart {
+	overscroll-behavior: contain;
+}
+
+/* Smooth inner scrolling on iOS */
+.mini-cart-sidebar .woocommerce-mini-cart {
+	-webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 1025px) {
