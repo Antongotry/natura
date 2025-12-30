@@ -6788,6 +6788,9 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart {
 		flex: 1 1 0% !important; /* Changed from auto to 0% for better flex behavior */
 		min-height: 0 !important;
+		/* CRITICAL: Must have explicit height constraint for scrolling to work on iOS */
+		height: 100% !important;
+		max-height: 100% !important;
 		overflow-y: scroll !important; /* Must be scroll for iOS */
 		overflow-x: hidden !important;
 		-webkit-overflow-scrolling: touch !important;
@@ -6802,7 +6805,9 @@ li.product .product-card,
 		pointer-events: auto !important;
 		-webkit-user-select: none !important; /* Prevent text selection during scroll */
 		user-select: none !important;
-		/* Critical: flex: 1 1 0% with min-height: 0 allows proper scrolling on iOS */
+		/* CRITICAL: Remove any potential blocking styles */
+		-webkit-tap-highlight-color: transparent !important;
+		-webkit-touch-callout: none !important;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
