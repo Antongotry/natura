@@ -5859,6 +5859,11 @@ li.product .product-card,
 	margin-left: 0.35em;
 }
 
+/* Hide unit labels in product cards (catalog / carousels / search). Keep markup intact. */
+.product-card .product-card__unit {
+	display: none !important;
+}
+
 .product-card__price-wrapper {
 	flex-shrink: 0;
 	align-self: flex-start;
@@ -6549,6 +6554,7 @@ li.product .product-card,
 	border: 1px solid rgba(48, 48, 48, 0.12);
 	border-radius: 1.25vw;
 	background: rgba(255, 255, 255, 0.6);
+	-webkit-backdrop-filter: blur(10px);
 	backdrop-filter: blur(10px);
 }
 
@@ -6566,6 +6572,7 @@ li.product .product-card,
 	border-radius: 1.25vw;
 	padding: 1.563vw 1.563vw;
 	margin: 1.563vw 0;
+	-webkit-backdrop-filter: blur(10px);
 	backdrop-filter: blur(10px);
 }
 
