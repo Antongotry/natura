@@ -4881,7 +4881,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.938vw;
-	padding: 0.729vw 1.146vw;
+	padding: 0.729vw 1.667vw 0.729vw 1.146vw;
 	background-color: #4DBD56;
 	border-radius: 9999px;
 	margin: 0;
