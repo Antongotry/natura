@@ -6168,6 +6168,8 @@ li.product .product-card,
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;
+	/* Critical: ensure touch events work on mobile when open */
+	touch-action: pan-y;
 }
 
 .mini-cart-sidebar__overlay {
@@ -6762,6 +6764,9 @@ li.product .product-card,
 		transform: translateZ(0);
 		height: 100% !important; /* Ensure it takes full available height */
 		width: 100% !important;
+		/* Critical: ensure touch events pass through to children */
+		pointer-events: auto !important;
+		touch-action: pan-y;
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
@@ -6774,8 +6779,9 @@ li.product .product-card,
 		height: 100% !important; /* Ensure it takes full height */
 		width: 100% !important;
 		/* Critical for iOS: ensure touch events work */
+		pointer-events: auto !important;
+		touch-action: pan-y !important;
 		-webkit-overflow-scrolling: touch;
-		touch-action: pan-y;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart {
@@ -6791,6 +6797,10 @@ li.product .product-card,
 		position: relative !important;
 		-webkit-transform: translateZ(0); /* Force hardware acceleration on iOS */
 		transform: translateZ(0);
+		/* Critical: ensure touch events work */
+		pointer-events: auto !important;
+		-webkit-user-select: none !important; /* Prevent text selection during scroll */
+		user-select: none !important;
 		/* Critical: flex: 1 1 0% with min-height: 0 allows proper scrolling on iOS */
 	}
 
