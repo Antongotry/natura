@@ -6713,16 +6713,26 @@ li.product .product-card,
 }
 
 @media (max-width: 1025px) {
-	/* Mobile: lock page scroll behind the mini-cart so the cart list can scroll naturally */
-	html.mini-cart-open,
-	body.mini-cart-open {
-		overflow: hidden !important;
+	/* Mobile: allow scrolling inside the mini-cart itself */
+	.mini-cart-sidebar__body {
+		overflow-y: auto;
+		overflow-x: hidden;
+		-webkit-overflow-scrolling: touch;
 	}
 
-	/* If the mobile bottom nav is visible, keep a 6.667vw gap between it and the checkout button */
-	body:has(.site-header--alt) .mini-cart-sidebar.is-open .mini-cart-sidebar__content {
-		padding-bottom: calc(15.385vw + 6.667vw);
-		box-sizing: border-box;
+	.mini-cart-sidebar__body .widget_shopping_cart_content {
+		overflow: visible;
+	}
+
+	/* Footer section inside mini-cart: sticky above the mobile bottom nav */
+	.mini-cart-sidebar .mini-cart-footer {
+		position: sticky;
+		bottom: 0;
+		z-index: 2;
+	}
+
+	body:has(.site-header--alt) .mini-cart-sidebar .mini-cart-footer {
+		bottom: 15.385vw; /* height of mobile bottom nav */
 	}
 
 	/* Mobile: hide delivery notice block in mini-cart */

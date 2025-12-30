@@ -107,37 +107,39 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 		?>
 	</ul>
 
-	<p class="woocommerce-mini-cart__total total">
-		<?php
-		$mini_cart_subtotal = WC()->cart ? WC()->cart->get_cart_subtotal() : '';
-		?>
-		<span class="mini-cart-total">
-			<span class="mini-cart-total__label">
-				<?php esc_html_e( 'Всього :', 'natura' ); ?>
+	<div class="mini-cart-footer">
+		<p class="woocommerce-mini-cart__total total">
+			<?php
+			$mini_cart_subtotal = WC()->cart ? WC()->cart->get_cart_subtotal() : '';
+			?>
+			<span class="mini-cart-total">
+				<span class="mini-cart-total__label">
+					<?php esc_html_e( 'Всього :', 'natura' ); ?>
+				</span>
+				<span class="mini-cart-total__price">
+					<?php echo wp_kses_post( $mini_cart_subtotal ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</span>
 			</span>
-			<span class="mini-cart-total__price">
-				<?php echo wp_kses_post( $mini_cart_subtotal ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		</p>
+
+		<?php do_action( 'woocommerce_widget_shopping_cart_before_buttons' ); ?>
+
+		<p class="woocommerce-mini-cart__buttons buttons"><?php do_action( 'woocommerce_widget_shopping_cart_buttons' ); ?></p>
+
+		<div class="mini-cart-delivery">
+			<img 
+				class="mini-cart-delivery__icon" 
+				src="<?php echo esc_url( 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/delivery_truck_speed_24dp_303030_fill1_wght400_grad0_opsz24-1.svg' ); ?>" 
+				alt="<?php esc_attr_e( 'Безкоштовна доставка', 'natura' ); ?>"
+				loading="lazy"
+			/>
+			<span class="mini-cart-delivery__text">
+				<?php esc_html_e( 'Замовляйте на 1500 грн і більше — і ми доставимо ваше замовлення безкоштовно', 'natura' ); ?>
 			</span>
-		</span>
-	</p>
+		</div>
 
-	<?php do_action( 'woocommerce_widget_shopping_cart_before_buttons' ); ?>
-
-	<p class="woocommerce-mini-cart__buttons buttons"><?php do_action( 'woocommerce_widget_shopping_cart_buttons' ); ?></p>
-
-	<div class="mini-cart-delivery">
-		<img 
-			class="mini-cart-delivery__icon" 
-			src="<?php echo esc_url( 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/delivery_truck_speed_24dp_303030_fill1_wght400_grad0_opsz24-1.svg' ); ?>" 
-			alt="<?php esc_attr_e( 'Безкоштовна доставка', 'natura' ); ?>"
-			loading="lazy"
-		/>
-		<span class="mini-cart-delivery__text">
-			<?php esc_html_e( 'Замовляйте на 1500 грн і більше — і ми доставимо ваше замовлення безкоштовно', 'natura' ); ?>
-		</span>
+		<?php do_action( 'woocommerce_widget_shopping_cart_after_buttons' ); ?>
 	</div>
-
-	<?php do_action( 'woocommerce_widget_shopping_cart_after_buttons' ); ?>
 
 <?php else : ?>
 
