@@ -3089,11 +3089,14 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Fallback/robust: если активна подкатегория, родитель всегда раскрыт */
 .shop-archive-filters__item:has(.shop-archive-filters__subitem--active) > .shop-archive-filters__sublist,
 .shop-archive-filters__subitem:has(.shop-archive-filters__subitem--active) > .shop-archive-filters__sublist {
-	max-height: 2000px; /* запас под любое количество подкатегорий */
+	/* Subcategories: scroll if too long (desktop) */
+	max-height: 12.5vw;
 	opacity: 1;
 	transform: translateY(0);
 	pointer-events: auto;
 	margin-top: 0.521vw;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 /* Родитель подсвечиваем, если раскрыт (когда мы в подкатегории) */
@@ -3533,11 +3536,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Sticky sidebar (desktop) */
 @media (min-width: 1026px) {
 	.shop-archive-sidebar {
-		position: sticky;
-		top: 6.533vw;
+		/* Desktop: sidebar should NOT be sticky */
+		position: static;
+		top: auto;
 		align-self: start;
-		height: fit-content;
-		/* No internal scroll: sidebar grows with content */
+		height: auto;
 		max-height: none;
 		overflow: visible;
 	}
