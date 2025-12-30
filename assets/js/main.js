@@ -99,21 +99,32 @@ const naturaLockPageScrollForMiniCart = () => {
 
 	naturaMiniCartLockedScrollY = naturaGetPageScrollY();
 
-	// Stop Lenis smooth scrolling to prevent background scrolling (Lenis can ignore overflow:hidden)
-	const lenis = window.lenisInstance;
-	if (lenis && typeof lenis.stop === 'function') {
-		const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : false;
-		naturaMiniCartLenisWasRunning = !isStopped;
-		try {
-			lenis.stop();
-		} catch (e) {}
+	// Check if we're on mobile
+	const isMobileViewport =
+		typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+
+	// Only stop Lenis on mobile - on desktop allow normal scrolling
+	if (isMobileViewport) {
+		// Stop Lenis smooth scrolling to prevent background scrolling (Lenis can ignore overflow:hidden)
+		const lenis = window.lenisInstance;
+		if (lenis && typeof lenis.stop === 'function') {
+			const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : false;
+			naturaMiniCartLenisWasRunning = !isStopped;
+			try {
+				lenis.stop();
+			} catch (e) {}
+		} else {
+			naturaMiniCartLenisWasRunning = false;
+		}
 	} else {
+		// On desktop, don't stop Lenis - allow normal page scrolling
 		naturaMiniCartLenisWasRunning = false;
 	}
 
 	// On mobile we lock background scroll via CSS (html/body.mini-cart-open { overflow:hidden }).
 	// On desktop, we don't block page scrolling - user can scroll the page even when cart is open.
-	// Only stop Lenis smooth scrolling to prevent conflicts.
 };
 
 const naturaUnlockPageScrollForMiniCart = () => {

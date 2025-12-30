@@ -6722,12 +6722,21 @@ li.product .product-card,
 	body.mini-cart-open {
 		overflow: hidden !important;
 	}
+}
 
-	/* Mobile: keep mini-cart content above the bottom nav */
+/* Desktop: do NOT block page scrolling when cart is open */
+@media (min-width: 1026px) {
+	html.mini-cart-open,
+	body.mini-cart-open {
+		overflow: visible !important; /* Allow scrolling on desktop */
+	}
+
+	/* Mobile: keep mini-cart content above the bottom nav - no gap */
 	body:has(.site-header--alt) .mini-cart-sidebar__content {
 		height: calc(100svh - 15.385vw) !important;
 		max-height: calc(100svh - 15.385vw) !important;
-		bottom: 15.385vw !important; /* Ensure it sits above bottom nav */
+		bottom: 15.385vw !important; /* Sit directly above bottom nav */
+		top: 0 !important; /* Start from top */
 	}
 
 	/* Mobile: add bottom padding to checkout button so it doesn't stick to bottom nav */
@@ -6825,8 +6834,8 @@ li.product .product-card,
 		position: fixed !important;
 		top: 0 !important;
 		right: 0 !important;
-		bottom: 0 !important;
 		left: 0 !important;
+		/* bottom will be set by body:has(.site-header--alt) rule if bottom nav exists */
 	}
 
 	.mini-cart-sidebar__header {
