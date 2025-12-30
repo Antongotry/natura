@@ -6465,14 +6465,19 @@ li.product .product-card,
 }
 
 @media (max-width: 1025px) {
-	/* На телефоне скрываем подпись "Вартість товару :" */
+	/* На телефоне скрываем подпись "Вартість товару :" и поднимаем цену вправо от названия */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price-label {
 		display: none;
 	}
 
-	/* На мобильных цена отображается в controls-row, не абсолютно */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__content {
 		position: relative;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
+		position: absolute;
+		top: 0;
+		right: 0;
 	}
 }
 
@@ -6803,144 +6808,63 @@ li.product .product-card,
 	}
 
 	/* Товары в мини-корзине — увеличенные размеры под палец */
-	.mini-cart-sidebar .woocommerce-mini-cart-item {
-		padding: 4.103vw 0;
-		gap: 3.077vw;
-		align-items: flex-start;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__image {
-		flex-shrink: 0;
-	}
-
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__image img {
-		width: 20.513vw;
-		height: 20.513vw;
-		min-width: 20.513vw;
-		object-fit: contain;
-		border-radius: 1.282vw;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__content {
-		flex: 1;
-		min-width: 0;
-		gap: 0;
-		position: relative;
-		padding-top: 0;
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
+		width: 25.641vw;
+		height: 24.103vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name {
-		font-size: 3.846vw;
-		line-height: 1.3;
+		font-size: 3.59vw;
+		/* Prevent overlap with absolutely positioned price */
 		display: block;
-		margin-bottom: 1.282vw;
-		padding-right: 0;
-		word-wrap: break-word;
-		overflow-wrap: break-word;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name a {
-		display: block;
-		color: #303030;
-		text-decoration: none;
+		padding-right: 20vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name::after {
-		font-size: 3.846vw;
+		font-size: 3.59vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 3.846vw;
-		width: 100%;
-		margin-top: 1.282vw;
-		flex-wrap: nowrap;
+		/* More breathing room between quantity control and remove button */
+		gap: 6.667vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
-		width: auto;
-		flex: 0 0 auto;
+		/* Keep enough space for the remove button so controls don't overlap */
+		width: 40vw;
+		flex: 0 1 40vw;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
-		padding: 0 2.564vw;
-		border: 1px solid rgba(48, 48, 48, 0.4);
-		border-radius: 999px;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0;
+		padding: 0 2.051vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-button {
-		width: 7.179vw;
-		height: 7.179vw;
-		min-width: 7.179vw;
-		min-height: 7.179vw;
-		font-size: 4.615vw;
-		line-height: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		width: 8.205vw;
+		height: 8.205vw;
+		min-width: 8.205vw;
+		min-height: 8.205vw;
+		font-size: 4.1vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-value {
-		font-size: 3.59vw;
+		font-size: 3.2vw;
 		min-width: 8vw;
-		padding: 0 2.564vw;
-		white-space: nowrap;
+		padding: 0 2.051vw;
 	}
 
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
-		position: static;
-		font-size: 3.846vw;
-		line-height: 1.3;
-		margin-top: 2.564vw;
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-		margin-left: 0;
-		width: 100%;
-		justify-content: flex-end;
-		flex-shrink: 0;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price-label {
-		display: none;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove {
-		width: 10.256vw;
-		height: 10.256vw;
-		min-width: 10.256vw;
-		min-height: 10.256vw;
-		flex-shrink: 0;
-		margin-left: 0;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove-icon {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-	}
-
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price,
 	.mini-cart-sidebar .mini-cart-total__price {
-		font-size: 4.103vw;
+		font-size: 3.59vw;
 	}
 
 	.mini-cart-sidebar .mini-cart-total__label {
-		font-size: 4.103vw;
+		font-size: 3.59vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart__buttons .button {
-		font-size: 3.846vw;
-		padding: 3.846vw 5.128vw;
-		line-height: 1.4;
+		font-size: 3.5vw;
+		padding: 3.077vw 5.128vw;
 	}
 
 	.mini-cart-sidebar .mini-cart-delivery__icon {
