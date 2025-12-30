@@ -3862,69 +3862,7 @@ const initMiniCart = () => {
 		}
 	};
 
-	// When mini-cart is open, forward mouse wheel scrolling to the cart list
-	// so user doesn't need to "aim" the cursor at the scrollable list.
-	// IMPORTANT: Only redirect wheel events when cursor is over the mini-cart area
-	if (!document._naturaMiniCartWheelRedirect) {
-		document._naturaMiniCartWheelRedirect = (e) => {
-			const miniCartEl = document.getElementById('mini-cart-sidebar');
-			if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
-				return;
-			}
-
-			// Allow pinch-to-zoom (trackpad) even when mini-cart is open
-			if (e.ctrlKey) {
-				return;
-			}
-
-			// Check if the wheel event is over the mini-cart
-			const contentEl = miniCartEl.querySelector('.mini-cart-sidebar__content');
-			if (contentEl) {
-				const rect = contentEl.getBoundingClientRect();
-				const isOverCart = e.clientX >= rect.left && e.clientX <= rect.right &&
-				                   e.clientY >= rect.top && e.clientY <= rect.bottom;
-				
-				// If cursor is NOT over the cart, allow normal page scrolling (don't block)
-				if (!isOverCart) {
-					return; // Don't prevent default - allow page scrolling
-				}
-			}
-
-			const scrollEl =
-				miniCartEl.querySelector('.woocommerce-mini-cart') ||
-				miniCartEl.querySelector('.mini-cart-sidebar__body');
-
-			// Only prevent default if we're going to handle the scroll
-			if (!scrollEl) {
-				return; // Don't block if no scroll container
-			}
-
-			// Prevent default page scrolling and redirect to cart
-			e.preventDefault();
-			// Also stop other wheel listeners (e.g., Lenis) from scrolling the page behind
-			e.stopImmediatePropagation();
-
-			let deltaY = e.deltaY || 0;
-			if (e.deltaMode === 1) {
-				// lines -> pixels (approx)
-				deltaY *= 16;
-			} else if (e.deltaMode === 2) {
-				// pages -> pixels
-				deltaY *= scrollEl.clientHeight || 0;
-			}
-
-			if (!deltaY) {
-				return;
-			}
-
-			scrollEl.scrollTop += deltaY;
-		};
-
-		document.addEventListener('wheel', document._naturaMiniCartWheelRedirect, {
-			passive: false,
-			capture: true,
-		});
-	}
+	// Removed wheel redirect handler - user can scroll page normally on desktop when cart is open
 
 	const openCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
