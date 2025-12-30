@@ -186,26 +186,28 @@ const naturaLockPageScrollForMiniCart = () => {
 			// Allow scrolling inside the mini-cart even if the event target is a Text node
 			// (touch events can target text nodes in Safari/iOS).
 			const isInsideMiniCart = (() => {
-				// Get the scrollable container
-				const scrollContainer = miniCartEl.querySelector('.woocommerce-mini-cart') || 
-				                       miniCartEl.querySelector('.mini-cart-sidebar__body');
+				// Get the scrollable container - this is the main scrollable area
+				const scrollContainer = miniCartEl.querySelector('.woocommerce-mini-cart');
 				
-				// Prefer composedPath when available
+				if (!scrollContainer) return false;
+				
+				// Prefer composedPath when available (more reliable)
 				if (typeof e.composedPath === 'function') {
 					const path = e.composedPath();
-					// Check if any node in the path is inside mini-cart or is the scrollable container
+					// Check if any node in the path is inside the scrollable container
 					return path.some((node) => {
-						if (!node || node.nodeType !== 1) return false;
-						// Check if it's the mini-cart itself
-						if (node.id === 'mini-cart-sidebar') return true;
-						// Check if it's inside mini-cart
-						if (node.closest && node.closest('#mini-cart-sidebar')) return true;
-						// Check if it's the scrollable container or inside it
-						if (scrollContainer && (node === scrollContainer || scrollContainer.contains(node))) return true;
+						if (!node) return false;
+						// Check if it's the scrollable container itself
+						if (node === scrollContainer) return true;
+						// Check if it's inside the scrollable container
+						if (node.nodeType === 1 && scrollContainer.contains(node)) return true;
+						// Also check if it's inside mini-cart (for safety)
+						if (node.nodeType === 1 && node.closest && node.closest('#mini-cart-sidebar')) return true;
 						return false;
 					});
 				}
 
+				// Fallback for browsers without composedPath
 				let node = e.target;
 				// Climb up to an Element node
 				while (node && node.nodeType !== 1) {
@@ -214,16 +216,19 @@ const naturaLockPageScrollForMiniCart = () => {
 				
 				if (!node) return false;
 				
-				// Check if it's inside mini-cart
-				if (node.closest && node.closest('#mini-cart-sidebar')) return true;
-				
 				// Check if it's the scrollable container or inside it
-				if (scrollContainer && (node === scrollContainer || scrollContainer.contains(node))) return true;
+				if (node === scrollContainer || scrollContainer.contains(node)) return true;
+				
+				// Also check if it's inside mini-cart (for safety)
+				if (node.closest && node.closest('#mini-cart-sidebar')) return true;
 				
 				return false;
 			})();
 
-			if (isInsideMiniCart) return;
+			// Always allow scrolling inside the scrollable container
+			if (isInsideMiniCart) {
+				return; // Don't prevent default, allow scrolling
+			}
 
 			e.preventDefault();
 			e.stopImmediatePropagation();
