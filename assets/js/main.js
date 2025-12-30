@@ -133,12 +133,19 @@ const naturaUnlockPageScrollForMiniCart = () => {
 
 	// No handlers to remove - we don't block scrolling on desktop anymore
 
-	// Resume Lenis only if it was running before we opened mini-cart
-	const lenis = window.lenisInstance;
-	if (naturaMiniCartLenisWasRunning && lenis && typeof lenis.start === 'function') {
-		try {
-			lenis.start();
-		} catch (e) {}
+	// Resume Lenis only if it was running before we opened mini-cart (and only on mobile)
+	const isMobileViewport =
+		typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+
+	if (isMobileViewport && naturaMiniCartLenisWasRunning) {
+		const lenis = window.lenisInstance;
+		if (lenis && typeof lenis.start === 'function') {
+			try {
+				lenis.start();
+			} catch (e) {}
+		}
 	}
 	naturaMiniCartLenisWasRunning = false;
 };
