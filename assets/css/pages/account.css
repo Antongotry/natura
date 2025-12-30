@@ -26,7 +26,7 @@
 	background-color: transparent;
 	border-radius: 0.26vw;
 	border: 1px solid rgba(48, 48, 48, 0.1);
-	padding: 1.563vw;
+	padding: 1.563vw 1.563vw 0 1.563vw;
 	box-sizing: border-box;
 	width: 22.656vw;
 	flex: 0 0 auto;
@@ -718,7 +718,7 @@
 	.account-page__sidebar {
 		width: 100%;
 		border-radius: 16px;
-		padding: 24px;
+		padding: 24px 24px 0 24px;
 	}
 
 	.account-page__content {
@@ -748,6 +748,10 @@
 	.account-page__content {
 		border-radius: 2.667vw;
 		padding: 5.333vw;
+	}
+
+	.account-page__sidebar {
+		padding-bottom: 0;
 	}
 
 	.account-page__title {
