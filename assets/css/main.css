@@ -1138,14 +1138,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .site-header__account-button-text {
-	color: #ffffff;
+	color: inherit;
 	transition: color 0.3s ease;
 }
 
 .site-header__account-button:hover,
 .site-header__account-button:focus-visible {
 	background-color: transparent;
-	border-color: #4DBD56;
+	color: #303030;
+	border-color: currentColor;
 }
 
 .site-header__account-button:hover .site-header__account-button-text,
@@ -1583,7 +1584,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .site-header__menu-button-text {
-	color: #ffffff;
+	color: inherit;
 	transition: color 0.3s ease;
 }
 
@@ -1599,9 +1600,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 .site-header__menu-button:hover,
 .site-header__menu-button:focus-visible,
+.site-header__dropdown-wrapper:focus-within .site-header__menu-button,
 .site-header__dropdown-wrapper:hover .site-header__menu-button {
 	background-color: transparent;
-	border-color: #4DBD56;
+	color: #303030;
+	border-color: currentColor;
 }
 
 .site-header__menu-button:hover .site-header__menu-button-text,
