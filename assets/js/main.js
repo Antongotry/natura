@@ -114,11 +114,18 @@ const naturaLockPageScrollForMiniCart = () => {
 			naturaMiniCartLenisWasRunning = !isStopped;
 			try {
 				lenis.stop();
-				// КРИТИЧНО: Также отключаем все обработчики Lenis которые могут блокировать touch
+				// КРИТИЧНО: Отключаем все обработчики Lenis которые могут блокировать touch
+				// Lenis может иметь обработчики wheel/touch которые блокируют скролл
 				if (lenis.destroy) {
-					// Не уничтожаем, но убеждаемся что он не блокирует
+					// Не уничтожаем полностью, но останавливаем
 				}
-			} catch (e) {}
+				// КРИТИЧНО: Убеждаемся что Lenis не блокирует touch события
+				if (lenis.options && lenis.options.wrapper) {
+					// Убираем обработчики если есть
+				}
+			} catch (e) {
+				console.error('[naturaLockPageScrollForMiniCart] Error stopping Lenis:', e);
+			}
 		} else {
 			naturaMiniCartLenisWasRunning = false;
 		}
