@@ -3084,6 +3084,30 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	will-change: max-height, opacity, transform;
 }
 
+/* Subcategory scrollbar (desktop) */
+.shop-archive-filters__sublist {
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: rgba(48, 48, 48, 0.35) rgba(48, 48, 48, 0.10); /* thumb track */
+}
+
+.shop-archive-filters__sublist::-webkit-scrollbar {
+	width: 6px;
+}
+
+.shop-archive-filters__sublist::-webkit-scrollbar-track {
+	background: rgba(48, 48, 48, 0.10);
+	border-radius: 999px;
+}
+
+.shop-archive-filters__sublist::-webkit-scrollbar-thumb {
+	background-color: rgba(48, 48, 48, 0.35);
+	border-radius: 999px;
+}
+
+.shop-archive-filters__sublist::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(48, 48, 48, 0.5);
+}
+
 .shop-archive-filters__item--expanded > .shop-archive-filters__sublist,
 .shop-archive-filters__subitem--expanded > .shop-archive-filters__sublist,
 /* Fallback/robust: если активна подкатегория, родитель всегда раскрыт */
