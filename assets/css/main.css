@@ -6747,6 +6747,10 @@ li.product .product-card,
 		min-height: 0 !important;
 		display: flex !important;
 		flex-direction: column !important;
+		/* Ensure body can receive touch events on iOS */
+		position: relative;
+		-webkit-transform: translateZ(0);
+		transform: translateZ(0);
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
@@ -6755,6 +6759,8 @@ li.product .product-card,
 		flex: 1 1 auto !important;
 		min-height: 0 !important;
 		overflow: hidden !important;
+		/* Ensure content wrapper doesn't block touch events */
+		position: relative;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart {
@@ -6766,6 +6772,10 @@ li.product .product-card,
 		touch-action: pan-y !important;
 		overscroll-behavior-y: contain !important;
 		will-change: scroll-position;
+		/* Critical for iOS: ensure the element can receive touch events */
+		position: relative;
+		-webkit-transform: translateZ(0); /* Force hardware acceleration on iOS */
+		transform: translateZ(0);
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
