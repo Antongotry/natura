@@ -4166,6 +4166,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	font-weight: 400;
 }
 
+/* Hide unit labels in checkout order review */
+.checkout-order-review .checkout-order-review__item-unit {
+	display: none !important;
+}
+
 .checkout-order-review__item-price {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
@@ -6317,6 +6322,16 @@ li.product .product-card,
 	letter-spacing: -0.03em;
 	vertical-align: middle;
 	color: rgba(48, 48, 48, 0.4);
+}
+
+/* Hide unit labels in mini-cart (name + quantity) */
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name::after {
+	content: '' !important;
+	display: none !important;
+}
+
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-unit {
+	display: none !important;
 }
 
 .mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {

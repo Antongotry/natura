@@ -65,7 +65,10 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 									data-product-id="<?php echo esc_attr( $product_id ); ?>"
 									aria-label="<?php esc_attr_e( 'Зменшити кількість', 'natura' ); ?>"
 								>−</button>
-								<span class="mini-cart-item__quantity-value"><?php echo esc_html( $cart_item['quantity'] ); ?> <?php echo esc_html( $product_unit ); ?></span>
+								<span class="mini-cart-item__quantity-value">
+									<span class="mini-cart-item__quantity-number"><?php echo esc_html( $cart_item['quantity'] ); ?></span>
+									<span class="mini-cart-item__quantity-unit"> <?php echo esc_html( $product_unit ); ?></span>
+								</span>
 								<button
 									type="button"
 									class="mini-cart-item__quantity-button mini-cart-item__quantity-button--plus"
