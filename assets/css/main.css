@@ -2987,6 +2987,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	box-sizing: border-box;
 }
 
+/* Remove bottom padding specifically for the catalog sidebar */
+.shop-archive-layout aside.shop-archive-sidebar {
+	padding-bottom: 0;
+}
+
 .shop-archive-sidebar__title {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
