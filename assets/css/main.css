@@ -6725,12 +6725,6 @@ li.product .product-card,
 }
 
 /* Desktop: do NOT block page scrolling when cart is open */
-@media (min-width: 1026px) {
-	html.mini-cart-open,
-	body.mini-cart-open {
-		overflow: visible !important; /* Allow scrolling on desktop */
-	}
-
 	/* Mobile: keep mini-cart content above the bottom nav - no gap */
 	body:has(.site-header--alt) .mini-cart-sidebar__content {
 		height: calc(100svh - 15.385vw) !important;
