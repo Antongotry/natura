@@ -2510,6 +2510,21 @@ const updateCartCountGlobal = debounce(() => {
 										document.body.classList.add('mini-cart-open');
 										document.documentElement.classList.add('mini-cart-open');
 										naturaLockPageScrollForMiniCart();
+										requestAnimationFrame(() => {
+											const scrollEl =
+												miniCart.querySelector('.woocommerce-mini-cart') ||
+												miniCart.querySelector('.mini-cart-sidebar__body');
+											if (scrollEl) {
+												if (!scrollEl.hasAttribute('tabindex')) {
+													scrollEl.setAttribute('tabindex', '-1');
+												}
+												try {
+													scrollEl.focus({ preventScroll: true });
+												} catch (e) {
+													try { scrollEl.focus(); } catch (_) {}
+												}
+											}
+										});
 										console.log('[search] Товар добавлен, мини-корзина открыта');
 										return true;
 									}
@@ -3800,12 +3815,86 @@ const initMiniCart = () => {
 
 	console.log('[initMiniCart] Мини-корзина найдена, инициализация...');
 
+	const getMiniCartScrollContainer = () => {
+		// Main scroll container for mini-cart items
+		return (
+			miniCart.querySelector('.woocommerce-mini-cart') ||
+			miniCart.querySelector('.mini-cart-sidebar__body')
+		);
+	};
+
+	const focusMiniCartScrollContainer = () => {
+		const scrollEl = getMiniCartScrollContainer();
+		if (!scrollEl) return;
+
+		// Make focusable for keyboard users (wheel uses pointer, but this still improves UX)
+		if (!scrollEl.hasAttribute('tabindex')) {
+			scrollEl.setAttribute('tabindex', '-1');
+		}
+
+		try {
+			scrollEl.focus({ preventScroll: true });
+		} catch (e) {
+			try {
+				scrollEl.focus();
+			} catch (_) {}
+		}
+	};
+
+	// When mini-cart is open, forward mouse wheel scrolling to the cart list
+	// so user doesn't need to "aim" the cursor at the scrollable list.
+	if (!document._naturaMiniCartWheelRedirect) {
+		document._naturaMiniCartWheelRedirect = (e) => {
+			const miniCartEl = document.getElementById('mini-cart-sidebar');
+			if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
+				return;
+			}
+
+			// Allow pinch-to-zoom (trackpad) even when mini-cart is open
+			if (e.ctrlKey) {
+				return;
+			}
+
+			const scrollEl =
+				miniCartEl.querySelector('.woocommerce-mini-cart') ||
+				miniCartEl.querySelector('.mini-cart-sidebar__body');
+
+			// Always prevent default page scrolling while cart is open
+			e.preventDefault();
+
+			if (!scrollEl) {
+				return;
+			}
+
+			let deltaY = e.deltaY || 0;
+			if (e.deltaMode === 1) {
+				// lines -> pixels (approx)
+				deltaY *= 16;
+			} else if (e.deltaMode === 2) {
+				// pages -> pixels
+				deltaY *= scrollEl.clientHeight || 0;
+			}
+
+			if (!deltaY) {
+				return;
+			}
+
+			scrollEl.scrollTop += deltaY;
+		};
+
+		document.addEventListener('wheel', document._naturaMiniCartWheelRedirect, {
+			passive: false,
+			capture: true,
+		});
+	}
+
 	const openCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
 		miniCart.classList.add('is-open');
 		document.body.classList.add('mini-cart-open');
 		document.documentElement.classList.add('mini-cart-open');
 		naturaLockPageScrollForMiniCart();
+		requestAnimationFrame(focusMiniCartScrollContainer);
 	};
 
 	const updateCartCount = () => {
