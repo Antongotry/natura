@@ -6758,12 +6758,13 @@ li.product .product-card,
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
 		/* More breathing room between quantity control and remove button */
-		gap: 2.667vw;
+		gap: 6.667vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
 		/* Keep enough space for the remove button so controls don't overlap */
 		width: 40vw;
+		flex: 0 1 40vw;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
