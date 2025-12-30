@@ -78,47 +78,26 @@ const naturaFormatQuantity = (quantity, step) => {
 /**
  * Scroll lock helpers (used by mini-cart)
  */
-let naturaMiniCartScrollY = 0;
 let naturaMiniCartScrollLocked = false;
 
 const naturaLockPageScrollForMiniCart = () => {
 	if (naturaMiniCartScrollLocked) return;
 	naturaMiniCartScrollLocked = true;
 
-	naturaMiniCartScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
-
 	// Prevent layout shift when scrollbar disappears
 	const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 	if (scrollbarWidth > 0) {
 		document.body.style.paddingRight = `${scrollbarWidth}px`;
+		document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
 	}
-
-	document.body.style.overflow = 'hidden';
-	document.body.style.position = 'fixed';
-	document.body.style.top = `-${naturaMiniCartScrollY}px`;
-	document.body.style.left = '0';
-	document.body.style.right = '0';
-	document.body.style.width = '100%';
-
-	document.documentElement.style.overflow = 'hidden';
 };
 
 const naturaUnlockPageScrollForMiniCart = () => {
 	if (!naturaMiniCartScrollLocked) return;
 	naturaMiniCartScrollLocked = false;
 
-	document.body.style.overflow = '';
-	document.body.style.position = '';
-	document.body.style.top = '';
-	document.body.style.left = '';
-	document.body.style.right = '';
-	document.body.style.width = '';
 	document.body.style.paddingRight = '';
-
-	document.documentElement.style.overflow = '';
-
-	// Restore scroll position
-	window.scrollTo(0, naturaMiniCartScrollY);
+	document.documentElement.style.paddingRight = '';
 };
 
 /**
