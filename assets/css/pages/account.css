@@ -2,7 +2,7 @@
 .account-page {
 	background: #ffffff;
 	min-height: 100vh;
-	padding-bottom: 80px;
+	padding-bottom: 40px;
 }
 
 /* Uses shop-archive-hero styles from main.css */
@@ -737,7 +737,7 @@
 	/* Header is fixed; add top spacing when hero is hidden */
 	.account-page {
 		padding-top: 21.333vw;
-		padding-bottom: 10.667vw;
+		padding-bottom: 5.333vw;
 	}
 
 	.account-page__layout {
