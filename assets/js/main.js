@@ -4225,6 +4225,75 @@ const initShopArchiveAjaxNavigation = () => {
 
 	let controller = null;
 
+	// Ensure parent categories stay expanded when a subcategory is active (robust for AJAX swaps).
+	const ensureActiveCategoriesExpanded = () => {
+		// Desktop sidebar
+		const sidebarList = document.querySelector('.shop-archive-filters');
+		if (sidebarList) {
+			let activeLi =
+				sidebarList.querySelector('.shop-archive-filters__subitem--active') ||
+				sidebarList.querySelector('.shop-archive-filters__item--active');
+
+			// Fallback: determine active item by current URL (in case server didn't mark active classes)
+			if (!activeLi) {
+				const currentPath = String(window.location.pathname || '').replace(/\/$/, '');
+				const links = sidebarList.querySelectorAll('a[href]');
+				for (const a of links) {
+					try {
+						const u = new URL(a.href, window.location.href);
+						if (u.pathname.replace(/\/$/, '') === currentPath) {
+							activeLi = a.closest('li');
+							break;
+						}
+					} catch {
+						// ignore
+					}
+				}
+			}
+
+			let li = activeLi ? activeLi.closest('li') : null;
+			while (li) {
+				if (li.classList.contains('shop-archive-filters__item')) {
+					li.classList.add('shop-archive-filters__item--expanded');
+				} else if (li.classList.contains('shop-archive-filters__subitem')) {
+					li.classList.add('shop-archive-filters__subitem--expanded');
+				}
+				li = li.parentElement ? li.parentElement.closest('li') : null;
+			}
+		}
+
+		// Mobile drawer
+		const mobileList = document.querySelector('.shop-filter-list');
+		if (mobileList) {
+			let activeLi = mobileList.querySelector('.shop-filter-list__item--active');
+
+			// Fallback: determine active by current URL
+			if (!activeLi) {
+				const currentPath = String(window.location.pathname || '').replace(/\/$/, '');
+				const links = mobileList.querySelectorAll('a[href]');
+				for (const a of links) {
+					try {
+						const u = new URL(a.href, window.location.href);
+						if (u.pathname.replace(/\/$/, '') === currentPath) {
+							activeLi = a.closest('li');
+							break;
+						}
+					} catch {
+						// ignore
+					}
+				}
+			}
+
+			let li = activeLi ? activeLi.closest('li') : null;
+			while (li) {
+				if (li.classList.contains('shop-filter-list__item')) {
+					li.classList.add('shop-filter-list__item--expanded');
+				}
+				li = li.parentElement ? li.parentElement.closest('li') : null;
+			}
+		}
+	};
+
 	const getShopUrl = () => {
 		const el = document.querySelector('[data-shop-url]');
 		const url = el ? el.getAttribute('data-shop-url') : '';
@@ -4310,6 +4379,9 @@ const initShopArchiveAjaxNavigation = () => {
 			currentMobileFilters.innerHTML = nextMobileFilters.innerHTML;
 		}
 
+		// Keep the active category tree expanded after DOM swap
+		ensureActiveCategoriesExpanded();
+
 		// Обновляем breadcrumb
 		const nextBreadcrumb = doc.querySelector('.shop-archive-hero__breadcrumb');
 		const currentBreadcrumb = document.querySelector('.shop-archive-hero__breadcrumb');
@@ -4346,6 +4418,9 @@ const initShopArchiveAjaxNavigation = () => {
 
 		return true;
 	};
+
+	// Initial state: make sure active branch is expanded on first load
+	ensureActiveCategoriesExpanded();
 
 	const loadUrl = async (url, { pushHistory = true } = {}) => {
 		if (!url || !isSameOrigin(url) || !looksLikeShopUrl(url)) {
