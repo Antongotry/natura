@@ -3445,13 +3445,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	vertical-align: middle;
 }
 
-.shop-filter-list__item--active > .shop-filter-list__link--child,
-.shop-filter-list__item--expanded > .shop-filter-list__link--child {
+.shop-filter-list__item--active > .shop-filter-list__link--child {
 	color: #303030;
 }
 
-.shop-filter-list__item--active > .shop-filter-list__link--child::before,
-.shop-filter-list__item--expanded > .shop-filter-list__link--child::before {
+.shop-filter-list__item--active > .shop-filter-list__link--child::before {
 	background-color: #303030;
 }
 
