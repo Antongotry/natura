@@ -1886,6 +1886,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	flex-shrink: 0;
 }
 
+/* Search dropdown: hide unit labels next to product title */
+.site-header__search-results .site-header__search-result-unit,
+.site-header__search-results--in-body .site-header__search-result-unit {
+	display: none !important;
+}
+
 .site-header__search-result-price {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
