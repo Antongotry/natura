@@ -6787,9 +6787,7 @@ li.product .product-card,
 		position: relative !important;
 		-webkit-transform: translateZ(0); /* Force hardware acceleration on iOS */
 		transform: translateZ(0);
-		/* Critical: must have explicit height constraints for scrolling to work */
-		height: 0 !important; /* Start with 0, flex will expand it */
-		flex-basis: 0% !important;
+		/* Critical: flex: 1 1 0% with min-height: 0 allows proper scrolling on iOS */
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
