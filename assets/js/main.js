@@ -112,149 +112,15 @@ const naturaLockPageScrollForMiniCart = () => {
 	}
 
 	// On mobile we lock background scroll via CSS (html/body.mini-cart-open { overflow:hidden }).
-	// We still need touchmove handler on mobile to prevent background scrolling, but it must allow scrolling inside mini-cart.
-	const isMobileViewport =
-		typeof window.matchMedia === 'function'
-			? window.matchMedia('(max-width: 1025px)').matches
-			: (window.innerWidth || 0) <= 1025;
-	
-	// On mobile, we only need touchmove handler (scroll/keydown handlers are for desktop)
-	if (!isMobileViewport) {
-		// Freeze page scroll without removing the scrollbar (prevents layout shift on single product pages)
-		if (!document._naturaMiniCartScrollFreezeHandler) {
-			document._naturaMiniCartScrollFreezeHandler = () => {
-				const miniCartEl = document.getElementById('mini-cart-sidebar');
-				if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
-					return;
-				}
-
-				const currentY = naturaGetPageScrollY();
-				if (Math.abs(currentY - naturaMiniCartLockedScrollY) > 1) {
-					window.scrollTo(0, naturaMiniCartLockedScrollY);
-				}
-			};
-		}
-		window.addEventListener('scroll', document._naturaMiniCartScrollFreezeHandler, { passive: true });
-
-		if (!document._naturaMiniCartKeydownLockHandler) {
-			document._naturaMiniCartKeydownLockHandler = (e) => {
-				const miniCartEl = document.getElementById('mini-cart-sidebar');
-				if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
-					return;
-				}
-
-				const target = e.target;
-				const tag = target && target.tagName ? String(target.tagName).toLowerCase() : '';
-				const isEditable =
-					tag === 'input' ||
-					tag === 'textarea' ||
-					tag === 'select' ||
-					!!(target && target.isContentEditable);
-				if (isEditable) {
-					return;
-				}
-
-				const scrollKeys = new Set([
-					'ArrowUp',
-					'ArrowDown',
-					'PageUp',
-					'PageDown',
-					'Home',
-					'End',
-					' ',
-					'Spacebar',
-				]);
-
-				if (scrollKeys.has(e.key)) {
-					e.preventDefault();
-					e.stopImmediatePropagation();
-				}
-			};
-		}
-		document.addEventListener('keydown', document._naturaMiniCartKeydownLockHandler, true);
-	}
-
-	// CRITICAL FIX FOR iOS: On mobile devices, especially iOS Safari, touchmove handlers
-	// with passive: false can completely block native scrolling, even if we don't call preventDefault.
-	// The solution: On mobile, we rely ONLY on CSS (overflow: hidden on body) to prevent background scrolling.
-	// We do NOT use touchmove handler on mobile - this allows native iOS scrolling to work perfectly.
-	
-	// Only use touchmove handler on desktop (non-mobile) where we need to prevent background scrolling
-	// while allowing scrolling inside the mini-cart
-	if (!isMobileViewport) {
-		if (!document._naturaMiniCartTouchMoveLockHandler) {
-			document._naturaMiniCartTouchMoveLockHandler = (e) => {
-				const miniCartEl = document.getElementById('mini-cart-sidebar');
-				if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
-					return;
-				}
-
-				// Get the scrollable container - this is the main scrollable area
-				const scrollContainer = miniCartEl.querySelector('.woocommerce-mini-cart');
-				
-				if (!scrollContainer) {
-					// If no scroll container, block all touchmove
-					e.preventDefault();
-					e.stopImmediatePropagation();
-					return;
-				}
-
-				// Check if the touch event is inside the scrollable container
-				let isInsideScrollable = false;
-				
-				// Use composedPath for better accuracy
-				if (typeof e.composedPath === 'function') {
-					const path = e.composedPath();
-					isInsideScrollable = path.some((node) => {
-						if (!node) return false;
-						if (node === scrollContainer) return true;
-						if (node.nodeType === 1 && scrollContainer.contains(node)) return true;
-						return false;
-					});
-				} else {
-					// Fallback for browsers without composedPath
-					let node = e.target;
-					while (node && node.nodeType !== 1) {
-						node = node.parentNode;
-					}
-					if (node) {
-						isInsideScrollable = (node === scrollContainer || scrollContainer.contains(node));
-					}
-				}
-
-				if (isInsideScrollable) {
-					return; // Allow scrolling
-				}
-
-				// Block background scrolling
-				e.preventDefault();
-				e.stopImmediatePropagation();
-			};
-		}
-		
-		document.addEventListener('touchmove', document._naturaMiniCartTouchMoveLockHandler, {
-			passive: false,
-			capture: false,
-		});
-	}
-	// On mobile: NO touchmove handler - CSS overflow: hidden on body is sufficient
+	// On desktop, we don't block page scrolling - user can scroll the page even when cart is open.
+	// Only stop Lenis smooth scrolling to prevent conflicts.
 };
 
 const naturaUnlockPageScrollForMiniCart = () => {
 	if (!naturaMiniCartScrollLocked) return;
 	naturaMiniCartScrollLocked = false;
 
-	if (document._naturaMiniCartScrollFreezeHandler) {
-		window.removeEventListener('scroll', document._naturaMiniCartScrollFreezeHandler, { passive: true });
-	}
-	if (document._naturaMiniCartKeydownLockHandler) {
-		document.removeEventListener('keydown', document._naturaMiniCartKeydownLockHandler, true);
-	}
-	if (document._naturaMiniCartTouchMoveLockHandler) {
-		document.removeEventListener('touchmove', document._naturaMiniCartTouchMoveLockHandler, {
-			capture: false, // Must match the capture value used when adding the listener
-		});
-	}
+	// No handlers to remove - we don't block scrolling on desktop anymore
 
 	// Resume Lenis only if it was running before we opened mini-cart
 	const lenis = window.lenisInstance;
