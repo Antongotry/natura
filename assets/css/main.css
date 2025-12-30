@@ -6875,6 +6875,16 @@ li.product .product-card,
 		font-size: 3.2vw;
 	}
 
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove {
+		width: 10.256vw;
+		height: 10.256vw;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove-icon {
+		width: 10.256vw;
+		height: 10.256vw;
+	}
+
 	/* Shop Archive Hero Banner Mobile */
 	.shop-archive-hero {
 		position: relative;
