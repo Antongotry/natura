@@ -6721,9 +6721,24 @@ li.product .product-card,
 
 @media (max-width: 1025px) {
 	/* Mobile: lock background page scroll while mini-cart is open */
-	html.mini-cart-open,
-	body.mini-cart-open {
+	/* КРИТИЧНО: Используем position: fixed для лучшей совместимости с iOS */
+	html.mini-cart-open {
+		position: fixed !important;
+		width: 100% !important;
+		height: 100% !important;
 		overflow: hidden !important;
+	}
+	body.mini-cart-open {
+		position: fixed !important;
+		width: 100% !important;
+		height: 100% !important;
+		overflow: hidden !important;
+		/* Убираем все что может блокировать touch события на body */
+		touch-action: none !important;
+	}
+	/* КРИТИЧНО: Разрешаем touch-action только внутри корзины */
+	body.mini-cart-open .mini-cart-sidebar__body .widget_shopping_cart_content {
+		touch-action: pan-y !important;
 	}
 
 	/* Mobile: keep mini-cart content above the bottom nav - no gap */
