@@ -5311,7 +5311,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Product Title and Price Container - same row */
 .single-product__title-price-wrapper {
 	display: flex;
-	align-items: baseline;
+	align-items: flex-start;
 	justify-content: space-between;
 	width: 100%;
 	gap: 1vw;
@@ -5367,7 +5367,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin: 0;
 	padding: 0;
 	flex-shrink: 0;
-	align-self: flex-end;
+	align-self: flex-start;
 }
 
 /* Product Short Description */
@@ -5881,6 +5881,13 @@ li.product .product-card,
 	align-items: baseline;
 	gap: 0.35em;
 	white-space: nowrap;
+}
+
+/* Desktop: nudge price down to align visually with the first line of the title */
+@media (min-width: 1026px) {
+	.product-card__price-wrapper {
+		transform: translateY(0.1em);
+	}
 }
 
 .product-card__price-wrapper .price {
