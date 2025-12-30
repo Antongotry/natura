@@ -506,6 +506,14 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		vertical-align: middle !important;
 	}
 
+	/* iOS Safari: prevent auto-zoom on focus (font-size must be >= 16px) */
+	.site-header__search-input,
+	.site-header__search-input::placeholder,
+	.site-header--alt .site-header__search-input,
+	.site-header--alt .site-header__search-input::placeholder {
+		font-size: 16px !important;
+	}
+
 	.site-header--alt .site-header__search-button {
 		width: 6.4vw;
 		height: 6.4vw;
@@ -5906,6 +5914,14 @@ li.product .product-card,
 	padding: 0;
 }
 
+/* Prevent accidental scrollbars on price (some themes/plugins set overflow) */
+.product-card__price-wrapper,
+.product-card__price-wrapper .price,
+.product-card__price-wrapper .woocommerce-Price-amount,
+.product-card__price-wrapper .woocommerce-Price-amount bdi {
+	overflow: visible !important;
+}
+
 /* Ensure Woo price inner spans inherit line-height from .price (avoids global span{line-height:1.7}) */
 .product-card__price-wrapper .woocommerce-Price-amount,
 .product-card__price-wrapper .woocommerce-Price-amount bdi,
@@ -7332,7 +7348,7 @@ li.product .product-card,
 		margin: 0 !important;
 		font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
 		font-weight: 600 !important;
-		font-size: 2.4vw !important;
+		font-size: 3.2vw !important;
 		line-height: 1 !important;
 		color: #4DBD56 !important;
 		text-align: center !important;
@@ -7350,7 +7366,7 @@ li.product .product-card,
 	.product-card__quantity-wrapper .quantity-unit {
 		font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
 		font-weight: 600 !important;
-		font-size: 2.4vw !important;
+		font-size: 3.2vw !important;
 		line-height: 1 !important;
 		color: #4DBD56 !important;
 		margin: 0 !important;
