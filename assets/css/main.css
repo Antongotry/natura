@@ -7279,7 +7279,7 @@ li.product .product-card,
 	.product-card__title-wrapper .woocommerce-loop-product__title {
 		font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 		font-weight: 600;
-		font-size: 2.667vw !important;
+		font-size: 3.2vw !important; /* Увеличено на 20% (было 2.667vw) */
 		line-height: 1.2;
 		letter-spacing: -0.03em;
 		vertical-align: middle;
