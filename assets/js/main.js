@@ -1688,11 +1688,16 @@ const updateCartCountGlobal = debounce(() => {
 			return null;
 		}
 
+		// КРИТИЧНО: Отключаем smoothTouch на мобильных - он блокирует нативный скролл iOS
+		const isMobile = typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+		
 		lenisInstance = new Lenis({
 			autoRaf: true,
 			lerp: 0.08, // ↓ чем меньше, тем плавнее (0.05–0.1 = комфортно)
 			smoothWheel: true, // колесо мыши тоже плавное
-			smoothTouch: true  // плавность для тачскрола (на мобилке)
+			smoothTouch: !isMobile  // КРИТИЧНО: Отключаем на мобильных - блокирует нативный скролл iOS
 		});
 
 		// Сохраняем в window для доступа из других функций

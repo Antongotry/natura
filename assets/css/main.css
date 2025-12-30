@@ -6266,6 +6266,7 @@ li.product .product-card,
 
 .mini-cart-sidebar__body {
 	flex: 1;
+	/* КРИТИЧНО: На десктопе overflow: hidden, на мобильных будет переопределено */
 	overflow: hidden;
 	padding: 0;
 	display: flex;
@@ -6278,6 +6279,7 @@ li.product .product-card,
 	flex-direction: column;
 	flex: 1;
 	min-height: 0;
+	/* КРИТИЧНО: На десктопе overflow: hidden, на мобильных будет переопределено */
 	overflow: hidden;
 }
 
@@ -6288,6 +6290,7 @@ li.product .product-card,
 	/* Горизонтальные отступы только для списка товаров */
 	padding: 0 2.083vw 2.083vw 2.083vw;
 	flex: 1;
+	/* КРИТИЧНО: На десктопе overflow-y: auto, на мобильных будет переопределено */
 	overflow-y: auto;
 	overflow-x: hidden;
 	min-height: 0;
