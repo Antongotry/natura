@@ -6655,11 +6655,7 @@ li.product .product-card,
 	transform: translateY(4px);
 }
 
-/* Prevent body scroll when cart is open */
-html.mini-cart-open,
-body.mini-cart-open {
-	overflow: hidden;
-}
+/* Page scroll is locked via JS while mini-cart is open (prevents layout shift on single product page) */
 
 /* Prevent scroll chaining to the page; keep scroll inside the mini-cart */
 .mini-cart-sidebar__content,

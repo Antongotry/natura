@@ -88,10 +88,16 @@ const naturaSupportsScrollbarGutterStable = (() => {
 
 let naturaMiniCartScrollLocked = false;
 let naturaMiniCartLenisWasRunning = false;
+let naturaMiniCartLockedScrollY = 0;
+
+const naturaGetPageScrollY = () =>
+	window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
 
 const naturaLockPageScrollForMiniCart = () => {
 	if (naturaMiniCartScrollLocked) return;
 	naturaMiniCartScrollLocked = true;
+
+	naturaMiniCartLockedScrollY = naturaGetPageScrollY();
 
 	// Stop Lenis smooth scrolling to prevent background scrolling (Lenis can ignore overflow:hidden)
 	const lenis = window.lenisInstance;
@@ -105,22 +111,96 @@ const naturaLockPageScrollForMiniCart = () => {
 		naturaMiniCartLenisWasRunning = false;
 	}
 
-	// Prevent layout shift when scrollbar disappears (only if scrollbar-gutter isn't available)
-	if (!naturaSupportsScrollbarGutterStable) {
-		const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-		if (scrollbarWidth > 0) {
-			document.body.style.paddingRight = `${scrollbarWidth}px`;
-			document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
-		}
+	// Freeze page scroll without removing the scrollbar (prevents layout shift on single product pages)
+	if (!document._naturaMiniCartScrollFreezeHandler) {
+		document._naturaMiniCartScrollFreezeHandler = () => {
+			const miniCartEl = document.getElementById('mini-cart-sidebar');
+			if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
+				return;
+			}
+
+			const currentY = naturaGetPageScrollY();
+			if (Math.abs(currentY - naturaMiniCartLockedScrollY) > 1) {
+				window.scrollTo(0, naturaMiniCartLockedScrollY);
+			}
+		};
 	}
+	window.addEventListener('scroll', document._naturaMiniCartScrollFreezeHandler, { passive: true });
+
+	if (!document._naturaMiniCartKeydownLockHandler) {
+		document._naturaMiniCartKeydownLockHandler = (e) => {
+			const miniCartEl = document.getElementById('mini-cart-sidebar');
+			if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
+				return;
+			}
+
+			const target = e.target;
+			const tag = target && target.tagName ? String(target.tagName).toLowerCase() : '';
+			const isEditable =
+				tag === 'input' ||
+				tag === 'textarea' ||
+				tag === 'select' ||
+				!!(target && target.isContentEditable);
+			if (isEditable) {
+				return;
+			}
+
+			const scrollKeys = new Set([
+				'ArrowUp',
+				'ArrowDown',
+				'PageUp',
+				'PageDown',
+				'Home',
+				'End',
+				' ',
+				'Spacebar',
+			]);
+
+			if (scrollKeys.has(e.key)) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
+		};
+	}
+	document.addEventListener('keydown', document._naturaMiniCartKeydownLockHandler, true);
+
+	if (!document._naturaMiniCartTouchMoveLockHandler) {
+		document._naturaMiniCartTouchMoveLockHandler = (e) => {
+			const miniCartEl = document.getElementById('mini-cart-sidebar');
+			if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
+				return;
+			}
+
+			const target = e.target;
+			if (target && typeof target.closest === 'function' && target.closest('#mini-cart-sidebar')) {
+				return; // allow scrolling inside the mini-cart
+			}
+
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		};
+	}
+	document.addEventListener('touchmove', document._naturaMiniCartTouchMoveLockHandler, {
+		passive: false,
+		capture: true,
+	});
 };
 
 const naturaUnlockPageScrollForMiniCart = () => {
 	if (!naturaMiniCartScrollLocked) return;
 	naturaMiniCartScrollLocked = false;
 
-	document.body.style.paddingRight = '';
-	document.documentElement.style.paddingRight = '';
+	if (document._naturaMiniCartScrollFreezeHandler) {
+		window.removeEventListener('scroll', document._naturaMiniCartScrollFreezeHandler, { passive: true });
+	}
+	if (document._naturaMiniCartKeydownLockHandler) {
+		document.removeEventListener('keydown', document._naturaMiniCartKeydownLockHandler, true);
+	}
+	if (document._naturaMiniCartTouchMoveLockHandler) {
+		document.removeEventListener('touchmove', document._naturaMiniCartTouchMoveLockHandler, {
+			capture: true,
+		});
+	}
 
 	// Resume Lenis only if it was running before we opened mini-cart
 	const lenis = window.lenisInstance;
@@ -2532,7 +2612,7 @@ const updateCartCountGlobal = debounce(() => {
 												try {
 													scrollEl.focus({ preventScroll: true });
 												} catch (e) {
-													try { scrollEl.focus(); } catch (_) {}
+													// If preventScroll isn't supported, skip focusing to avoid page jump.
 												}
 											}
 										});
@@ -3846,9 +3926,7 @@ const initMiniCart = () => {
 		try {
 			scrollEl.focus({ preventScroll: true });
 		} catch (e) {
-			try {
-				scrollEl.focus();
-			} catch (_) {}
+			// If preventScroll isn't supported, skip focusing to avoid page jump.
 		}
 	};
 
