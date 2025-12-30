@@ -111,6 +111,16 @@ const naturaLockPageScrollForMiniCart = () => {
 		naturaMiniCartLenisWasRunning = false;
 	}
 
+	// On mobile we lock background scroll via CSS (html/body.mini-cart-open { overflow:hidden }).
+	// Avoid aggressive scroll/touch listeners here because they can break inner scrolling on iOS.
+	const isMobileViewport =
+		typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+	if (isMobileViewport) {
+		return;
+	}
+
 	// Freeze page scroll without removing the scrollbar (prevents layout shift on single product pages)
 	if (!document._naturaMiniCartScrollFreezeHandler) {
 		document._naturaMiniCartScrollFreezeHandler = () => {
