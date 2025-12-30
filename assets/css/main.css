@@ -6716,10 +6716,13 @@ li.product .product-card,
 	overscroll-behavior: contain;
 }
 
-/* Smooth inner scrolling on iOS */
-.mini-cart-sidebar .woocommerce-mini-cart {
-	-webkit-overflow-scrolling: touch;
-	touch-action: pan-y;
+/* Smooth inner scrolling on iOS - только для десктопа */
+/* На мобильных будет переопределено в media query */
+@media (min-width: 1026px) {
+	.mini-cart-sidebar .woocommerce-mini-cart {
+		-webkit-overflow-scrolling: touch;
+		touch-action: pan-y;
+	}
 }
 
 @media (max-width: 1025px) {
