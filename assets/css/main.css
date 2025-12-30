@@ -3087,25 +3087,29 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Subcategory scrollbar (desktop) */
 .shop-archive-filters__sublist {
 	scrollbar-width: thin; /* Firefox */
-	scrollbar-color: rgba(48, 48, 48, 0.35) rgba(48, 48, 48, 0.10); /* thumb track */
+	/* Subtle, matches site neutrals */
+	scrollbar-color: rgba(48, 48, 48, 0.22) rgba(48, 48, 48, 0.06); /* thumb track */
 }
 
 .shop-archive-filters__sublist::-webkit-scrollbar {
-	width: 6px;
+	width: 4px;
 }
 
 .shop-archive-filters__sublist::-webkit-scrollbar-track {
-	background: rgba(48, 48, 48, 0.10);
+	background: rgba(48, 48, 48, 0.06);
 	border-radius: 999px;
 }
 
 .shop-archive-filters__sublist::-webkit-scrollbar-thumb {
-	background-color: rgba(48, 48, 48, 0.35);
+	background-color: rgba(48, 48, 48, 0.22);
 	border-radius: 999px;
+	/* visually thinner thumb */
+	border: 1px solid transparent;
+	background-clip: padding-box;
 }
 
 .shop-archive-filters__sublist::-webkit-scrollbar-thumb:hover {
-	background-color: rgba(48, 48, 48, 0.5);
+	background-color: rgba(48, 48, 48, 0.32);
 }
 
 .shop-archive-filters__item--expanded > .shop-archive-filters__sublist,
