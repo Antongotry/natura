@@ -6729,27 +6729,32 @@ li.product .product-card,
 		padding-bottom: 0 !important;
 	}
 
-	/* Mobile: make the whole cart body scrollable with finger (more reliable than scrolling only the <ul>) */
+	/* Mobile: the items list must scroll, footer must stay pinned to the bottom */
+	.mini-cart-sidebar .mini-cart-footer {
+		flex: 0 0 auto;
+		margin-top: auto;
+		position: relative;
+		z-index: 2;
+	}
+
 	.mini-cart-sidebar__body {
-		overflow-y: auto !important;
-		overflow-x: hidden !important;
-		-webkit-overflow-scrolling: touch;
+		overflow: hidden !important;
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
-		overflow: visible !important;
+		display: flex !important;
+		flex-direction: column !important;
+		flex: 1 1 auto !important;
+		min-height: 0 !important;
+		overflow: hidden !important;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart {
-		overflow: visible !important;
-		flex: 0 0 auto !important;
-	}
-
-	/* Keep totals + checkout always visible at the bottom of the cart panel */
-	.mini-cart-sidebar .mini-cart-footer {
-		position: sticky;
-		bottom: 0;
-		z-index: 2;
+		flex: 1 1 auto !important;
+		min-height: 0 !important;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
