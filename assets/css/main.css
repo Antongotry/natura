@@ -6752,63 +6752,55 @@ li.product .product-card,
 		width: 100%;
 	}
 
+	/* ПОЛНОСТЬЮ ПЕРЕПИСАННЫЙ КОД ДЛЯ СКРОЛЛА НА МОБИЛЬНЫХ */
+	/* Делаем скроллируемым widget_shopping_cart_content вместо woocommerce-mini-cart */
+	
 	.mini-cart-sidebar__body {
 		overflow: hidden !important;
-		flex: 1 1 0% !important; /* Changed from auto to 0% for better flex behavior */
+		flex: 1 1 0% !important;
 		min-height: 0 !important;
-		max-height: 100% !important; /* Critical for iOS */
+		max-height: 100% !important;
 		display: flex !important;
 		flex-direction: column !important;
-		/* Ensure body can receive touch events on iOS */
 		position: relative;
-		-webkit-transform: translateZ(0);
-		transform: translateZ(0);
-		height: 100% !important; /* Ensure it takes full available height */
+		height: 100% !important;
 		width: 100% !important;
-		/* Critical: ensure touch events pass through to children */
 		pointer-events: auto !important;
-		touch-action: pan-y;
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
 		display: flex !important;
 		flex-direction: column !important;
-		flex: 1 1 0% !important; /* Changed from auto to 0% for better flex behavior */
+		flex: 1 1 0% !important;
 		min-height: 0 !important;
-		max-height: 100% !important; /* CRITICAL: Must have max-height for flex child to scroll */
-		overflow: hidden !important; /* Must be hidden to allow child scrolling */
-		position: relative;
-		height: 100% !important; /* Ensure it takes full height */
-		width: 100% !important;
-		/* Critical for iOS: ensure touch events work */
-		pointer-events: auto !important;
-		touch-action: pan-y !important;
-		-webkit-overflow-scrolling: touch;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart {
-		flex: 1 1 0% !important; /* Changed from auto to 0% for better flex behavior */
-		min-height: 0 !important;
-		/* CRITICAL: Must have explicit height constraint for scrolling to work on iOS */
-		height: 100% !important;
-		max-height: 100% !important;
-		overflow-y: scroll !important; /* Must be scroll for iOS */
+		/* КРИТИЧНО: Делаем этот контейнер скроллируемым, а не woocommerce-mini-cart */
+		overflow-y: scroll !important;
 		overflow-x: hidden !important;
+		position: relative;
+		height: 100% !important;
+		width: 100% !important;
+		/* КРИТИЧНО для iOS скролла */
 		-webkit-overflow-scrolling: touch !important;
 		touch-action: pan-y !important;
 		overscroll-behavior-y: contain !important;
-		will-change: scroll-position;
-		/* Critical for iOS: ensure the element can receive touch events */
-		position: relative !important;
-		-webkit-transform: translateZ(0); /* Force hardware acceleration on iOS */
-		transform: translateZ(0);
-		/* Critical: ensure touch events work */
 		pointer-events: auto !important;
-		-webkit-user-select: none !important; /* Prevent text selection during scroll */
-		user-select: none !important;
-		/* CRITICAL: Remove any potential blocking styles */
-		-webkit-tap-highlight-color: transparent !important;
-		-webkit-touch-callout: none !important;
+		-webkit-transform: translateZ(0);
+		transform: translateZ(0);
+		will-change: scroll-position;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart {
+		/* Убираем все скролл свойства - теперь скроллится родитель */
+		flex: 1 1 auto !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+		overflow-y: visible !important;
+		overflow-x: visible !important;
+		position: relative !important;
+		pointer-events: auto !important;
+		/* Убираем все что может блокировать */
+		touch-action: auto !important;
+		-webkit-overflow-scrolling: auto !important;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */

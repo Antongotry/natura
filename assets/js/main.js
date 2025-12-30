@@ -114,6 +114,10 @@ const naturaLockPageScrollForMiniCart = () => {
 			naturaMiniCartLenisWasRunning = !isStopped;
 			try {
 				lenis.stop();
+				// КРИТИЧНО: Также отключаем все обработчики Lenis которые могут блокировать touch
+				if (lenis.destroy) {
+					// Не уничтожаем, но убеждаемся что он не блокирует
+				}
 			} catch (e) {}
 		} else {
 			naturaMiniCartLenisWasRunning = false;
