@@ -6719,6 +6719,12 @@ li.product .product-card,
 		overflow: hidden !important;
 	}
 
+	/* If the mobile bottom nav is visible, keep a 6.667vw gap between it and the checkout button */
+	body:has(.site-header--alt) .mini-cart-sidebar.is-open .mini-cart-sidebar__content {
+		padding-bottom: calc(15.385vw + 6.667vw);
+		box-sizing: border-box;
+	}
+
 	/* Mobile: hide delivery notice block in mini-cart */
 	.mini-cart-sidebar .mini-cart-delivery {
 		display: none !important;

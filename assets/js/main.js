@@ -171,10 +171,24 @@ const naturaLockPageScrollForMiniCart = () => {
 				return;
 			}
 
-			const target = e.target;
-			if (target && typeof target.closest === 'function' && target.closest('#mini-cart-sidebar')) {
-				return; // allow scrolling inside the mini-cart
-			}
+			// Allow scrolling inside the mini-cart even if the event target is a Text node
+			// (touch events can target text nodes in Safari/iOS).
+			const isInsideMiniCart = (() => {
+				// Prefer composedPath when available
+				if (typeof e.composedPath === 'function') {
+					const path = e.composedPath();
+					return path.some((node) => node && node.id === 'mini-cart-sidebar');
+				}
+
+				let node = e.target;
+				// Climb up to an Element node
+				while (node && node.nodeType !== 1) {
+					node = node.parentNode;
+				}
+				return !!(node && typeof node.closest === 'function' && node.closest('#mini-cart-sidebar'));
+			})();
+
+			if (isInsideMiniCart) return;
 
 			e.preventDefault();
 			e.stopImmediatePropagation();
