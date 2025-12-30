@@ -176,6 +176,8 @@ const naturaLockPageScrollForMiniCart = () => {
 
 	// Touchmove handler is needed on both mobile and desktop to prevent background scrolling
 	// but allow scrolling inside mini-cart
+	// IMPORTANT: On iOS, we need to be very careful with touchmove handlers
+	// Using passive: false can block native scrolling even if we don't call preventDefault
 	if (!document._naturaMiniCartTouchMoveLockHandler) {
 		document._naturaMiniCartTouchMoveLockHandler = (e) => {
 			const miniCartEl = document.getElementById('mini-cart-sidebar');
@@ -183,30 +185,32 @@ const naturaLockPageScrollForMiniCart = () => {
 				return;
 			}
 
-			// Allow scrolling inside the mini-cart even if the event target is a Text node
-			// (touch events can target text nodes in Safari/iOS).
-			const isInsideMiniCart = (() => {
-				// Get the scrollable container - this is the main scrollable area
-				const scrollContainer = miniCartEl.querySelector('.woocommerce-mini-cart');
-				
-				if (!scrollContainer) return false;
-				
-				// Prefer composedPath when available (more reliable)
-				if (typeof e.composedPath === 'function') {
-					const path = e.composedPath();
-					// Check if any node in the path is inside the scrollable container
-					return path.some((node) => {
-						if (!node) return false;
-						// Check if it's the scrollable container itself
-						if (node === scrollContainer) return true;
-						// Check if it's inside the scrollable container
-						if (node.nodeType === 1 && scrollContainer.contains(node)) return true;
-						// Also check if it's inside mini-cart (for safety)
-						if (node.nodeType === 1 && node.closest && node.closest('#mini-cart-sidebar')) return true;
-						return false;
-					});
-				}
+			// Get the scrollable container - this is the main scrollable area
+			const scrollContainer = miniCartEl.querySelector('.woocommerce-mini-cart');
+			
+			if (!scrollContainer) {
+				// If no scroll container, block all touchmove
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				return;
+			}
 
+			// Check if the touch event is inside the scrollable container
+			// This is critical for iOS - we must accurately detect if touch is inside scrollable area
+			let isInsideScrollable = false;
+			
+			// Use composedPath for better accuracy (especially on iOS)
+			if (typeof e.composedPath === 'function') {
+				const path = e.composedPath();
+				isInsideScrollable = path.some((node) => {
+					if (!node) return false;
+					// Check if it's the scrollable container itself
+					if (node === scrollContainer) return true;
+					// Check if it's inside the scrollable container (must be Element node)
+					if (node.nodeType === 1 && scrollContainer.contains(node)) return true;
+					return false;
+				});
+			} else {
 				// Fallback for browsers without composedPath
 				let node = e.target;
 				// Climb up to an Element node
@@ -214,29 +218,33 @@ const naturaLockPageScrollForMiniCart = () => {
 					node = node.parentNode;
 				}
 				
-				if (!node) return false;
-				
-				// Check if it's the scrollable container or inside it
-				if (node === scrollContainer || scrollContainer.contains(node)) return true;
-				
-				// Also check if it's inside mini-cart (for safety)
-				if (node.closest && node.closest('#mini-cart-sidebar')) return true;
-				
-				return false;
-			})();
-
-			// Always allow scrolling inside the scrollable container
-			if (isInsideMiniCart) {
-				return; // Don't prevent default, allow scrolling
+				if (node) {
+					// Check if it's the scrollable container or inside it
+					isInsideScrollable = (node === scrollContainer || scrollContainer.contains(node));
+				}
 			}
 
+			// CRITICAL: On iOS, if touch is inside scrollable container, we MUST NOT preventDefault
+			// Even returning early might not be enough - we need to ensure the event can propagate
+			if (isInsideScrollable) {
+				// Do NOTHING - let the native scroll work
+				// Don't call preventDefault, don't stop propagation
+				return;
+			}
+
+			// Only prevent default if touch is outside the scrollable container
+			// This prevents background page scrolling
 			e.preventDefault();
 			e.stopImmediatePropagation();
 		};
 	}
+	
+	// On iOS, using capture: true with passive: false can interfere with native scrolling
+	// We use capture: false to allow the scroll container to handle events first
+	// But we still need passive: false to be able to call preventDefault when needed
 	document.addEventListener('touchmove', document._naturaMiniCartTouchMoveLockHandler, {
 		passive: false,
-		capture: true,
+		capture: false, // Changed from true to false - allows scroll container to handle events first
 	});
 };
 
