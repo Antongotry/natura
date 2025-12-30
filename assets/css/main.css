@@ -3085,7 +3085,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .shop-archive-filters__item--expanded > .shop-archive-filters__sublist,
-.shop-archive-filters__subitem--expanded > .shop-archive-filters__sublist {
+.shop-archive-filters__subitem--expanded > .shop-archive-filters__sublist,
+/* Fallback/robust: если активна подкатегория, родитель всегда раскрыт */
+.shop-archive-filters__item:has(.shop-archive-filters__subitem--active) > .shop-archive-filters__sublist,
+.shop-archive-filters__subitem:has(.shop-archive-filters__subitem--active) > .shop-archive-filters__sublist {
 	max-height: 2000px; /* запас под любое количество подкатегорий */
 	opacity: 1;
 	transform: translateY(0);
@@ -3100,6 +3103,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 .shop-archive-filters__subitem {
 	padding: 0;
+}
+
+/* Когда активна подкатегория — подсвечиваем родителя (и держим активную стрелку) */
+.shop-archive-filters__item:has(.shop-archive-filters__subitem--active) > a {
+	color: #303030;
+}
+
+.shop-archive-filters__item:has(.shop-archive-filters__subitem--active) > a::after {
+	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
 }
 
 .shop-archive-filters__sublink {
@@ -3365,8 +3377,17 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	display: block;
 }
 
+/* Fallback/robust: если активна подкатегория, родитель всегда раскрыт */
+.shop-filter-list__item:has(.shop-filter-list__item--active) > .shop-filter-list__sublist {
+	display: block;
+}
+
 /* Родитель подсвечиваем, если раскрыт (когда мы в подкатегории) */
 .shop-filter-list__item--expanded > .shop-filter-list__link {
+	color: #303030;
+}
+
+.shop-filter-list__item:has(.shop-filter-list__item--active) > .shop-filter-list__link {
 	color: #303030;
 }
 
