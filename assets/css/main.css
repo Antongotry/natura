@@ -6765,7 +6765,11 @@ li.product .product-card,
 		min-height: 0 !important;
 		overflow: visible !important; /* Changed from hidden - allows scrolling to work */
 		position: relative;
-		height: 100%; /* Ensure it takes full height */
+		height: 100% !important; /* Ensure it takes full height */
+		width: 100% !important;
+		/* Critical for iOS: ensure touch events work */
+		-webkit-overflow-scrolling: touch;
+		touch-action: pan-y;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart {
