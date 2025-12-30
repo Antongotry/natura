@@ -191,7 +191,7 @@ $sidebar_opts = array(
 	</section>
 
 	<!-- Mobile Filter Button (sticky, left side, egg-shaped) -->
-	<button type="button" class="shop-filter-mobile-button" data-shop-filter-open aria-label="<?php esc_attr_e( 'Відкрити фільтри', 'natura' ); ?>">
+	<button type="button" class="shop-filter-mobile-button" data-shop-filter-open aria-label="<?php esc_attr_e( 'Відкрити категорії', 'natura' ); ?>">
 		<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/game_13602763-1.svg" alt="" class="shop-filter-mobile-button__icon">
 	</button>
 
@@ -201,8 +201,8 @@ $sidebar_opts = array(
 		<div class="shop-filter-drawer__wrapper">
 			<div class="shop-filter-drawer__content">
 			<div class="shop-filter-drawer__header">
-				<h2 class="shop-filter-drawer__title"><?php esc_html_e( 'Фільтри', 'natura' ); ?></h2>
-				<button type="button" class="shop-filter-drawer__close" data-shop-filter-close aria-label="<?php esc_attr_e( 'Закрити фільтри', 'natura' ); ?>">
+				<h2 class="shop-filter-drawer__title"><?php esc_html_e( 'Категорії', 'natura' ); ?></h2>
+				<button type="button" class="shop-filter-drawer__close" data-shop-filter-close aria-label="<?php esc_attr_e( 'Закрити категорії', 'natura' ); ?>">
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M18 6L6 18M6 6L18 18" stroke="#303030" stroke-width="2" stroke-linecap="round"/>
 					</svg>
@@ -211,17 +211,12 @@ $sidebar_opts = array(
 			<div class="shop-filter-drawer__body">
 				<!-- Categories Filter -->
 				<div class="shop-filter-section">
-					<h3 class="shop-filter-section__title"><?php esc_html_e( 'Категорії', 'natura' ); ?></h3>
 					<ul class="shop-filter-list">
 						<?php
 						natura_render_product_cat_items( 0, $current_term_id, $ancestor_ids, $excluded_slugs, $excluded_names, $mobile_opts );
 						?>
 					</ul>
 				</div>
-			</div>
-			<div class="shop-filter-drawer__footer">
-				<button type="button" class="shop-filter-drawer__reset" data-filter-reset><?php esc_html_e( 'Скинути фільтри', 'natura' ); ?></button>
-				<button type="button" class="shop-filter-drawer__apply" data-filter-apply><?php esc_html_e( 'Застосувати', 'natura' ); ?></button>
 			</div>
 		</div>
 		</div>
