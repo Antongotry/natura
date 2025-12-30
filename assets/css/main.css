@@ -6722,9 +6722,7 @@ li.product .product-card,
 	body.mini-cart-open {
 		overflow: hidden !important;
 	}
-}
 
-/* Desktop: do NOT block page scrolling when cart is open */
 	/* Mobile: keep mini-cart content above the bottom nav - no gap */
 	body:has(.site-header--alt) .mini-cart-sidebar__content {
 		height: calc(100svh - 15.385vw) !important;
