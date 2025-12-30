@@ -4484,8 +4484,16 @@ const initShopArchiveAjaxNavigation = () => {
 
 		// Повторный клик по активной категории = снять фильтр (вернуться на shop)
 		const isCategoryLink = !!(link.closest('.shop-archive-filters') || link.closest('.shop-filter-list'));
-		const isActiveCategory = !!link.closest(
-			'.shop-archive-filters__item--active, .shop-archive-filters__subitem--active, .shop-filter-list__item--active'
+		// ВАЖНО: не считаем "активной" категорией клик по подкатегории внутри активного родителя.
+		// Для этого смотрим на ближайший <li> к ссылке, а не на любого предка.
+		const activeLi = link.closest('li');
+		const isActiveCategory = !!(
+			activeLi &&
+			(
+				activeLi.classList.contains('shop-archive-filters__item--active') ||
+				activeLi.classList.contains('shop-archive-filters__subitem--active') ||
+				activeLi.classList.contains('shop-filter-list__item--active')
+			)
 		);
 
 		let targetUrl = link.href;
