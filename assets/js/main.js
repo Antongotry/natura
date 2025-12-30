@@ -78,17 +78,40 @@ const naturaFormatQuantity = (quantity, step) => {
 /**
  * Scroll lock helpers (used by mini-cart)
  */
+const naturaSupportsScrollbarGutterStable = (() => {
+	try {
+		return typeof CSS !== 'undefined' && !!CSS.supports && CSS.supports('scrollbar-gutter', 'stable');
+	} catch (e) {
+		return false;
+	}
+})();
+
 let naturaMiniCartScrollLocked = false;
+let naturaMiniCartLenisWasRunning = false;
 
 const naturaLockPageScrollForMiniCart = () => {
 	if (naturaMiniCartScrollLocked) return;
 	naturaMiniCartScrollLocked = true;
 
-	// Prevent layout shift when scrollbar disappears
-	const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-	if (scrollbarWidth > 0) {
-		document.body.style.paddingRight = `${scrollbarWidth}px`;
-		document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
+	// Stop Lenis smooth scrolling to prevent background scrolling (Lenis can ignore overflow:hidden)
+	const lenis = window.lenisInstance;
+	if (lenis && typeof lenis.stop === 'function') {
+		const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : false;
+		naturaMiniCartLenisWasRunning = !isStopped;
+		try {
+			lenis.stop();
+		} catch (e) {}
+	} else {
+		naturaMiniCartLenisWasRunning = false;
+	}
+
+	// Prevent layout shift when scrollbar disappears (only if scrollbar-gutter isn't available)
+	if (!naturaSupportsScrollbarGutterStable) {
+		const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+		if (scrollbarWidth > 0) {
+			document.body.style.paddingRight = `${scrollbarWidth}px`;
+			document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
+		}
 	}
 };
 
@@ -98,6 +121,15 @@ const naturaUnlockPageScrollForMiniCart = () => {
 
 	document.body.style.paddingRight = '';
 	document.documentElement.style.paddingRight = '';
+
+	// Resume Lenis only if it was running before we opened mini-cart
+	const lenis = window.lenisInstance;
+	if (naturaMiniCartLenisWasRunning && lenis && typeof lenis.start === 'function') {
+		try {
+			lenis.start();
+		} catch (e) {}
+	}
+	naturaMiniCartLenisWasRunning = false;
 };
 
 /**
@@ -2485,10 +2517,10 @@ const updateCartCountGlobal = debounce(() => {
 								const openMiniCartNow = () => {
 									const miniCart = document.getElementById('mini-cart-sidebar');
 									if (miniCart) {
+										naturaLockPageScrollForMiniCart();
 										miniCart.classList.add('is-open');
 										document.body.classList.add('mini-cart-open');
 										document.documentElement.classList.add('mini-cart-open');
-										naturaLockPageScrollForMiniCart();
 										requestAnimationFrame(() => {
 											const scrollEl =
 												miniCart.querySelector('.woocommerce-mini-cart') ||
@@ -3840,6 +3872,8 @@ const initMiniCart = () => {
 
 			// Always prevent default page scrolling while cart is open
 			e.preventDefault();
+			// Also stop other wheel listeners (e.g., Lenis) from scrolling the page behind
+			e.stopImmediatePropagation();
 
 			if (!scrollEl) {
 				return;
@@ -3869,10 +3903,10 @@ const initMiniCart = () => {
 
 	const openCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
+		naturaLockPageScrollForMiniCart();
 		miniCart.classList.add('is-open');
 		document.body.classList.add('mini-cart-open');
 		document.documentElement.classList.add('mini-cart-open');
-		naturaLockPageScrollForMiniCart();
 		requestAnimationFrame(focusMiniCartScrollContainer);
 	};
 
