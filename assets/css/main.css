@@ -6441,6 +6441,9 @@ li.product .product-card,
 	vertical-align: middle;
 	color: #303030;
 	margin-top: 0.521vw;
+	display: flex;
+	align-items: center;
+	gap: 0.35em;
 }
 
 .mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price-label {
@@ -6451,6 +6454,14 @@ li.product .product-card,
 	letter-spacing: -0.03em;
 	vertical-align: middle;
 	color: rgba(48, 48, 48, 0.4);
+}
+
+/* Keep Woo price inner spans aligned with the label (global span line-height can otherwise shift baseline) */
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-amount,
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-amount bdi,
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-currencySymbol {
+	line-height: inherit !important;
+	vertical-align: middle;
 }
 
 @media (max-width: 1025px) {
