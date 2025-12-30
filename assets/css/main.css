@@ -6724,11 +6724,14 @@ li.product .product-card,
 	}
 
 	/* Mobile: keep mini-cart content above the bottom nav - no gap */
+	/* Корзина должна быть точно на всю высоту экрана минус высота нижней панели */
 	body:has(.site-header--alt) .mini-cart-sidebar__content {
-		height: calc(100svh - 15.385vw) !important;
-		max-height: calc(100svh - 15.385vw) !important;
-		bottom: 15.385vw !important; /* Sit directly above bottom nav */
-		top: 0 !important; /* Start from top */
+		top: 0 !important;
+		bottom: 15.385vw !important; /* Sit directly above bottom nav (height of bottom nav) */
+		height: auto !important; /* Let top and bottom define the height */
+		max-height: none !important;
+		/* Alternative: explicit height calculation */
+		/* height: calc(100svh - 15.385vw) !important; */
 	}
 
 	/* Mobile: add bottom padding to checkout button so it doesn't stick to bottom nav */
@@ -6818,8 +6821,6 @@ li.product .product-card,
 	/* Мини-корзина на мобильных: на весь экран и с большими внутренними отступами */
 	.mini-cart-sidebar__content {
 		width: 100vw;
-		height: 100svh;
-		max-height: 100svh;
 		display: flex;
 		flex-direction: column;
 		/* Critical for iOS: use fixed positioning to prevent gap when page is scrolled */
@@ -6827,7 +6828,11 @@ li.product .product-card,
 		top: 0 !important;
 		right: 0 !important;
 		left: 0 !important;
-		/* bottom will be set by body:has(.site-header--alt) rule if bottom nav exists */
+		/* height and bottom will be set by body:has(.site-header--alt) rule if bottom nav exists */
+		/* Default: full height if no bottom nav */
+		height: 100svh;
+		max-height: 100svh;
+		bottom: 0;
 	}
 
 	.mini-cart-sidebar__header {
