@@ -6465,19 +6465,14 @@ li.product .product-card,
 }
 
 @media (max-width: 1025px) {
-	/* На телефоне скрываем подпись "Вартість товару :" и поднимаем цену вправо от названия */
+	/* На телефоне скрываем подпись "Вартість товару :" */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price-label {
 		display: none;
 	}
 
+	/* На мобильных цена отображается в controls-row, не абсолютно */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__content {
 		position: relative;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
-		position: absolute;
-		top: 0;
-		right: 0;
 	}
 }
 
@@ -6710,6 +6705,7 @@ li.product .product-card,
 /* Smooth inner scrolling on iOS */
 .mini-cart-sidebar .woocommerce-mini-cart {
 	-webkit-overflow-scrolling: touch;
+	touch-action: pan-y;
 }
 
 @media (max-width: 1025px) {
@@ -6724,9 +6720,9 @@ li.product .product-card,
 		height: calc(100svh - 15.385vw);
 	}
 
-	/* Mobile: remove extra bottom padding under the checkout button so it sits flush above bottom nav */
+	/* Mobile: add bottom padding to checkout button so it doesn't stick to bottom nav */
 	.mini-cart-sidebar .woocommerce-mini-cart__buttons {
-		padding-bottom: 0 !important;
+		padding-bottom: 4.103vw !important;
 	}
 
 	/* Mobile: the items list must scroll, footer must stay pinned to the bottom */
@@ -6755,6 +6751,8 @@ li.product .product-card,
 		overflow-y: auto !important;
 		overflow-x: hidden !important;
 		-webkit-overflow-scrolling: touch;
+		touch-action: pan-y;
+		overscroll-behavior-y: contain;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
@@ -6805,63 +6803,144 @@ li.product .product-card,
 	}
 
 	/* Товары в мини-корзине — увеличенные размеры под палец */
+	.mini-cart-sidebar .woocommerce-mini-cart-item {
+		padding: 4.103vw 0;
+		gap: 3.077vw;
+		align-items: flex-start;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__image {
+		flex-shrink: 0;
+	}
+
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__image img {
-		width: 25.641vw;
-		height: 24.103vw;
+		width: 20.513vw;
+		height: 20.513vw;
+		min-width: 20.513vw;
+		object-fit: contain;
+		border-radius: 1.282vw;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__content {
+		flex: 1;
+		min-width: 0;
+		gap: 0;
+		position: relative;
+		padding-top: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name {
-		font-size: 3.59vw;
-		/* Prevent overlap with absolutely positioned price */
+		font-size: 3.846vw;
+		line-height: 1.3;
 		display: block;
-		padding-right: 20vw;
+		margin-bottom: 1.282vw;
+		padding-right: 0;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name a {
+		display: block;
+		color: #303030;
+		text-decoration: none;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name::after {
-		font-size: 3.59vw;
+		font-size: 3.846vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
-		/* More breathing room between quantity control and remove button */
-		gap: 6.667vw;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 3.846vw;
+		width: 100%;
+		margin-top: 1.282vw;
+		flex-wrap: nowrap;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
-		/* Keep enough space for the remove button so controls don't overlap */
-		width: 40vw;
-		flex: 0 1 40vw;
+		width: auto;
+		flex: 0 0 auto;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
-		padding: 0 2.051vw;
+		padding: 0 2.564vw;
+		border: 1px solid rgba(48, 48, 48, 0.4);
+		border-radius: 999px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-button {
-		width: 8.205vw;
-		height: 8.205vw;
-		min-width: 8.205vw;
-		min-height: 8.205vw;
-		font-size: 4.1vw;
+		width: 7.179vw;
+		height: 7.179vw;
+		min-width: 7.179vw;
+		min-height: 7.179vw;
+		font-size: 4.615vw;
+		line-height: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-value {
-		font-size: 3.2vw;
+		font-size: 3.59vw;
 		min-width: 8vw;
-		padding: 0 2.051vw;
+		padding: 0 2.564vw;
+		white-space: nowrap;
 	}
 
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price,
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
+		position: static;
+		font-size: 3.846vw;
+		line-height: 1.3;
+		margin-top: 2.564vw;
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		margin-left: 0;
+		width: 100%;
+		justify-content: flex-end;
+		flex-shrink: 0;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price-label {
+		display: none;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove {
+		width: 10.256vw;
+		height: 10.256vw;
+		min-width: 10.256vw;
+		min-height: 10.256vw;
+		flex-shrink: 0;
+		margin-left: 0;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove-icon {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
 	.mini-cart-sidebar .mini-cart-total__price {
-		font-size: 3.59vw;
+		font-size: 4.103vw;
 	}
 
 	.mini-cart-sidebar .mini-cart-total__label {
-		font-size: 3.59vw;
+		font-size: 4.103vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart__buttons .button {
-		font-size: 3.5vw;
-		padding: 3.077vw 5.128vw;
+		font-size: 3.846vw;
+		padding: 3.846vw 5.128vw;
+		line-height: 1.4;
 	}
 
 	.mini-cart-sidebar .mini-cart-delivery__icon {
@@ -6870,16 +6949,6 @@ li.product .product-card,
 
 	.mini-cart-sidebar .mini-cart-delivery__text {
 		font-size: 3.2vw;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove {
-		width: 10.256vw;
-		height: 10.256vw;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove-icon {
-		width: 10.256vw;
-		height: 10.256vw;
 	}
 
 	/* Shop Archive Hero Banner Mobile */

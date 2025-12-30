@@ -112,68 +112,70 @@ const naturaLockPageScrollForMiniCart = () => {
 	}
 
 	// On mobile we lock background scroll via CSS (html/body.mini-cart-open { overflow:hidden }).
-	// Avoid aggressive scroll/touch listeners here because they can break inner scrolling on iOS.
+	// We still need touchmove handler on mobile to prevent background scrolling, but it must allow scrolling inside mini-cart.
 	const isMobileViewport =
 		typeof window.matchMedia === 'function'
 			? window.matchMedia('(max-width: 1025px)').matches
 			: (window.innerWidth || 0) <= 1025;
-	if (isMobileViewport) {
-		return;
+	
+	// On mobile, we only need touchmove handler (scroll/keydown handlers are for desktop)
+	if (!isMobileViewport) {
+		// Freeze page scroll without removing the scrollbar (prevents layout shift on single product pages)
+		if (!document._naturaMiniCartScrollFreezeHandler) {
+			document._naturaMiniCartScrollFreezeHandler = () => {
+				const miniCartEl = document.getElementById('mini-cart-sidebar');
+				if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
+					return;
+				}
+
+				const currentY = naturaGetPageScrollY();
+				if (Math.abs(currentY - naturaMiniCartLockedScrollY) > 1) {
+					window.scrollTo(0, naturaMiniCartLockedScrollY);
+				}
+			};
+		}
+		window.addEventListener('scroll', document._naturaMiniCartScrollFreezeHandler, { passive: true });
+
+		if (!document._naturaMiniCartKeydownLockHandler) {
+			document._naturaMiniCartKeydownLockHandler = (e) => {
+				const miniCartEl = document.getElementById('mini-cart-sidebar');
+				if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
+					return;
+				}
+
+				const target = e.target;
+				const tag = target && target.tagName ? String(target.tagName).toLowerCase() : '';
+				const isEditable =
+					tag === 'input' ||
+					tag === 'textarea' ||
+					tag === 'select' ||
+					!!(target && target.isContentEditable);
+				if (isEditable) {
+					return;
+				}
+
+				const scrollKeys = new Set([
+					'ArrowUp',
+					'ArrowDown',
+					'PageUp',
+					'PageDown',
+					'Home',
+					'End',
+					' ',
+					'Spacebar',
+				]);
+
+				if (scrollKeys.has(e.key)) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+				}
+			};
+		}
+		document.addEventListener('keydown', document._naturaMiniCartKeydownLockHandler, true);
 	}
 
-	// Freeze page scroll without removing the scrollbar (prevents layout shift on single product pages)
-	if (!document._naturaMiniCartScrollFreezeHandler) {
-		document._naturaMiniCartScrollFreezeHandler = () => {
-			const miniCartEl = document.getElementById('mini-cart-sidebar');
-			if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
-				return;
-			}
-
-			const currentY = naturaGetPageScrollY();
-			if (Math.abs(currentY - naturaMiniCartLockedScrollY) > 1) {
-				window.scrollTo(0, naturaMiniCartLockedScrollY);
-			}
-		};
-	}
-	window.addEventListener('scroll', document._naturaMiniCartScrollFreezeHandler, { passive: true });
-
-	if (!document._naturaMiniCartKeydownLockHandler) {
-		document._naturaMiniCartKeydownLockHandler = (e) => {
-			const miniCartEl = document.getElementById('mini-cart-sidebar');
-			if (!miniCartEl || !miniCartEl.classList.contains('is-open')) {
-				return;
-			}
-
-			const target = e.target;
-			const tag = target && target.tagName ? String(target.tagName).toLowerCase() : '';
-			const isEditable =
-				tag === 'input' ||
-				tag === 'textarea' ||
-				tag === 'select' ||
-				!!(target && target.isContentEditable);
-			if (isEditable) {
-				return;
-			}
-
-			const scrollKeys = new Set([
-				'ArrowUp',
-				'ArrowDown',
-				'PageUp',
-				'PageDown',
-				'Home',
-				'End',
-				' ',
-				'Spacebar',
-			]);
-
-			if (scrollKeys.has(e.key)) {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-			}
-		};
-	}
-	document.addEventListener('keydown', document._naturaMiniCartKeydownLockHandler, true);
-
+	// Touchmove handler is needed on both mobile and desktop to prevent background scrolling
+	// but allow scrolling inside mini-cart
 	if (!document._naturaMiniCartTouchMoveLockHandler) {
 		document._naturaMiniCartTouchMoveLockHandler = (e) => {
 			const miniCartEl = document.getElementById('mini-cart-sidebar');
@@ -184,10 +186,24 @@ const naturaLockPageScrollForMiniCart = () => {
 			// Allow scrolling inside the mini-cart even if the event target is a Text node
 			// (touch events can target text nodes in Safari/iOS).
 			const isInsideMiniCart = (() => {
+				// Get the scrollable container
+				const scrollContainer = miniCartEl.querySelector('.woocommerce-mini-cart') || 
+				                       miniCartEl.querySelector('.mini-cart-sidebar__body');
+				
 				// Prefer composedPath when available
 				if (typeof e.composedPath === 'function') {
 					const path = e.composedPath();
-					return path.some((node) => node && node.id === 'mini-cart-sidebar');
+					// Check if any node in the path is inside mini-cart or is the scrollable container
+					return path.some((node) => {
+						if (!node || node.nodeType !== 1) return false;
+						// Check if it's the mini-cart itself
+						if (node.id === 'mini-cart-sidebar') return true;
+						// Check if it's inside mini-cart
+						if (node.closest && node.closest('#mini-cart-sidebar')) return true;
+						// Check if it's the scrollable container or inside it
+						if (scrollContainer && (node === scrollContainer || scrollContainer.contains(node))) return true;
+						return false;
+					});
 				}
 
 				let node = e.target;
@@ -195,7 +211,16 @@ const naturaLockPageScrollForMiniCart = () => {
 				while (node && node.nodeType !== 1) {
 					node = node.parentNode;
 				}
-				return !!(node && typeof node.closest === 'function' && node.closest('#mini-cart-sidebar'));
+				
+				if (!node) return false;
+				
+				// Check if it's inside mini-cart
+				if (node.closest && node.closest('#mini-cart-sidebar')) return true;
+				
+				// Check if it's the scrollable container or inside it
+				if (scrollContainer && (node === scrollContainer || scrollContainer.contains(node))) return true;
+				
+				return false;
 			})();
 
 			if (isInsideMiniCart) return;
