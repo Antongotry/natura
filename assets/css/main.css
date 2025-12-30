@@ -6713,6 +6713,17 @@ li.product .product-card,
 }
 
 @media (max-width: 1025px) {
+	/* Mobile: lock page scroll behind the mini-cart so the cart list can scroll naturally */
+	html.mini-cart-open,
+	body.mini-cart-open {
+		overflow: hidden !important;
+	}
+
+	/* Mobile: hide delivery notice block in mini-cart */
+	.mini-cart-sidebar .mini-cart-delivery {
+		display: none !important;
+	}
+
 	.mini-cart-sidebar__close {
 		width: 10.256vw;
 		height: 10.256vw;
