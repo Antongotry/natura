@@ -3055,13 +3055,19 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
 }
 
+/* Если раскрыты подкатегории (мы внутри подкатегории), родитель тоже показываем как активный */
+.shop-archive-filters__item--expanded > a::after {
+	background-image: url('https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/44.svg');
+}
+
 /* ===== Subcategories: sidebar (desktop) ===== */
 /* Плавный "аккордеон" без точек/линий — легкий отступ + более спокойный цвет/размер шрифта */
 
 .shop-archive-filters__sublist {
 	list-style: none;
 	margin: 0;
-	padding: 0 0 0 0.729vw; /* легкий отступ, чтобы было видно уровень */
+	/* Без отступа: подкатегории выровнены по левому краю как и категории */
+	padding: 0;
 	max-height: 0;
 	opacity: 0;
 	overflow: hidden;
@@ -3507,8 +3513,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		top: 6.533vw;
 		align-self: start;
 		height: fit-content;
-		max-height: calc(100vh - 6.533vw - 2.083vw);
-		overflow-y: auto;
+		/* No internal scroll: sidebar grows with content */
+		max-height: none;
+		overflow: visible;
 	}
 }
 
