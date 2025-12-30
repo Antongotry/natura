@@ -396,6 +396,11 @@
 	font-weight: 600;
 }
 
+/* Hide unit labels in personal account (orders list). */
+.account-page .account-orders__product-unit {
+	display: none !important;
+}
+
 .account-orders__product-price {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
