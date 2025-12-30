@@ -3998,6 +3998,7 @@ const initMiniCart = () => {
 
 	// When mini-cart is open, forward mouse wheel scrolling to the cart list
 	// so user doesn't need to "aim" the cursor at the scrollable list.
+	// IMPORTANT: Only redirect wheel events when cursor is over the mini-cart area
 	if (!document._naturaMiniCartWheelRedirect) {
 		document._naturaMiniCartWheelRedirect = (e) => {
 			const miniCartEl = document.getElementById('mini-cart-sidebar');
@@ -4010,18 +4011,32 @@ const initMiniCart = () => {
 				return;
 			}
 
+			// Check if the wheel event is over the mini-cart
+			const contentEl = miniCartEl.querySelector('.mini-cart-sidebar__content');
+			if (contentEl) {
+				const rect = contentEl.getBoundingClientRect();
+				const isOverCart = e.clientX >= rect.left && e.clientX <= rect.right &&
+				                   e.clientY >= rect.top && e.clientY <= rect.bottom;
+				
+				// If cursor is NOT over the cart, allow normal page scrolling (don't block)
+				if (!isOverCart) {
+					return; // Don't prevent default - allow page scrolling
+				}
+			}
+
 			const scrollEl =
 				miniCartEl.querySelector('.woocommerce-mini-cart') ||
 				miniCartEl.querySelector('.mini-cart-sidebar__body');
 
-			// Always prevent default page scrolling while cart is open
+			// Only prevent default if we're going to handle the scroll
+			if (!scrollEl) {
+				return; // Don't block if no scroll container
+			}
+
+			// Prevent default page scrolling and redirect to cart
 			e.preventDefault();
 			// Also stop other wheel listeners (e.g., Lenis) from scrolling the page behind
 			e.stopImmediatePropagation();
-
-			if (!scrollEl) {
-				return;
-			}
 
 			let deltaY = e.deltaY || 0;
 			if (e.deltaMode === 1) {
