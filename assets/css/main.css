@@ -6200,6 +6200,9 @@ li.product .product-card,
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	/* Critical for iOS scrolling */
+	-webkit-overflow-scrolling: touch;
+	touch-action: pan-y;
 }
 
 .mini-cart-sidebar.is-open .mini-cart-sidebar__content {
@@ -6745,12 +6748,14 @@ li.product .product-card,
 		overflow: hidden !important;
 		flex: 1 1 auto !important;
 		min-height: 0 !important;
+		max-height: 100% !important; /* Critical for iOS */
 		display: flex !important;
 		flex-direction: column !important;
 		/* Ensure body can receive touch events on iOS */
 		position: relative;
 		-webkit-transform: translateZ(0);
 		transform: translateZ(0);
+		height: 100%; /* Ensure it takes full available height */
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
@@ -6758,15 +6763,16 @@ li.product .product-card,
 		flex-direction: column !important;
 		flex: 1 1 auto !important;
 		min-height: 0 !important;
-		overflow: hidden !important;
-		/* Ensure content wrapper doesn't block touch events */
+		overflow: visible !important; /* Changed from hidden - allows scrolling to work */
 		position: relative;
+		height: 100%; /* Ensure it takes full height */
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart {
 		flex: 1 1 auto !important;
 		min-height: 0 !important;
-		overflow-y: auto !important;
+		max-height: 100% !important; /* Critical for iOS - must have max-height */
+		overflow-y: scroll !important; /* Changed from auto to scroll for iOS */
 		overflow-x: hidden !important;
 		-webkit-overflow-scrolling: touch !important;
 		touch-action: pan-y !important;
@@ -6776,6 +6782,8 @@ li.product .product-card,
 		position: relative;
 		-webkit-transform: translateZ(0); /* Force hardware acceleration on iOS */
 		transform: translateZ(0);
+		/* Ensure the element has a defined height for scrolling to work */
+		height: 100%;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */

@@ -3972,6 +3972,18 @@ const initMiniCart = () => {
 		const scrollEl = getMiniCartScrollContainer();
 		if (!scrollEl) return;
 
+		// On mobile/iOS, don't focus - it can interfere with touch scrolling
+		const isMobileViewport =
+			typeof window.matchMedia === 'function'
+				? window.matchMedia('(max-width: 1025px)').matches
+				: (window.innerWidth || 0) <= 1025;
+		
+		if (isMobileViewport) {
+			// On mobile, just ensure the element is ready for scrolling
+			// Don't focus as it can block touch events on iOS
+			return;
+		}
+
 		// Make focusable for keyboard users (wheel uses pointer, but this still improves UX)
 		if (!scrollEl.hasAttribute('tabindex')) {
 			scrollEl.setAttribute('tabindex', '-1');
