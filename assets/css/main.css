@@ -6205,6 +6205,7 @@ li.product .product-card,
 	/* Critical for iOS scrolling */
 	-webkit-overflow-scrolling: touch;
 	touch-action: pan-y;
+	pointer-events: auto;
 }
 
 .mini-cart-sidebar.is-open .mini-cart-sidebar__content {
