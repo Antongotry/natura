@@ -5922,6 +5922,17 @@ li.product .product-card,
 	overflow: visible !important;
 }
 
+/* If any overflow still sneaks in, hide scrollbars on price completely */
+.product-card__price-wrapper {
+	scrollbar-width: none;
+}
+
+.product-card__price-wrapper::-webkit-scrollbar,
+.product-card__price-wrapper *::-webkit-scrollbar {
+	width: 0;
+	height: 0;
+}
+
 /* Ensure Woo price inner spans inherit line-height from .price (avoids global span{line-height:1.7}) */
 .product-card__price-wrapper .woocommerce-Price-amount,
 .product-card__price-wrapper .woocommerce-Price-amount bdi,
