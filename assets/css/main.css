@@ -6857,6 +6857,7 @@ li.product .product-card,
 		overflow-y: scroll !important; /* scroll вместо auto для iOS */
 		overflow-x: hidden !important;
 		position: relative !important;
+		/* КРИТИЧНО: pointer-events: auto для гарантии что touch-события доходят */
 		pointer-events: auto !important;
 		/* КРИТИЧНО для iOS скролла - ВСЕ эти свойства обязательны */
 		-webkit-overflow-scrolling: touch !important;
@@ -6866,6 +6867,11 @@ li.product .product-card,
 		transform: translateZ(0) !important;
 		will-change: scroll-position !important;
 		overscroll-behavior-y: contain !important;
+		/* КРИТИЧНО: Убираем все что может блокировать touch на iOS */
+		-webkit-user-select: none !important;
+		user-select: none !important;
+		-webkit-tap-highlight-color: transparent !important;
+		-webkit-touch-callout: none !important;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
