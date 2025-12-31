@@ -4013,6 +4013,61 @@ const initMiniCart = () => {
 		// УДАЛЕНО: Классы mini-cart-open - больше не добавляем, они блокировали скролл
 		// УДАЛЕНО: Все обработчики touch-событий - больше не нужны, скролл не блокируется
 		
+		// КРИТИЧНО: На десктопе переводим фокус на корзину и перенаправляем wheel события
+		const isMobile = typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+		
+		if (!isMobile) {
+			// На десктопе: фокус на корзину и перенаправление wheel событий
+			requestAnimationFrame(() => {
+				const scrollEl = getMiniCartScrollContainer();
+				if (scrollEl) {
+					// Делаем элемент focusable для keyboard navigation
+					if (!scrollEl.hasAttribute('tabindex')) {
+						scrollEl.setAttribute('tabindex', '-1');
+					}
+					// Фокус на корзину
+					try {
+						scrollEl.focus({ preventScroll: true });
+					} catch (e) {
+						// Если preventScroll не поддерживается, просто focus
+						scrollEl.focus();
+					}
+					
+					// КРИТИЧНО: Перенаправляем wheel события в корзину
+					const handleWheel = (e) => {
+						// Если корзина открыта, перенаправляем wheel события в корзину
+						if (miniCart.classList.contains('is-open')) {
+							const scrollEl = getMiniCartScrollContainer();
+							if (scrollEl) {
+								// Проверяем, может ли корзина скроллиться
+								const canScroll = scrollEl.scrollHeight > scrollEl.clientHeight;
+								const isAtTop = scrollEl.scrollTop <= 0;
+								const isAtBottom = scrollEl.scrollTop >= scrollEl.scrollHeight - scrollEl.clientHeight;
+								
+								// Если корзина может скроллиться, перенаправляем событие
+								if (canScroll) {
+									// Если мы не на границе или скроллим в нужном направлении
+									if ((e.deltaY > 0 && !isAtBottom) || (e.deltaY < 0 && !isAtTop)) {
+										e.preventDefault();
+										e.stopPropagation();
+										scrollEl.scrollTop += e.deltaY;
+										return false;
+									}
+								}
+							}
+						}
+					};
+					
+					// Добавляем обработчик wheel на window для перехвата всех wheel событий
+					window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+					// Сохраняем обработчик для удаления при закрытии
+					miniCart._wheelHandler = handleWheel;
+				}
+			});
+		}
+		
 		requestAnimationFrame(() => {
 			// #region agent log
 			const isMobile = typeof window.matchMedia === 'function'
