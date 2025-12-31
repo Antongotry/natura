@@ -4776,6 +4776,13 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		display: none !important;
 	}
 
+	/* КРИТИЧНО: Скрываем ссылку "Натисніть тут, щоб ввести код купону знижки" на мобильных */
+	.woocommerce-form-coupon-toggle,
+	.woocommerce-info .showcoupon,
+	a.showcoupon {
+		display: none !important;
+	}
+
 	.checkout-order-review__coupon-input-wrapper {
 		flex-direction: column;
 		gap: 3.2vw;
