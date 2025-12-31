@@ -3942,6 +3942,31 @@ const initMiniCart = () => {
 		miniCart.classList.add('is-open');
 		document.body.classList.add('mini-cart-open');
 		document.documentElement.classList.add('mini-cart-open');
+		
+		// КРИТИЧНО: На мобильных явно разрешаем touch-события для корзины
+		// Это гарантирует, что touch-события не будут заблокированы глобальными обработчиками
+		const isMobile = typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+		
+		if (isMobile) {
+			// КРИТИЧНО: Добавляем обработчики на document с capture: true чтобы перехватить события ДО Lenis
+			const allowTouchForCart = (e) => {
+				// Если событие происходит внутри корзины, НЕ блокируем его
+				if (miniCart && miniCart.contains(e.target)) {
+					// НЕ вызываем preventDefault - позволяем нативному скроллу работать
+					// Просто логируем для отладки
+					if (e.type === 'touchmove') {
+						console.log('[initMiniCart] Touch move on cart - allowing scroll');
+					}
+				}
+			};
+			
+			// КРИТИЧНО: Используем capture: true чтобы перехватить события ДО Lenis
+			document.addEventListener('touchstart', allowTouchForCart, { passive: true, capture: true });
+			document.addEventListener('touchmove', allowTouchForCart, { passive: true, capture: true });
+		}
+		
 		requestAnimationFrame(() => {
 			// #region agent log
 			const isMobile = typeof window.matchMedia === 'function'
