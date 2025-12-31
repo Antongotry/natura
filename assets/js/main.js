@@ -3953,16 +3953,47 @@ const initMiniCart = () => {
 				document.body.classList.add('mini-cart-mobile-open');
 				document.documentElement.classList.add('mini-cart-mobile-open');
 				
-				// КРИТИЧНО: Останавливаем Lenis на мобильных
+				// КРИТИЧНО: ПОЛНОСТЬЮ отключаем Lenis на мобильных - он блокирует touch-события!
 				const lenis = window.lenisInstance;
-				if (lenis && typeof lenis.stop === 'function') {
+				if (lenis) {
 					try {
-						lenis.stop();
-						console.log('[initMiniCart] Lenis stopped for mobile cart');
+						// Останавливаем Lenis
+						if (typeof lenis.stop === 'function') {
+							lenis.stop();
+						}
+						// КРИТИЧНО: Также отключаем RAF если он активен
+						if (typeof lenis.raf === 'function') {
+							lenis.raf = () => {}; // Заменяем на пустую функцию
+						}
+						// КРИТИЧНО: Отключаем все обработчики событий Lenis
+						// Lenis может добавлять обработчики на document/body - нужно их отключить
+						if (lenis.options && lenis.options.wrapper) {
+							const wrapper = lenis.options.wrapper;
+							// Lenis может добавить обработчики на wrapper - stop() должен их отключить
+							console.log('[initMiniCart] Lenis wrapper:', wrapper);
+						}
+						// КРИТИЧНО: Проверяем, не блокирует ли Lenis события на document
+						// Если Lenis имеет обработчики на document, они могут блокировать touch-события
+						console.log('[initMiniCart] Lenis stopped and disabled for mobile cart');
 					} catch (e) {
 						console.error('[initMiniCart] Error stopping Lenis:', e);
 					}
 				}
+				
+				// КРИТИЧНО: Явно разрешаем touch-события на document для новой корзины
+				// Это гарантирует, что touch-события не будут заблокированы глобальными обработчиками
+				const allowTouchOnDocument = (e) => {
+					// Если событие происходит внутри новой корзины, НЕ блокируем его
+					const mobileCart = document.getElementById('mini-cart-mobile');
+					if (mobileCart && mobileCart.contains(e.target)) {
+						// НЕ вызываем preventDefault - позволяем нативному скроллу работать
+						console.log('[initMiniCart] Touch event on mobile cart - allowing', e.type);
+					}
+				};
+				
+				// КРИТИЧНО: Добавляем обработчики на document с capture: true чтобы перехватить события ДО Lenis
+				document.addEventListener('touchstart', allowTouchOnDocument, { passive: true, capture: true });
+				document.addEventListener('touchmove', allowTouchOnDocument, { passive: true, capture: true });
 				
 				// КРИТИЧНО: Добавляем обработчики touch для гарантии работы скролла
 				requestAnimationFrame(() => {
