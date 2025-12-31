@@ -4279,9 +4279,15 @@ const initMiniCart = () => {
 	const closeCart = () => {
 		console.log('[initMiniCart] Закрытие корзины');
 		miniCart.classList.remove('is-open');
+		
+		// КРИТИЧНО: Сначала разблокируем скролл, потом убираем классы
+		// Это нужно для правильного восстановления scroll позиции
+		naturaUnlockPageScrollForMiniCart();
+		
+		// КРИТИЧНО: Убираем классы ПОСЛЕ разблокировки скролла
+		// Это позволяет правильно восстановить scroll позицию
 		document.body.classList.remove('mini-cart-open');
 		document.documentElement.classList.remove('mini-cart-open');
-		naturaUnlockPageScrollForMiniCart();
 	};
 
 	// Обработчики закрытия
