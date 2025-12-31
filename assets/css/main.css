@@ -6069,6 +6069,9 @@ ul.products.columns-4 li.product {
 /* Product Card Styles */
 li.product {
 	list-style: none;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 }
 
 li.product .product-card,
@@ -6128,6 +6131,7 @@ li.product .product-card,
 	gap: 1.042vw;
 	min-width: 0;
 	overflow: hidden;
+	min-height: 0; /* Allow flex shrinking */
 }
 
 .product-card__title-price-wrapper {
@@ -6262,10 +6266,16 @@ li.product .product-card,
 	margin-top: auto;
 }
 
-/* Desktop: Add spacing between title/price and button */
+/* Desktop: Add spacing between title/price and button and fix button at bottom */
 @media (min-width: 1026px) {
+	.product-card__content {
+		justify-content: space-between;
+	}
+	
 	.product-card__button-wrapper {
 		margin-top: 2.083vw;
+		margin-bottom: 0;
+		flex-shrink: 0;
 	}
 }
 
@@ -7620,6 +7630,9 @@ li.product .product-card,
 		max-width: 100% !important;
 		display: flex !important;
 		flex-direction: column !important;
+		flex: 1 !important;
+		justify-content: space-between !important;
+		min-height: 0 !important;
 	}
 
 	/* Убираем горизонтальный скролл у всех элементов карточки */
@@ -7741,7 +7754,7 @@ li.product .product-card,
 	}
 
 	.product-card__button-wrapper {
-		margin-top: 0 !important;
+		margin-top: auto !important;
 		margin-bottom: 0 !important;
 		width: 100% !important;
 		order: 4 !important;
@@ -7750,6 +7763,7 @@ li.product .product-card,
 		display: flex !important;
 		flex-direction: column !important;
 		gap: 0 !important;
+		flex-shrink: 0 !important;
 	}
 
 	/* Кнопка в карточке товара (в т.ч. "Читати далі") - как на странице товара */
