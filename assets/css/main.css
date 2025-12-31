@@ -6799,6 +6799,7 @@ li.product .product-card,
 	}
 
 	/* Mobile: the items list must scroll, footer must stay pinned to the bottom */
+	/* КРИТИЧНО: footer находится внутри woocommerce-mini-cart, поэтому он будет скроллироваться вместе со списком */
 	.mini-cart-sidebar .mini-cart-footer {
 		flex: 0 0 auto;
 		margin-top: auto;
@@ -6808,69 +6809,54 @@ li.product .product-card,
 		width: 100%;
 	}
 
-	/* ФИНАЛЬНОЕ РЕШЕНИЕ: Делаем скроллируемым mini-cart-sidebar__body напрямую */
-	
-	/* КРИТИЧНО: Переопределяем базовые стили с максимальной специфичностью */
-	/* КРИТИЧНО: Используем ТОЧНО такую же структуру как в shop-filter-drawer__body - там работает! */
+	/* КРИТИЧНО: Делаем скроллируемым mini-cart-sidebar__body напрямую - как в shop-filter-drawer__body */
+	/* Это единственный способ заставить скролл работать на iOS */
 	.mini-cart-sidebar.is-open .mini-cart-sidebar__body,
 	.mini-cart-sidebar__body {
-		/* КРИТИЧНО: body НЕ скроллируется - overflow: hidden, скроллируется woocommerce-mini-cart */
+		/* КРИТИЧНО: Делаем body скроллируемым напрямую - как в shop-filter-drawer */
 		flex: 1 !important;
-		overflow: hidden !important; /* НЕ скроллируется - скроллируется дочерний элемент */
+		overflow-y: scroll !important; /* КРИТИЧНО: scroll вместо auto для iOS */
+		overflow-x: hidden !important;
 		padding: 0 !important;
 		display: flex !important;
 		flex-direction: column !important;
 		min-height: 0 !important;
-		/* КРИТИЧНО: pointer-events и touch-action для гарантии работы touch-событий */
-		pointer-events: auto !important;
-		touch-action: pan-y !important; /* Разрешаем вертикальный скролл */
-	}
-
-	.mini-cart-sidebar__body .widget_shopping_cart_content {
-		display: flex !important;
-		flex-direction: column !important;
-		/* КРИТИЧНО: flex: 1 1 0% для правильной работы flex с overflow */
-		flex: 1 1 0% !important;
-		min-height: 0 !important;
-		/* КРИТИЧНО: Ограничиваем высоту чтобы контент не растягивался бесконечно */
-		/* КРИТИЧНО: height и max-height нужны для правильного вычисления высоты дочернего элемента */
-		max-height: 100% !important;
-		height: 100% !important;
-		/* КРИТИЧНО: overflow: hidden чтобы дочерние элементы не выходили за границы */
-		overflow: hidden !important;
-		position: relative;
-		width: 100% !important;
-		pointer-events: auto !important;
-		/* КРИТИЧНО: touch-action должен быть pan-y для скролла */
-		touch-action: pan-y !important;
-	}
-
-	.mini-cart-sidebar .woocommerce-mini-cart {
-		/* КРИТИЧНО: Делаем список товаров скроллируемым - ограничиваем высоту */
-		flex: 1 1 0% !important;
-		min-height: 0 !important;
-		/* КРИТИЧНО: Ограничиваем высоту чтобы список не растягивался на всю высоту */
-		max-height: 100% !important;
-		/* height: 100% !important; - не нужен, flex: 1 уже задает высоту */
-		/* КРИТИЧНО: Делаем список скроллируемым - КРИТИЧНО для iOS использовать scroll вместо auto */
-		overflow-y: scroll !important; /* scroll вместо auto для iOS */
-		overflow-x: hidden !important;
-		position: relative !important;
-		/* КРИТИЧНО: pointer-events: auto для гарантии что touch-события доходят */
-		pointer-events: auto !important;
 		/* КРИТИЧНО для iOS скролла - ВСЕ эти свойства обязательны */
 		-webkit-overflow-scrolling: touch !important;
 		touch-action: pan-y !important;
-		/* КРИТИЧНО: Добавляем для гарантии работы на iOS */
 		-webkit-transform: translateZ(0) !important;
 		transform: translateZ(0) !important;
 		will-change: scroll-position !important;
 		overscroll-behavior-y: contain !important;
+		pointer-events: auto !important;
 		/* КРИТИЧНО: Убираем все что может блокировать touch на iOS */
 		-webkit-user-select: none !important;
 		user-select: none !important;
 		-webkit-tap-highlight-color: transparent !important;
 		-webkit-touch-callout: none !important;
+	}
+
+	.mini-cart-sidebar__body .widget_shopping_cart_content {
+		display: flex !important;
+		flex-direction: column !important;
+		flex: 1 1 auto !important; /* КРИТИЧНО: auto вместо 0% чтобы контент мог растягиваться */
+		min-height: 0 !important;
+		/* КРИТИЧНО: Убираем overflow: hidden - теперь скроллируется body */
+		overflow: visible !important;
+		position: relative;
+		width: 100% !important;
+		pointer-events: auto !important;
+		touch-action: pan-y !important;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart {
+		/* КРИТИЧНО: Убираем overflow-y: scroll - теперь скроллируется body */
+		overflow: visible !important;
+		flex: 1 1 auto !important;
+		min-height: 0 !important;
+		position: relative !important;
+		pointer-events: auto !important;
+		touch-action: pan-y !important;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
