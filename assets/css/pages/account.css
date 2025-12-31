@@ -893,7 +893,8 @@
 	}
 
 	.account-orders__table--detailed tr {
-		display: block;
+		display: flex;
+		flex-direction: column;
 		margin-bottom: 2.667vw;
 		padding: 5.333vw;
 		background: #ffffff;
@@ -916,55 +917,70 @@
 		box-sizing: border-box;
 	}
 
-	/* Products - full width at top */
+	/* Order number at top */
+	.account-orders__table--detailed .account-orders__cell--number {
+		order: 1;
+		width: 100% !important;
+		margin-bottom: 3.2vw;
+		padding-bottom: 3.2vw;
+		border-bottom: 1px solid rgba(48, 48, 48, 0.1);
+		display: block !important;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--number::before {
+		display: none;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--number .account-orders__order-link {
+		font-size: 4.8vw;
+		font-weight: 600;
+		color: #303030;
+		margin-top: 0;
+		display: block;
+	}
+
+	/* Products - full width after number */
 	.account-orders__table--detailed .account-orders__cell--products {
+		order: 2;
 		width: 100% !important;
 		margin-bottom: 4vw;
 		padding-bottom: 4vw;
 		border-bottom: 1px solid rgba(48, 48, 48, 0.1);
-		font-size: 3.733vw; /* Restore font size for products */
+		font-size: 12px;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--products::before {
-		content: 'Товари: ';
-		font-weight: 500;
-		color: rgba(48, 48, 48, 0.6);
-		font-size: 3.467vw;
-		display: block;
-		margin-bottom: 2.667vw;
+		display: none;
 	}
 
 	/* Info container for 2-column layout */
 	.account-orders__table--detailed .account-orders__cell--date,
-	.account-orders__table--detailed .account-orders__cell--number,
 	.account-orders__table--detailed .account-orders__cell--status,
 	.account-orders__table--detailed .account-orders__cell--total {
 		display: inline-block;
 		vertical-align: top;
 		box-sizing: border-box;
-		font-size: 4vw; /* Restore font size */
+		font-size: 4vw;
 	}
 
-	/* First row: Date and Number - 2 columns */
+	/* Order details section */
 	.account-orders__table--detailed .account-orders__cell--date {
+		order: 3;
 		width: calc(50% - 1.6vw) !important;
 		margin-bottom: 3.2vw;
 		margin-right: 3.2vw;
-	}
-
-	.account-orders__table--detailed .account-orders__cell--number {
-		width: calc(50% - 1.6vw) !important;
-		margin-bottom: 3.2vw;
 	}
 
 	/* Second row: Status and Total - 2 columns */
 	.account-orders__table--detailed .account-orders__cell--status {
+		order: 4;
 		width: calc(50% - 1.6vw) !important;
-		margin-bottom: 0;
+		margin-bottom: 3.2vw;
 		margin-right: 3.2vw;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--total {
+		order: 5;
 		width: calc(50% - 1.6vw) !important;
 		margin-bottom: 0;
 	}
@@ -979,17 +995,9 @@
 		margin-bottom: 1.067vw;
 	}
 
-	.account-orders__table--detailed .account-orders__cell--number::before {
-		content: 'Номер: ';
-		font-weight: 500;
-		color: rgba(48, 48, 48, 0.6);
-		font-size: 3.2vw;
-		display: block;
-		margin-bottom: 1.067vw;
-	}
 
 	.account-orders__table--detailed .account-orders__cell--status::before {
-		content: 'Статус: ';
+		content: 'Статус обробки: ';
 		font-weight: 500;
 		color: rgba(48, 48, 48, 0.6);
 		font-size: 3.2vw;
@@ -998,7 +1006,7 @@
 	}
 
 	.account-orders__table--detailed .account-orders__cell--total::before {
-		content: 'Сума: ';
+		content: 'Сума замовлення: ';
 		font-weight: 500;
 		color: rgba(48, 48, 48, 0.6);
 		font-size: 3.2vw;
@@ -1036,12 +1044,16 @@
 		overflow: visible;
 		text-overflow: clip;
 		line-height: 1.4;
-		margin-bottom: 0.8vw;
+		margin-bottom: 4px;
+		color: #303030;
+		font-weight: 400;
 	}
 
 	.account-orders__product-price {
 		font-size: 12px;
 		margin-top: 0;
+		color: #303030;
+		font-weight: 400;
 	}
 
 	.account-orders__more {
@@ -1052,26 +1064,14 @@
 	}
 
 	.account-orders__table--detailed .account-orders__cell--date,
-	.account-orders__table--detailed .account-orders__cell--number,
 	.account-orders__table--detailed .account-orders__cell--status,
 	.account-orders__table--detailed .account-orders__cell--total {
 		line-height: 1.4;
-	}
-
-	.account-orders__order-link {
-		font-size: 4vw;
 		color: #303030;
-		text-decoration: none;
-		display: inline-block;
-		margin-top: 1.067vw;
-		font-weight: 600;
-		transition: opacity 0.2s;
+		font-weight: 400;
 	}
 
-	.account-orders__order-link:hover {
-		opacity: 0.8;
-		text-decoration: underline;
-	}
+	/* Order link styles are in .account-orders__cell--number section above */
 
 	.account-orders__table--detailed .account-orders__cell--total {
 		font-size: 4.8vw;
