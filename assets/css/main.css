@@ -3768,6 +3768,13 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin-bottom: 2.083vw;
 }
 
+@media (max-width: 1025px) {
+	/* КРИТИЧНО: Увеличиваем отступ между хлебными крошками и плашкой с инпутами до 30px */
+	.checkout-page .woocommerce-breadcrumb {
+		margin-bottom: 30px !important;
+	}
+}
+
 .checkout-page__layout {
 	display: flex;
 	justify-content: space-between;
@@ -4437,6 +4444,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		border-radius: 999999px;
 	}
 
+	/* КРИТИЧНО: Уменьшаем отступ сверху до 40px на мобильных */
+	.checkout-page {
+		padding-top: 40px !important;
+	}
+
 	.checkout-page__container {
 		width: var(--container-width-mobile);
 		max-width: var(--container-width-mobile);
@@ -4491,6 +4503,18 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		padding: 4vw;
 		font-size: 4vw;
 		border-radius: 2.667vw;
+		/* КРИТИЧНО: Исправляем растягивание поля с датой */
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+	
+	/* КРИТИЧНО: Дополнительно для поля с датой - предотвращаем растягивание */
+	.checkout-page .woocommerce-checkout input[type="date"],
+	.checkout-page .checkout-section input[type="date"] {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: 100% !important;
+		flex-shrink: 1 !important;
 	}
 
 	/* Placeholders Mobile */
@@ -4618,7 +4642,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		padding-top: 5.333vw;
 	}
 
-	.checkout-order-review__subtotal,
+	/* КРИТИЧНО: Скрываем промежуточный итог (subtotal) на мобильных */
+	.checkout-order-review__subtotal {
+		display: none !important;
+	}
+
 	.checkout-order-review__total {
 		margin-bottom: 4vw;
 	}
