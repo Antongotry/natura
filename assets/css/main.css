@@ -4414,9 +4414,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 @media (max-width: 768px) {
-	/* КРИТИЧНО: Отступ сверху 40px на мобильных */
+	/* КРИТИЧНО: Убираем большой отступ сверху */
 	.checkout-page {
-		padding-top: 40px !important;
+		padding-top: 0 !important;
 		padding-bottom: 10.667vw;
 	}
 
@@ -4483,9 +4483,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		border-radius: 999999px;
 	}
 
-	/* КРИТИЧНО: Уменьшаем отступ сверху до 40px на мобильных */
+	/* КРИТИЧНО: Уменьшаем отступ сверху - убираем большой отступ */
 	.checkout-page {
-		padding-top: 40px !important;
+		padding-top: 0 !important;
 	}
 
 	.checkout-page__container {
@@ -4761,9 +4761,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		flex: 0 0 auto !important;
 	}
 
+	/* КРИТИЧНО: Скрываем надпись про купоны на мобильных */
 	.checkout-order-review__coupon-label {
-		font-size: 4vw;
-		margin-bottom: 3.2vw;
+		display: none !important;
 	}
 
 	.checkout-order-review__coupon-input-wrapper {
