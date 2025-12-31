@@ -4585,6 +4585,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		min-width: 0 !important;
 		max-width: 100% !important;
 		flex-shrink: 1 !important;
+		box-sizing: border-box !important;
+		/* КРИТИЧНО: Дополнительные ограничения для предотвращения выхода за границы */
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
 	}
 
 	/* Placeholders Mobile */
@@ -4624,14 +4628,28 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .woocommerce-checkout .form-row,
 	.checkout-page .checkout-section .form-row {
 		margin-bottom: 5.333vw;
+		/* КРИТИЧНО: Ограничиваем ширину, чтобы поля не выходили за границы */
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		width: 100% !important;
+		overflow: hidden !important;
 	}
 
 	.checkout-page .woocommerce-checkout .form-row.form-row-first,
 	.checkout-page .woocommerce-checkout .form-row.form-row-last,
 	.checkout-page .checkout-section .form-row.form-row-first,
 	.checkout-page .checkout-section .form-row.form-row-last {
-		width: 100%;
+		width: 100% !important;
 		float: none;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	/* КРИТИЧНО: Ограничиваем ширину контейнеров для полей */
+	.checkout-section__group {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow: hidden !important;
 	}
 
 	/* Payment Methods Mobile */
@@ -4642,11 +4660,24 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .wc_payment_methods li {
 		margin-bottom: 4vw;
 		padding: 0;
+		/* КРИТИЧНО: Ограничиваем ширину элементов списка */
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow: hidden !important;
+		word-wrap: break-word !important;
 	}
 
 	.checkout-page .wc_payment_methods label {
 		font-size: 4vw;
 		line-height: 120%;
+		/* КРИТИЧНО: Разрешаем перенос текста на мобильных */
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		word-break: break-word !important;
+		overflow-wrap: break-word !important;
+		/* КРИТИЧНО: Ограничиваем ширину label */
+		max-width: 100% !important;
+		box-sizing: border-box !important;
 	}
 
 	.checkout-page .wc_payment_methods input[type="radio"] {
@@ -4668,6 +4699,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.checkout-page .payment_box p {
 		font-size: 4vw;
+		/* КРИТИЧНО: Разрешаем перенос текста в payment_box */
+		word-wrap: break-word !important;
+		word-break: break-word !important;
+		overflow-wrap: break-word !important;
+		max-width: 100% !important;
 	}
 
 	/* Checkout Order Review Mobile */
