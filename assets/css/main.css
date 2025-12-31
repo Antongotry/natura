@@ -6267,19 +6267,12 @@ li.product .product-card,
 .mini-cart-sidebar__body {
 	flex: 1;
 	/* КРИТИЧНО: На десктопе overflow-y: auto, на мобильных будет переопределено в media query */
-	overflow-y: auto; /* Для десктопа */
-	overflow-x: hidden;
+	/* КРИТИЧНО: Убрано overflow-y: auto из базовых стилей - может конфликтовать с media query */
+	overflow: hidden; /* Базовое значение - на мобильных будет переопределено */
 	padding: 0;
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
-}
-
-/* КРИТИЧНО: На мобильных переопределяем overflow-y: auto на scroll для лучшей работы */
-@media (max-width: 1025px) {
-	.mini-cart-sidebar__body {
-		overflow-y: scroll !important; /* На мобильных используем scroll вместо auto */
-	}
 }
 
 .mini-cart-sidebar__body .widget_shopping_cart_content {
@@ -6299,8 +6292,8 @@ li.product .product-card,
 	/* Горизонтальные отступы только для списка товаров */
 	padding: 0 2.083vw 2.083vw 2.083vw;
 	flex: 1;
-	/* КРИТИЧНО: На десктопе overflow-y: auto, на мобильных будет переопределено */
-	overflow-y: auto;
+	/* КРИТИЧНО: На десктопе overflow-y: auto, на мобильных будет переопределено в media query */
+	overflow-y: auto; /* Для десктопа - скроллируется список */
 	overflow-x: hidden;
 	min-height: 0;
 }
@@ -6780,6 +6773,9 @@ li.product .product-card,
 		/* КРИТИЧНО: display: flex для правильной работы flex дочерних элементов */
 		display: flex !important;
 		flex-direction: column !important;
+		/* КРИТИЧНО: Базовое значение высоты - будет переопределено ниже */
+		height: 100svh !important;
+		max-height: 100svh !important;
 	}
 	
 	/* Если есть нижняя панель, учитываем её высоту */
@@ -6835,6 +6831,7 @@ li.product .product-card,
 		flex: 1 1 0% !important;
 		min-height: 0 !important;
 		/* КРИТИЧНО: Ограничиваем высоту чтобы контент не растягивался бесконечно */
+		/* КРИТИЧНО: height и max-height нужны для правильного вычисления высоты дочернего элемента */
 		max-height: 100% !important;
 		height: 100% !important;
 		/* КРИТИЧНО: overflow: hidden чтобы дочерние элементы не выходили за границы */

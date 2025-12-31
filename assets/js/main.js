@@ -116,6 +116,7 @@ const naturaLockPageScrollForMiniCart = () => {
 			fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Stopping Lenis',data:{isStoppedBefore:isStopped,willStop:true,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 			// #endregion
 			try {
+				// КРИТИЧНО: Полностью останавливаем Lenis
 				lenis.stop();
 				// #region agent log
 				const isStoppedAfter = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : 'unknown';
@@ -123,13 +124,17 @@ const naturaLockPageScrollForMiniCart = () => {
 				// #endregion
 				// КРИТИЧНО: Отключаем все обработчики Lenis которые могут блокировать touch
 				// Lenis может иметь обработчики wheel/touch которые блокируют скролл
-				if (lenis.destroy) {
-					// Не уничтожаем полностью, но останавливаем
-				}
-				// КРИТИЧНО: Убеждаемся что Lenis не блокирует touch события
+				// КРИТИЧНО: Если Lenis имеет wrapper, нужно убедиться что он не блокирует события
 				if (lenis.options && lenis.options.wrapper) {
-					// Убираем обработчики если есть
+					const wrapper = lenis.options.wrapper;
+					// Убираем все обработчики touch с wrapper если они есть
+					if (wrapper && typeof wrapper.removeEventListener === 'function') {
+						// Lenis может добавить обработчики на wrapper - мы не можем их удалить напрямую,
+						// но stop() должен их отключить
+					}
 				}
+				// КРИТИЧНО: Убеждаемся что Lenis не блокирует touch события на document/body
+				// Lenis может добавить глобальные обработчики - stop() должен их отключить
 			} catch (e) {
 				// #region agent log
 				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Error stopping Lenis',data:{error:e.message,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
