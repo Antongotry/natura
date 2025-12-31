@@ -4011,58 +4011,7 @@ const initMiniCart = () => {
 		// УДАЛЕНО: Блокировка скролла - больше не блокируем скролл сайта
 		miniCart.classList.add('is-open');
 		// УДАЛЕНО: Классы mini-cart-open - больше не добавляем, они блокировали скролл
-		
-		// КРИТИЧНО: На мобильных явно разрешаем touch-события для корзины
-		// Это гарантирует, что touch-события не будут заблокированы глобальными обработчиками
-		const isMobile = typeof window.matchMedia === 'function'
-			? window.matchMedia('(max-width: 1025px)').matches
-			: (window.innerWidth || 0) <= 1025;
-		
-		if (isMobile) {
-			// КРИТИЧНО: Добавляем обработчики на document с capture: true чтобы перехватить события ДО Lenis
-			// КРИТИЧНО: Сохраняем ссылку на обработчик для удаления при закрытии корзины
-			const allowTouchForCart = (e) => {
-				// Если событие происходит внутри корзины, НЕ блокируем его
-				if (miniCart && miniCart.contains(e.target)) {
-					// КРИТИЧНО: НЕ вызываем preventDefault - позволяем нативному скроллу работать
-					// КРИТИЧНО: НЕ вызываем stopPropagation - позволяем событию всплывать
-					// Просто логируем для отладки
-					if (e.type === 'touchmove') {
-						const scrollEl = miniCart.querySelector('.woocommerce-mini-cart');
-						if (scrollEl && scrollEl.scrollHeight > scrollEl.clientHeight) {
-							console.log('[initMiniCart] Touch move on cart - allowing scroll', {
-								scrollTop: scrollEl.scrollTop,
-								scrollHeight: scrollEl.scrollHeight,
-								clientHeight: scrollEl.clientHeight
-							});
-						}
-					}
-				}
-			};
-			
-			// КРИТИЧНО: Сохраняем обработчики для удаления при закрытии корзины
-			miniCart._allowTouchForCartHandler = allowTouchForCart;
-			
-			// КРИТИЧНО: Используем capture: true чтобы перехватить события ДО Lenis
-			// КРИТИЧНО: Используем passive: true чтобы НЕ блокировать нативный скролл
-			document.addEventListener('touchstart', allowTouchForCart, { passive: true, capture: true });
-			document.addEventListener('touchmove', allowTouchForCart, { passive: true, capture: true });
-			
-			// КРИТИЧНО: Также добавляем обработчики напрямую на скроллируемый элемент
-			requestAnimationFrame(() => {
-				const scrollEl = miniCart.querySelector('.woocommerce-mini-cart');
-				if (scrollEl) {
-					const directTouchHandler = (e) => {
-						// НЕ блокируем события - позволяем нативному скроллу работать
-						console.log('[initMiniCart] Direct touch event on scroll element:', e.type);
-					};
-					scrollEl.addEventListener('touchstart', directTouchHandler, { passive: true });
-					scrollEl.addEventListener('touchmove', directTouchHandler, { passive: true });
-					// Сохраняем для удаления
-					scrollEl._directTouchHandler = directTouchHandler;
-				}
-			});
-		}
+		// УДАЛЕНО: Все обработчики touch-событий - больше не нужны, скролл не блокируется
 		
 		requestAnimationFrame(() => {
 			// #region agent log
