@@ -850,11 +850,19 @@
 	.account-orders__table-wrap {
 		overflow: visible;
 		width: 100%;
+		background: transparent;
+		border: none;
+		padding: 0;
+		margin: 0;
 	}
 
 	.account-orders__table.account-orders__table--detailed {
 		display: block;
 		width: 100%;
+		background: transparent;
+		border: none;
+		padding: 0;
+		margin: 0;
 	}
 
 	.account-orders__table--detailed thead {
@@ -864,11 +872,15 @@
 	.account-orders__table--detailed tbody {
 		display: block;
 		width: 100%;
+		background: transparent;
+		border: none;
+		padding: 0;
+		margin: 0;
 	}
 
 	.account-orders__table--detailed tr {
 		display: block;
-		margin-bottom: 5.333vw;
+		margin-bottom: 2.667vw;
 		padding: 5.333vw;
 		background: #ffffff;
 		border: 1px solid rgba(48, 48, 48, 0.1);
@@ -877,6 +889,10 @@
 		width: 100%;
 		box-sizing: border-box;
 		font-size: 0; /* Remove whitespace between inline-block elements */
+	}
+
+	.account-orders__table--detailed tr:last-child {
+		margin-bottom: 0;
 	}
 
 	.account-orders__table--detailed td {
