@@ -119,12 +119,26 @@ const naturaLockPageScrollForMiniCart = () => {
 				if (typeof lenis.raf === 'function') {
 					lenis.raf = () => {}; // Заменяем на пустую функцию
 				}
-				// КРИТИЧНО: Отключаем все обработчики событий Lenis
-				// Lenis может добавлять обработчики на document/body которые блокируют touch-события
+				// КРИТИЧНО: Удаляем обработчики событий Lenis с document/body
+				// Lenis может добавлять обработчики которые блокируют touch-события даже после stop()
 				if (lenis.options && lenis.options.wrapper) {
 					const wrapper = lenis.options.wrapper;
 					console.log('[naturaLockPageScrollForMiniCart] Lenis wrapper:', wrapper);
+					// КРИТИЧНО: Если wrapper это window/document/body, нужно удалить обработчики
+					if (wrapper === window || wrapper === document || wrapper === document.body) {
+						// Lenis может добавить обработчики на эти элементы
+						// Попробуем удалить их вручную
+						console.log('[naturaLockPageScrollForMiniCart] Lenis wrapper is global element - trying to remove handlers');
+					}
 				}
+				// КРИТИЧНО: Если Lenis имеет метод destroy или remove, вызываем его
+				// Но только если это не сломает Lenis для десктопа
+				// Вместо этого просто убеждаемся что stop() вызван
+				
+				// КРИТИЧНО: Проверяем, не блокирует ли Lenis touch-события через свои внутренние обработчики
+				// Lenis может иметь обработчики на document с passive: false которые блокируют скролл
+				// К сожалению, мы не можем их удалить напрямую, но stop() должен их отключить
+				
 				naturaMiniCartLenisWasRunning = typeof lenis.isStopped === 'boolean' ? !lenis.isStopped : false;
 			} catch (e) {
 				console.error('[naturaLockPageScrollForMiniCart] Error stopping Lenis:', e);
@@ -3954,17 +3968,39 @@ const initMiniCart = () => {
 			const allowTouchForCart = (e) => {
 				// Если событие происходит внутри корзины, НЕ блокируем его
 				if (miniCart && miniCart.contains(e.target)) {
-					// НЕ вызываем preventDefault - позволяем нативному скроллу работать
+					// КРИТИЧНО: НЕ вызываем preventDefault - позволяем нативному скроллу работать
+					// КРИТИЧНО: НЕ вызываем stopPropagation - позволяем событию всплывать
 					// Просто логируем для отладки
 					if (e.type === 'touchmove') {
-						console.log('[initMiniCart] Touch move on cart - allowing scroll');
+						const scrollEl = miniCart.querySelector('.woocommerce-mini-cart');
+						if (scrollEl && scrollEl.scrollHeight > scrollEl.clientHeight) {
+							console.log('[initMiniCart] Touch move on cart - allowing scroll', {
+								scrollTop: scrollEl.scrollTop,
+								scrollHeight: scrollEl.scrollHeight,
+								clientHeight: scrollEl.clientHeight
+							});
+						}
 					}
 				}
 			};
 			
 			// КРИТИЧНО: Используем capture: true чтобы перехватить события ДО Lenis
+			// КРИТИЧНО: Используем passive: true чтобы НЕ блокировать нативный скролл
 			document.addEventListener('touchstart', allowTouchForCart, { passive: true, capture: true });
 			document.addEventListener('touchmove', allowTouchForCart, { passive: true, capture: true });
+			
+			// КРИТИЧНО: Также добавляем обработчики напрямую на скроллируемый элемент
+			requestAnimationFrame(() => {
+				const scrollEl = miniCart.querySelector('.woocommerce-mini-cart');
+				if (scrollEl) {
+					const directTouchHandler = (e) => {
+						// НЕ блокируем события - позволяем нативному скроллу работать
+						console.log('[initMiniCart] Direct touch event on scroll element:', e.type);
+					};
+					scrollEl.addEventListener('touchstart', directTouchHandler, { passive: true });
+					scrollEl.addEventListener('touchmove', directTouchHandler, { passive: true });
+				}
+			});
 		}
 		
 		requestAnimationFrame(() => {

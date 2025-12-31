@@ -7405,8 +7405,18 @@ li.product .product-card,
 		white-space: nowrap;
 		/* Prevent scrolling on price wrapper */
 		overflow: visible !important;
-		touch-action: none !important; /* Prevent touch scrolling on prices */
+		/* КРИТИЧНО: УБРАНО touch-action: none - оно блокировало скролл всей корзины! */
+		/* touch-action: none !important; - УДАЛЕНО */
+		/* КРИТИЧНО: Разрешаем pan-y для скролла корзины */
+		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 		-webkit-overflow-scrolling: auto !important;
+	}
+	
+	/* КРИТИЧНО: В корзине ВСЕ элементы должны разрешать pan-y для скролла */
+	.mini-cart-sidebar .product-card__price-wrapper,
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price,
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price-wrapper {
+		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 	}
 
 	.product-card__title-wrapper {
