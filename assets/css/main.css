@@ -4421,9 +4421,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 @media (max-width: 768px) {
-	/* КРИТИЧНО: Уменьшаем отступ сверху - был 40px, уменьшаем на 15% = 34px */
+	/* КРИТИЧНО: Уменьшаем отступ сверху еще на 15%: 34px - 15% = 28.9px ≈ 29px */
 	.checkout-page {
-		padding-top: 34px !important;
+		padding-top: 29px !important;
 		padding-bottom: 10.667vw;
 	}
 
@@ -4500,7 +4500,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		max-width: var(--container-width-mobile);
 		padding-left: 0;
 		padding-right: 0;
-		/* КРИТИЧНО: Убираем большой отступ сверху */
+		/* КРИТИЧНО: Уменьшаем отступ сверху еще на 15% */
 		margin-top: 0 !important;
 		padding-top: 0 !important;
 	}
