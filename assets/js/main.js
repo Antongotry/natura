@@ -194,18 +194,32 @@ const naturaUnlockPageScrollForMiniCart = () => {
 	}
 
 	// КРИТИЧНО: Перезапускаем Lenis только если он был запущен до открытия корзины
-	if (isMobileViewport && naturaMiniCartLenisWasRunning) {
+	// КРИТИЧНО: На мобильных всегда перезапускаем Lenis если он существует
+	// Это нужно для правильной работы скролла после закрытия корзины
+	if (isMobileViewport) {
 		const lenis = window.lenisInstance;
 		if (lenis) {
 			try {
 				// КРИТИЧНО: Восстанавливаем оригинальный RAF если он был переопределен
 				if (lenis._originalRaf && typeof lenis._originalRaf === 'function') {
 					lenis.raf = lenis._originalRaf;
+					delete lenis._originalRaf; // Удаляем после восстановления
 				}
-				// Перезапускаем Lenis
-				if (typeof lenis.start === 'function') {
-					lenis.start();
-					console.log('[naturaUnlockPageScrollForMiniCart] Lenis restarted');
+				// КРИТИЧНО: Перезапускаем Lenis только если он был запущен до открытия корзины
+				// Или если он не остановлен (на десктопе он может быть активен)
+				if (naturaMiniCartLenisWasRunning) {
+					if (typeof lenis.start === 'function') {
+						lenis.start();
+						console.log('[naturaUnlockPageScrollForMiniCart] Lenis restarted');
+					}
+				} else {
+					// Если Lenis не был запущен, но мы его остановили, проверяем его состояние
+					const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : false;
+					if (isStopped && typeof lenis.start === 'function') {
+						// Если Lenis остановлен, но не был запущен до открытия корзины,
+						// не перезапускаем его - это нормально
+						console.log('[naturaUnlockPageScrollForMiniCart] Lenis was stopped but not running before - not restarting');
+					}
 				}
 			} catch (e) {
 				console.error('[naturaUnlockPageScrollForMiniCart] Error restarting Lenis:', e);
