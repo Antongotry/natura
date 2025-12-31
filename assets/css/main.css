@@ -6262,6 +6262,13 @@ li.product .product-card,
 	margin-top: auto;
 }
 
+/* Desktop: Add spacing between title/price and button */
+@media (min-width: 1026px) {
+	.product-card__button-wrapper {
+		margin-top: 2.083vw;
+	}
+}
+
 .product-card__button-wrapper a,
 .product-card__button-wrapper .button,
 .product-card__button-wrapper .add_to_cart_button,
