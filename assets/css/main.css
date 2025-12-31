@@ -6800,34 +6800,35 @@ li.product .product-card,
 	/* ФИНАЛЬНОЕ РЕШЕНИЕ: Делаем скроллируемым mini-cart-sidebar__body напрямую */
 	
 	/* КРИТИЧНО: Переопределяем базовые стили с максимальной специфичностью */
-	/* КРИТИЧНО: Используем такую же структуру как в фильтрах - там работает! */
+	/* КРИТИЧНО: Используем ТОЧНО такую же структуру как в shop-filter-drawer__body - там работает! */
 	.mini-cart-sidebar.is-open .mini-cart-sidebar__body,
 	.mini-cart-sidebar__body {
-		/* КРИТИЧНО: Делаем body скроллируемым напрямую - КАК В shop-filter-drawer__body */
-		overflow-y: auto !important; /* КАК В ФИЛЬТРАХ - auto вместо scroll */
-		overflow-x: hidden !important;
-		flex: 1 1 0% !important;
+		/* КРИТИЧНО: ТОЧНО КАК В shop-filter-drawer__body - просто и работает */
+		flex: 1 !important; /* КАК В ФИЛЬТРАХ - просто flex: 1, без 1 1 0% */
+		overflow-y: auto !important; /* КАК В ФИЛЬТРАХ */
+		overflow-x: hidden !important; /* КАК В ФИЛЬТРАХ */
+		padding: 0 !important; /* КАК В ФИЛЬТРАХ (там padding: 20px, но у нас 0) */
+		display: flex !important; /* КАК В ФИЛЬТРАХ */
+		flex-direction: column !important; /* КАК В ФИЛЬТРАХ */
 		min-height: 0 !important;
-		/* КРИТИЧНО: Убираем max-height: 100% - он может блокировать скролл если контент больше */
-		/* max-height: 100% !important; */
-		display: flex !important;
-		flex-direction: column !important;
-		position: relative;
-		/* КРИТИЧНО: Убираем height: 100% - используем только flex: 1 для правильной работы */
-		/* height: 100% !important; */
-		width: 100% !important;
-		/* КРИТИЧНО для iOS скролла */
+		/* КРИТИЧНО: Убираем все лишнее что может конфликтовать */
+		/* flex: 1 1 0% !important; - заменено на flex: 1 */
+		/* max-height: 100% !important; - убрано */
+		/* height: 100% !important; - убрано */
+		/* position: relative; - убрано, не нужно */
+		/* width: 100% !important; - убрано, не нужно */
+		/* КРИТИЧНО для iOS скролла - оставляем только необходимое */
 		-webkit-overflow-scrolling: touch !important;
 		touch-action: pan-y !important;
-		overscroll-behavior-y: contain !important;
 		pointer-events: auto !important;
-		-webkit-transform: translateZ(0) !important;
-		transform: translateZ(0) !important;
-		will-change: scroll-position !important;
-		/* Убираем все что может блокировать */
-		-webkit-user-select: none !important;
-		user-select: none !important;
-		-webkit-tap-highlight-color: transparent !important;
+		/* Убираем все что может блокировать - минимизируем */
+		/* overscroll-behavior-y: contain !important; - убрано, может мешать */
+		/* -webkit-transform: translateZ(0) !important; - убрано, может мешать */
+		/* transform: translateZ(0) !important; - убрано, может мешать */
+		/* will-change: scroll-position !important; - убрано, может мешать */
+		/* -webkit-user-select: none !important; - убрано, может мешать */
+		/* user-select: none !important; - убрано, может мешать */
+		/* -webkit-tap-highlight-color: transparent !important; - убрано, может мешать */
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
@@ -6839,12 +6840,13 @@ li.product .product-card,
 		/* КРИТИЧНО: Убираем max-height и height - они мешают правильному растягиванию контента */
 		/* max-height: 100% !important; */
 		/* height: 100% !important; */
+		/* КРИТИЧНО: overflow: visible - НЕ должен блокировать скролл родителя */
 		overflow: visible !important;
 		position: relative;
 		width: 100% !important;
 		pointer-events: auto !important;
-		/* Убираем все что может блокировать */
-		touch-action: auto !important;
+		/* КРИТИЧНО: touch-action должен быть pan-y для скролла */
+		touch-action: pan-y !important;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart {
