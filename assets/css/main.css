@@ -6743,10 +6743,13 @@ li.product .product-card,
 		overflow: hidden !important;
 		/* КРИТИЧНО: НЕ блокируем touch-action на body - это блокирует скролл внутри корзины! */
 		/* touch-action: none !important; - УБРАНО, блокировало скролл */
+		/* КРИТИЧНО: Разрешаем touch-события проходить через body к мини-корзине */
+		pointer-events: auto !important;
 	}
 	/* КРИТИЧНО: Разрешаем touch-action только внутри корзины */
 	body.mini-cart-open .mini-cart-sidebar__body {
 		touch-action: pan-y !important;
+		pointer-events: auto !important;
 	}
 	/* КРИТИЧНО: Также разрешаем touch-action на всех дочерних элементах корзины */
 	body.mini-cart-open .mini-cart-sidebar__content,
@@ -6754,6 +6757,7 @@ li.product .product-card,
 	body.mini-cart-open .widget_shopping_cart_content,
 	body.mini-cart-open .woocommerce-mini-cart {
 		touch-action: pan-y !important;
+		pointer-events: auto !important;
 		/* КРИТИЧНО для iOS: убираем все что может блокировать touch */
 		-webkit-user-select: none !important;
 		user-select: none !important;

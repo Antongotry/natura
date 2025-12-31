@@ -140,6 +140,11 @@ const naturaLockPageScrollForMiniCart = () => {
 					// Lenis может иметь метод destroy, но мы не вызываем его, только stop()
 					// stop() должен отключить все обработчики
 				}
+				// КРИТИЧНО: Дополнительно проверяем что Lenis не имеет активных обработчиков
+				// Если Lenis имеет свойство _events или подобное, проверяем его
+				if (lenis._events) {
+					console.log('[naturaLockPageScrollForMiniCart] Lenis has _events:', Object.keys(lenis._events));
+				}
 			} catch (e) {
 				// #region agent log
 				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Error stopping Lenis',data:{error:e.message,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
