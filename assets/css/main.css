@@ -4584,7 +4584,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	
 	/* КРИТИЧНО: Дополнительно для поля с датой - предотвращаем растягивание */
 	.checkout-page .woocommerce-checkout input[type="date"],
-	.checkout-page .checkout-section input[type="date"] {
+	.checkout-page .checkout-section input[type="date"],
+	.checkout-page input[type="date"],
+	.checkout-page #shipping_delivery_date,
+	.checkout-page input#shipping_delivery_date {
 		width: 100% !important;
 		min-width: 0 !important;
 		max-width: 100% !important;
@@ -4598,6 +4601,17 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		margin-right: 0 !important;
 		padding-left: 4vw !important;
 		padding-right: 4vw !important;
+		/* КРИТИЧНО для iOS: Убираем нативные стили браузера */
+		-webkit-appearance: none !important;
+		-moz-appearance: none !important;
+		appearance: none !important;
+		/* КРИТИЧНО для iOS: Убираем внутренние отступы iOS */
+		-webkit-padding-start: 4vw !important;
+		-webkit-padding-end: 4vw !important;
+		/* КРИТИЧНО: Фиксируем размеры для iOS */
+		height: auto !important;
+		min-height: 13.333vw !important;
+		line-height: 1.5 !important;
 	}
 
 	/* КРИТИЧНО: Дополнительные ограничения для контейнеров полей на мобильных */
@@ -4616,6 +4630,39 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .checkout-section .form-row input {
 		max-width: 100% !important;
 		box-sizing: border-box !important;
+	}
+
+	/* КРИТИЧНО для iOS: Ограничиваем ширину контейнеров для поля date */
+	.checkout-page .woocommerce-shipping-fields,
+	.checkout-page .shipping_address,
+	.checkout-page .woocommerce-shipping-fields__field-wrapper,
+	.checkout-page #shipping_delivery_date_field,
+	.checkout-page p#shipping_delivery_date_field,
+	.checkout-page .woocommerce-input-wrapper {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		width: 100% !important;
+		overflow: hidden !important;
+	}
+
+	/* КРИТИЧНО для iOS: Специфичные стили для wrapper поля date */
+	.checkout-page #shipping_delivery_date_field .woocommerce-input-wrapper,
+	.checkout-page p#shipping_delivery_date_field .woocommerce-input-wrapper {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		display: block !important;
+		overflow: hidden !important;
+	}
+
+	/* КРИТИЧНО для iOS: Дополнительные ограничения для input внутри wrapper */
+	.checkout-page .woocommerce-input-wrapper input[type="date"],
+	.checkout-page .woocommerce-input-wrapper #shipping_delivery_date {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		margin: 0 !important;
+		display: block !important;
 	}
 
 	/* Placeholders Mobile */
