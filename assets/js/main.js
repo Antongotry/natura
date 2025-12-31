@@ -3877,10 +3877,10 @@ const initMiniCart = () => {
 
 	const getMiniCartScrollContainer = () => {
 		// Main scroll container for mini-cart items
-		// КРИТИЧНО: На мобильных скроллируется mini-cart-sidebar__body напрямую
+		// КРИТИЧНО: На мобильных скроллируется woocommerce-mini-cart (список товаров)
 		return (
-			miniCart.querySelector('.mini-cart-sidebar__body') ||
-			miniCart.querySelector('.woocommerce-mini-cart')
+			miniCart.querySelector('.woocommerce-mini-cart') ||
+			miniCart.querySelector('.mini-cart-sidebar__body')
 		);
 	};
 

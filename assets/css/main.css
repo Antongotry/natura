@@ -6799,50 +6799,38 @@ li.product .product-card,
 	}
 
 	/* Mobile: the items list must scroll, footer must stay pinned to the bottom */
-	/* КРИТИЧНО: footer находится внутри woocommerce-mini-cart, поэтому он будет скроллироваться вместе со списком */
+	/* КРИТИЧНО: footer находится внутри widget_shopping_cart_content, но ВНЕ woocommerce-mini-cart */
+	/* Поэтому footer зафиксирован внизу через flex, а скроллируется только woocommerce-mini-cart */
 	.mini-cart-sidebar .mini-cart-footer {
-		flex: 0 0 auto;
-		margin-top: auto;
+		flex: 0 0 auto !important; /* КРИТИЧНО: footer не растягивается, зафиксирован внизу */
+		margin-top: auto !important; /* КРИТИЧНО: прижимает footer к низу */
 		position: relative;
 		z-index: 2;
 		background-color: #F3F3F3;
 		width: 100%;
 	}
 
-	/* КРИТИЧНО: Делаем скроллируемым mini-cart-sidebar__body напрямую - как в shop-filter-drawer__body */
-	/* Это единственный способ заставить скролл работать на iOS */
+	/* КРИТИЧНО: Правильная структура - body НЕ скроллируется, скроллируется woocommerce-mini-cart */
 	.mini-cart-sidebar.is-open .mini-cart-sidebar__body,
 	.mini-cart-sidebar__body {
-		/* КРИТИЧНО: Делаем body скроллируемым напрямую - как в shop-filter-drawer */
+		/* КРИТИЧНО: body НЕ скроллируется - это flex контейнер */
 		flex: 1 !important;
-		overflow-y: scroll !important; /* КРИТИЧНО: scroll вместо auto для iOS */
-		overflow-x: hidden !important;
+		overflow: hidden !important; /* НЕ скроллируется */
 		padding: 0 !important;
 		display: flex !important;
 		flex-direction: column !important;
 		min-height: 0 !important;
-		/* КРИТИЧНО для iOS скролла - ВСЕ эти свойства обязательны */
-		-webkit-overflow-scrolling: touch !important;
-		touch-action: pan-y !important;
-		-webkit-transform: translateZ(0) !important;
-		transform: translateZ(0) !important;
-		will-change: scroll-position !important;
-		overscroll-behavior-y: contain !important;
 		pointer-events: auto !important;
-		/* КРИТИЧНО: Убираем все что может блокировать touch на iOS */
-		-webkit-user-select: none !important;
-		user-select: none !important;
-		-webkit-tap-highlight-color: transparent !important;
-		-webkit-touch-callout: none !important;
+		touch-action: pan-y !important;
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
+		/* КРИТИЧНО: widget_shopping_cart_content - flex контейнер для списка и footer */
 		display: flex !important;
 		flex-direction: column !important;
-		flex: 1 1 auto !important; /* КРИТИЧНО: auto вместо 0% чтобы контент мог растягиваться */
+		flex: 1 1 0% !important; /* КРИТИЧНО: 0% для правильной работы flex с overflow */
 		min-height: 0 !important;
-		/* КРИТИЧНО: Убираем overflow: hidden - теперь скроллируется body */
-		overflow: visible !important;
+		overflow: hidden !important; /* НЕ скроллируется - скроллируется дочерний элемент */
 		position: relative;
 		width: 100% !important;
 		pointer-events: auto !important;
@@ -6850,13 +6838,28 @@ li.product .product-card,
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart {
-		/* КРИТИЧНО: Убираем overflow-y: scroll - теперь скроллируется body */
-		overflow: visible !important;
-		flex: 1 1 auto !important;
+		/* КРИТИЧНО: woocommerce-mini-cart - скроллируемый список товаров */
+		flex: 1 1 0% !important; /* КРИТИЧНО: 0% для правильной работы flex с overflow */
 		min-height: 0 !important;
+		/* КРИТИЧНО: Ограничиваем высоту чтобы список не растягивался на всю высоту */
+		max-height: 100% !important;
+		/* КРИТИЧНО: Делаем список скроллируемым - КРИТИЧНО для iOS использовать scroll вместо auto */
+		overflow-y: scroll !important; /* scroll вместо auto для iOS */
+		overflow-x: hidden !important;
 		position: relative !important;
 		pointer-events: auto !important;
+		/* КРИТИЧНО для iOS скролла - ВСЕ эти свойства обязательны */
+		-webkit-overflow-scrolling: touch !important;
 		touch-action: pan-y !important;
+		-webkit-transform: translateZ(0) !important;
+		transform: translateZ(0) !important;
+		will-change: scroll-position !important;
+		overscroll-behavior-y: contain !important;
+		/* КРИТИЧНО: Убираем все что может блокировать touch на iOS */
+		-webkit-user-select: none !important;
+		user-select: none !important;
+		-webkit-tap-highlight-color: transparent !important;
+		-webkit-touch-callout: none !important;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
