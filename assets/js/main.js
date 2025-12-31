@@ -3929,31 +3929,119 @@ const initMiniCart = () => {
 		document.documentElement.classList.add('mini-cart-open');
 		requestAnimationFrame(() => {
 			// #region agent log
-			const scrollBody = miniCart.querySelector('.mini-cart-sidebar__body');
-			const widgetContent = miniCart.querySelector('.widget_shopping_cart_content');
-			const cartList = miniCart.querySelector('.woocommerce-mini-cart');
 			const isMobile = typeof window.matchMedia === 'function'
 				? window.matchMedia('(max-width: 1025px)').matches
 				: (window.innerWidth || 0) <= 1025;
 			
+			// Проверяем всю цепочку контейнеров
+			const sidebar = miniCart;
+			const content = miniCart.querySelector('.mini-cart-sidebar__content');
+			const header = miniCart.querySelector('.mini-cart-sidebar__header');
+			const scrollBody = miniCart.querySelector('.mini-cart-sidebar__body');
+			const widgetContent = miniCart.querySelector('.widget_shopping_cart_content');
+			const cartList = miniCart.querySelector('.woocommerce-mini-cart');
+			const footer = miniCart.querySelector('.mini-cart-footer');
+			
+			// Логируем всю цепочку высот
+			const logChain = {};
+			if (sidebar) {
+				const computed = window.getComputedStyle(sidebar);
+				logChain.sidebar = {
+					height: computed.height,
+					position: computed.position,
+					display: computed.display,
+					offsetHeight: sidebar.offsetHeight,
+					clientHeight: sidebar.clientHeight,
+					scrollHeight: sidebar.scrollHeight
+				};
+			}
+			if (content) {
+				const computed = window.getComputedStyle(content);
+				const rect = content.getBoundingClientRect();
+				logChain.content = {
+					height: computed.height,
+					maxHeight: computed.maxHeight,
+					position: computed.position,
+					top: computed.top,
+					bottom: computed.bottom,
+					display: computed.display,
+					flex: computed.flex,
+					overflow: computed.overflow,
+					offsetHeight: content.offsetHeight,
+					clientHeight: content.clientHeight,
+					scrollHeight: content.scrollHeight,
+					rectHeight: rect.height,
+					rectTop: rect.top,
+					rectBottom: rect.bottom
+				};
+			}
+			if (header) {
+				const computed = window.getComputedStyle(header);
+				logChain.header = {
+					height: computed.height,
+					offsetHeight: header.offsetHeight,
+					clientHeight: header.clientHeight
+				};
+			}
 			if (scrollBody) {
 				const computed = window.getComputedStyle(scrollBody);
-				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'A: Computed styles mini-cart-sidebar__body',data:{overflowY:computed.overflowY,overflowX:computed.overflowX,height:computed.height,maxHeight:computed.maxHeight,touchAction:computed.touchAction,pointerEvents:computed.pointerEvents,display:computed.display,flex:computed.flex,scrollHeight:scrollBody.scrollHeight,clientHeight:scrollBody.clientHeight,offsetHeight:scrollBody.offsetHeight,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				logChain.scrollBody = {
+					overflowY: computed.overflowY,
+					overflowX: computed.overflowX,
+					height: computed.height,
+					maxHeight: computed.maxHeight,
+					display: computed.display,
+					flex: computed.flex,
+					touchAction: computed.touchAction,
+					pointerEvents: computed.pointerEvents,
+					position: computed.position,
+					offsetHeight: scrollBody.offsetHeight,
+					clientHeight: scrollBody.clientHeight,
+					scrollHeight: scrollBody.scrollHeight,
+					scrollTop: scrollBody.scrollTop,
+					scrollTopMax: scrollBody.scrollHeight - scrollBody.clientHeight
+				};
 			}
 			if (widgetContent) {
 				const computed = window.getComputedStyle(widgetContent);
-				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'B: Computed styles widget_shopping_cart_content',data:{overflow:computed.overflow,height:computed.height,maxHeight:computed.maxHeight,touchAction:computed.touchAction,pointerEvents:computed.pointerEvents,flex:computed.flex,scrollHeight:widgetContent.scrollHeight,clientHeight:widgetContent.clientHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+				logChain.widgetContent = {
+					overflow: computed.overflow,
+					height: computed.height,
+					maxHeight: computed.maxHeight,
+					flex: computed.flex,
+					display: computed.display,
+					offsetHeight: widgetContent.offsetHeight,
+					clientHeight: widgetContent.clientHeight,
+					scrollHeight: widgetContent.scrollHeight
+				};
 			}
 			if (cartList) {
 				const computed = window.getComputedStyle(cartList);
-				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'C: Computed styles woocommerce-mini-cart',data:{overflow:computed.overflow,height:computed.height,flex:computed.flex,scrollHeight:cartList.scrollHeight,clientHeight:cartList.clientHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+				logChain.cartList = {
+					overflow: computed.overflow,
+					height: computed.height,
+					flex: computed.flex,
+					display: computed.display,
+					offsetHeight: cartList.offsetHeight,
+					clientHeight: cartList.clientHeight,
+					scrollHeight: cartList.scrollHeight
+				};
 			}
+			if (footer) {
+				const computed = window.getComputedStyle(footer);
+				logChain.footer = {
+					height: computed.height,
+					offsetHeight: footer.offsetHeight,
+					clientHeight: footer.clientHeight
+				};
+			}
+			
+			fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3930',message:'F: Full container chain heights',data:{...logChain,isMobile,windowHeight:window.innerHeight,viewportHeight:window.visualViewport?.height},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'F'})}).catch(()=>{});
+			
 			const lenis = window.lenisInstance;
 			if (lenis) {
 				const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : 'unknown';
-				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'D: Lenis state',data:{isStopped,hasLenis:true,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-			} else {
-				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'D: Lenis state',data:{hasLenis:false,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3930',message:'D: Lenis state',data:{isStopped,hasLenis:true,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'D'})}).catch(()=>{});
 			}
 			// #endregion
 			focusMiniCartScrollContainer();

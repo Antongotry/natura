@@ -6750,12 +6750,15 @@ li.product .product-card,
 	/* Mobile: keep mini-cart content above the bottom nav - no gap */
 	/* Корзина должна быть точно на всю высоту экрана минус высота нижней панели */
 	body:has(.site-header--alt) .mini-cart-sidebar__content {
+		position: fixed !important;
 		top: 0 !important;
+		right: 0 !important;
+		left: 0 !important;
 		bottom: 15.385vw !important; /* Sit directly above bottom nav (height of bottom nav) */
-		height: auto !important; /* Let top and bottom define the height */
-		max-height: none !important;
-		/* Alternative: explicit height calculation */
-		/* height: calc(100svh - 15.385vw) !important; */
+		/* КРИТИЧНО: Явная высота вместо auto для правильной работы flex дочерних элементов */
+		height: calc(100svh - 15.385vw) !important;
+		max-height: calc(100svh - 15.385vw) !important;
+		width: 100% !important;
 	}
 
 	/* Mobile: add bottom padding to checkout button so it doesn't stick to bottom nav */
