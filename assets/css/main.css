@@ -6746,15 +6746,26 @@ li.product .product-card,
 		right: 0;
 		bottom: 0;
 		z-index: 9999;
-		background: rgba(0, 0, 0, 0.5);
 		opacity: 0;
 		visibility: hidden;
 		transition: opacity 0.3s ease, visibility 0.3s ease;
+		pointer-events: none;
 	}
 	
 	.mini-cart-mobile.is-open {
 		opacity: 1;
 		visibility: visible;
+		pointer-events: auto;
+	}
+	
+	.mini-cart-mobile__overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		cursor: pointer;
 	}
 	
 	.mini-cart-mobile__content {
@@ -6769,6 +6780,7 @@ li.product .product-card,
 		transform: translateX(100%);
 		transition: transform 0.3s ease;
 		overflow: hidden;
+		z-index: 10000;
 	}
 	
 	body:has(.site-header--alt) .mini-cart-mobile__content {
