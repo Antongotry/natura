@@ -1031,7 +1031,7 @@
 	}
 
 	.account-orders__product-name {
-		font-size: 3.733vw;
+		font-size: 12px;
 		white-space: normal;
 		overflow: visible;
 		text-overflow: clip;
@@ -1040,7 +1040,7 @@
 	}
 
 	.account-orders__product-price {
-		font-size: 3.733vw;
+		font-size: 12px;
 		margin-top: 0;
 	}
 
@@ -1060,7 +1060,7 @@
 
 	.account-orders__order-link {
 		font-size: 4vw;
-		color: #4DBD56;
+		color: #303030;
 		text-decoration: none;
 		display: inline-block;
 		margin-top: 1.067vw;
@@ -1080,37 +1080,25 @@
 	}
 
 	.account-orders__status {
-		display: inline-block;
-		font-size: 3.733vw;
-		padding: 2.133vw 4.267vw;
-		border-radius: 1.6vw;
-		background: rgba(77, 189, 86, 0.1);
-		color: #4DBD56;
+		display: inline;
+		font-size: 4vw;
+		padding: 0;
+		border-radius: 0;
+		background: transparent;
+		color: #303030;
 		margin-top: 1.067vw;
-		font-weight: 600;
+		font-weight: 400;
 	}
 
-	/* Different status colors */
-	.account-orders__status--processing {
-		background: rgba(255, 193, 7, 0.1);
-		color: #F57C00;
-	}
-
-	.account-orders__status--on-hold {
-		background: rgba(255, 193, 7, 0.1);
-		color: #F57C00;
-	}
-
-	.account-orders__status--completed {
-		background: rgba(77, 189, 86, 0.1);
-		color: #4DBD56;
-	}
-
+	/* Remove status colors on mobile - use plain text */
+	.account-orders__status--processing,
+	.account-orders__status--on-hold,
+	.account-orders__status--completed,
 	.account-orders__status--cancelled,
 	.account-orders__status--refunded,
 	.account-orders__status--failed {
-		background: rgba(244, 67, 54, 0.1);
-		color: #D32F2F;
+		background: transparent;
+		color: #303030;
 	}
 
 	.account-orders__empty {
