@@ -6266,8 +6266,10 @@ li.product .product-card,
 
 .mini-cart-sidebar__body {
 	flex: 1;
-	/* КРИТИЧНО: На десктопе overflow: hidden, на мобильных будет переопределено */
-	overflow: hidden;
+	/* КРИТИЧНО: На десктопе overflow: hidden, на мобильных будет переопределено в media query */
+	/* overflow: hidden; - УБРАНО, чтобы не конфликтовало с media query */
+	overflow-y: auto; /* Для десктопа */
+	overflow-x: hidden;
 	padding: 0;
 	display: flex;
 	flex-direction: column;

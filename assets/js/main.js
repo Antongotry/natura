@@ -3988,6 +3988,7 @@ const initMiniCart = () => {
 				logChain.scrollBody = {
 					overflowY: computed.overflowY,
 					overflowX: computed.overflowX,
+					overflow: computed.overflow,
 					height: computed.height,
 					maxHeight: computed.maxHeight,
 					display: computed.display,
@@ -3999,7 +4000,8 @@ const initMiniCart = () => {
 					clientHeight: scrollBody.clientHeight,
 					scrollHeight: scrollBody.scrollHeight,
 					scrollTop: scrollBody.scrollTop,
-					scrollTopMax: scrollBody.scrollHeight - scrollBody.clientHeight
+					scrollTopMax: scrollBody.scrollHeight - scrollBody.clientHeight,
+					canScroll: scrollBody.scrollHeight > scrollBody.clientHeight
 				};
 			}
 			if (widgetContent) {
@@ -4036,11 +4038,24 @@ const initMiniCart = () => {
 				};
 			}
 			
+			// КРИТИЧНО: Логируем в console для просмотра в DevTools на продакшн
+			console.group('🔍 MINI-CART SCROLL DEBUG');
+			console.log('Is Mobile:', isMobile);
+			console.log('Window Height:', window.innerHeight);
+			console.log('Viewport Height:', window.visualViewport?.height);
+			console.log('Full Chain:', logChain);
+			console.log('ScrollBody can scroll:', logChain.scrollBody?.canScroll);
+			console.log('ScrollBody overflowY:', logChain.scrollBody?.overflowY);
+			console.log('ScrollBody scrollHeight vs clientHeight:', logChain.scrollBody?.scrollHeight, 'vs', logChain.scrollBody?.clientHeight);
+			console.groupEnd();
+			
+			// Также отправляем на сервер если доступен
 			fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3930',message:'F: Full container chain heights',data:{...logChain,isMobile,windowHeight:window.innerHeight,viewportHeight:window.visualViewport?.height},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'F'})}).catch(()=>{});
 			
 			const lenis = window.lenisInstance;
 			if (lenis) {
 				const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : 'unknown';
+				console.log('Lenis isStopped:', isStopped);
 				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3930',message:'D: Lenis state',data:{isStopped,hasLenis:true,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'D'})}).catch(()=>{});
 			}
 			// #endregion
