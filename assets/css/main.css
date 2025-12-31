@@ -6731,9 +6731,7 @@ li.product .product-card,
 	/* УДАЛЕНО: Все CSS правила которые блокировали скролл сайта при открытии корзины */
 	/* Теперь скролл сайта НЕ блокируется - пользователь может скроллить сайт даже когда корзина открыта */
 
-	/* Mobile: keep mini-cart content above the bottom nav - no gap */
-	/* Корзина должна быть точно на всю высоту экрана минус высота нижней панели */
-	/* КРИТИЧНО: Применяем для всех случаев на мобильных, не только когда есть .site-header--alt */
+	/* Mobile: корзина всегда 100svh - полная высота экрана */
 	.mini-cart-sidebar__content {
 		position: fixed !important;
 		top: 0 !important;
@@ -6743,24 +6741,10 @@ li.product .product-card,
 		/* КРИТИЧНО: display: flex для правильной работы flex дочерних элементов */
 		display: flex !important;
 		flex-direction: column !important;
-		/* КРИТИЧНО: Базовое значение высоты - будет переопределено ниже */
+		/* КРИТИЧНО: Всегда 100svh - полная высота экрана */
 		height: 100svh !important;
 		max-height: 100svh !important;
-	}
-	
-	/* Если есть нижняя панель, учитываем её высоту */
-	body:has(.site-header--alt) .mini-cart-sidebar__content {
-		bottom: 15.385vw !important; /* Sit directly above bottom nav (height of bottom nav) */
-		/* КРИТИЧНО: Явная высота вместо auto для правильной работы flex дочерних элементов */
-		height: calc(100svh - 15.385vw) !important;
-		max-height: calc(100svh - 15.385vw) !important;
-	}
-	
-	/* Если нет нижней панели, используем полную высоту */
-	body:not(:has(.site-header--alt)) .mini-cart-sidebar__content {
 		bottom: 0 !important;
-		height: 100svh !important;
-		max-height: 100svh !important;
 	}
 
 	/* Mobile: add bottom padding to checkout button so it doesn't stick to bottom nav */
