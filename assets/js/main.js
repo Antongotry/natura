@@ -4022,6 +4022,7 @@ const initMiniCart = () => {
 		
 		if (isMobile) {
 			// КРИТИЧНО: Добавляем обработчики на document с capture: true чтобы перехватить события ДО Lenis
+			// КРИТИЧНО: Сохраняем ссылку на обработчик для удаления при закрытии корзины
 			const allowTouchForCart = (e) => {
 				// Если событие происходит внутри корзины, НЕ блокируем его
 				if (miniCart && miniCart.contains(e.target)) {
@@ -4041,6 +4042,9 @@ const initMiniCart = () => {
 				}
 			};
 			
+			// КРИТИЧНО: Сохраняем обработчики для удаления при закрытии корзины
+			miniCart._allowTouchForCartHandler = allowTouchForCart;
+			
 			// КРИТИЧНО: Используем capture: true чтобы перехватить события ДО Lenis
 			// КРИТИЧНО: Используем passive: true чтобы НЕ блокировать нативный скролл
 			document.addEventListener('touchstart', allowTouchForCart, { passive: true, capture: true });
@@ -4056,6 +4060,8 @@ const initMiniCart = () => {
 					};
 					scrollEl.addEventListener('touchstart', directTouchHandler, { passive: true });
 					scrollEl.addEventListener('touchmove', directTouchHandler, { passive: true });
+					// Сохраняем для удаления
+					scrollEl._directTouchHandler = directTouchHandler;
 				}
 			});
 		}
@@ -4293,6 +4299,21 @@ const initMiniCart = () => {
 	const closeCart = () => {
 		console.log('[initMiniCart] Закрытие корзины');
 		miniCart.classList.remove('is-open');
+		
+		// КРИТИЧНО: Удаляем обработчики touch-событий которые были добавлены при открытии
+		if (miniCart._allowTouchForCartHandler) {
+			document.removeEventListener('touchstart', miniCart._allowTouchForCartHandler, { passive: true, capture: true });
+			document.removeEventListener('touchmove', miniCart._allowTouchForCartHandler, { passive: true, capture: true });
+			delete miniCart._allowTouchForCartHandler;
+		}
+		
+		// КРИТИЧНО: Удаляем прямые обработчики на скроллируемый элемент
+		const scrollEl = miniCart.querySelector('.woocommerce-mini-cart');
+		if (scrollEl && scrollEl._directTouchHandler) {
+			scrollEl.removeEventListener('touchstart', scrollEl._directTouchHandler, { passive: true });
+			scrollEl.removeEventListener('touchmove', scrollEl._directTouchHandler, { passive: true });
+			delete scrollEl._directTouchHandler;
+		}
 		
 		// КРИТИЧНО: Сначала разблокируем скролл, потом убираем классы
 		// Это нужно для правильного восстановления scroll позиции
