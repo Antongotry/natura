@@ -2585,13 +2585,21 @@ const updateCartCountGlobal = debounce(() => {
 												miniCart.querySelector('.woocommerce-mini-cart') ||
 												miniCart.querySelector('.mini-cart-sidebar__body');
 											if (scrollEl) {
-												if (!scrollEl.hasAttribute('tabindex')) {
-													scrollEl.setAttribute('tabindex', '-1');
-												}
-												try {
-													scrollEl.focus({ preventScroll: true });
-												} catch (e) {
-													// If preventScroll isn't supported, skip focusing to avoid page jump.
+												// КРИТИЧНО: НЕ делаем focus на мобильных - это блокирует touch-скролл!
+												const isMobileForFocus =
+													typeof window.matchMedia === 'function'
+														? window.matchMedia('(max-width: 1025px)').matches
+														: (window.innerWidth || 0) <= 1025;
+												
+												if (!isMobileForFocus) {
+													if (!scrollEl.hasAttribute('tabindex')) {
+														scrollEl.setAttribute('tabindex', '-1');
+													}
+													try {
+														scrollEl.focus({ preventScroll: true });
+													} catch (e) {
+														// If preventScroll isn't supported, skip focusing to avoid page jump.
+													}
 												}
 											}
 										});
@@ -3923,6 +3931,18 @@ const initMiniCart = () => {
 			return;
 		}
 
+		// КРИТИЧНО: НЕ добавляем tabindex и НЕ вызываем focus на мобильных - это блокирует touch-скролл!
+		// На мобильных focus может блокировать touch-события, поэтому полностью отключаем это
+		const isMobileForFocus =
+			typeof window.matchMedia === 'function'
+				? window.matchMedia('(max-width: 1025px)').matches
+				: (window.innerWidth || 0) <= 1025;
+		
+		if (isMobileForFocus) {
+			// На мобильных НЕ делаем focus - это может блокировать touch-скролл
+			return;
+		}
+
 		// Make focusable for keyboard users (wheel uses pointer, but this still improves UX)
 		if (!scrollEl.hasAttribute('tabindex')) {
 			scrollEl.setAttribute('tabindex', '-1');
@@ -3939,86 +3959,6 @@ const initMiniCart = () => {
 
 	const openCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
-		
-		// Проверяем мобильное устройство
-		const isMobile = typeof window.matchMedia === 'function'
-			? window.matchMedia('(max-width: 1025px)').matches
-			: (window.innerWidth || 0) <= 1025;
-		
-		// На мобильных используем новую корзину
-		if (isMobile) {
-			const mobileCart = document.getElementById('mini-cart-mobile');
-			if (mobileCart) {
-				mobileCart.classList.add('is-open');
-				document.body.classList.add('mini-cart-mobile-open');
-				document.documentElement.classList.add('mini-cart-mobile-open');
-				
-				// КРИТИЧНО: ПОЛНОСТЬЮ отключаем Lenis на мобильных - он блокирует touch-события!
-				const lenis = window.lenisInstance;
-				if (lenis) {
-					try {
-						// Останавливаем Lenis
-						if (typeof lenis.stop === 'function') {
-							lenis.stop();
-						}
-						// КРИТИЧНО: Также отключаем RAF если он активен
-						if (typeof lenis.raf === 'function') {
-							lenis.raf = () => {}; // Заменяем на пустую функцию
-						}
-						// КРИТИЧНО: Отключаем все обработчики событий Lenis
-						// Lenis может добавлять обработчики на document/body - нужно их отключить
-						if (lenis.options && lenis.options.wrapper) {
-							const wrapper = lenis.options.wrapper;
-							// Lenis может добавить обработчики на wrapper - stop() должен их отключить
-							console.log('[initMiniCart] Lenis wrapper:', wrapper);
-						}
-						// КРИТИЧНО: Проверяем, не блокирует ли Lenis события на document
-						// Если Lenis имеет обработчики на document, они могут блокировать touch-события
-						console.log('[initMiniCart] Lenis stopped and disabled for mobile cart');
-					} catch (e) {
-						console.error('[initMiniCart] Error stopping Lenis:', e);
-					}
-				}
-				
-				// КРИТИЧНО: Явно разрешаем touch-события на document для новой корзины
-				// Это гарантирует, что touch-события не будут заблокированы глобальными обработчиками
-				const allowTouchOnDocument = (e) => {
-					// Если событие происходит внутри новой корзины, НЕ блокируем его
-					const mobileCart = document.getElementById('mini-cart-mobile');
-					if (mobileCart && mobileCart.contains(e.target)) {
-						// НЕ вызываем preventDefault - позволяем нативному скроллу работать
-						console.log('[initMiniCart] Touch event on mobile cart - allowing', e.type);
-					}
-				};
-				
-				// КРИТИЧНО: Добавляем обработчики на document с capture: true чтобы перехватить события ДО Lenis
-				document.addEventListener('touchstart', allowTouchOnDocument, { passive: true, capture: true });
-				document.addEventListener('touchmove', allowTouchOnDocument, { passive: true, capture: true });
-				
-				// КРИТИЧНО: Добавляем обработчики touch для гарантии работы скролла
-				requestAnimationFrame(() => {
-					const mobileBody = mobileCart.querySelector('.mini-cart-mobile__body');
-					const cartList = mobileCart.querySelector('.woocommerce-mini-cart');
-					
-					if (mobileBody && cartList) {
-						console.log('[initMiniCart] Mobile cart opened, scrollHeight:', cartList.scrollHeight, 'clientHeight:', cartList.clientHeight);
-						
-						// КРИТИЧНО: Явно разрешаем touch-события
-						const allowTouch = (e) => {
-							// НЕ блокируем события - позволяем нативному скроллу работать
-							console.log('[initMiniCart] Touch event on mobile cart:', e.type);
-						};
-						
-						cartList.addEventListener('touchstart', allowTouch, { passive: true });
-						cartList.addEventListener('touchmove', allowTouch, { passive: true });
-					}
-				});
-				
-				return;
-			}
-		}
-		
-		// На десктопе используем старую корзину
 		naturaLockPageScrollForMiniCart();
 		miniCart.classList.add('is-open');
 		document.body.classList.add('mini-cart-open');
