@@ -730,8 +730,11 @@
 
 	.account-page__content {
 		width: 100%;
-		border-radius: 2.667vw;
-		padding: 5.333vw;
+		border-radius: 0;
+		padding: 0;
+		border: none;
+		background: transparent;
+		box-shadow: none;
 		box-sizing: border-box;
 	}
 
