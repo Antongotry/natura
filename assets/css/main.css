@@ -241,9 +241,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 @media (max-width: 1025px) {
-	/* Добавляем отступ снизу для body когда есть нижний навбар */
-	body {
+	/* Добавляем отступ снизу для body только когда есть нижний навбар */
+	/* На главной странице и /sales нет нижней панели, поэтому padding-bottom не нужен */
+	body:has(.site-header--alt) {
 		padding-bottom: 15.385vw;
+	}
+	
+	/* На страницах без нижней панели убираем padding-bottom */
+	body:not(:has(.site-header--alt)) {
+		padding-bottom: 0;
 	}
 
 	/* На главной странице и sales используем нормальный z-index, как на десктопе */
