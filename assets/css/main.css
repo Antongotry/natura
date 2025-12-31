@@ -6812,8 +6812,8 @@ li.product .product-card,
 	.mini-cart-sidebar__body {
 		/* КРИТИЧНО: ТОЧНО КАК В shop-filter-drawer__body - просто и работает */
 		flex: 1 !important; /* КАК В ФИЛЬТРАХ - просто flex: 1 */
-		overflow-y: auto !important; /* КАК В ФИЛЬТРАХ */
-		overflow-x: hidden !important; /* КАК В ФИЛЬТРАХ */
+		overflow-y: scroll !important; /* КРИТИЧНО: scroll вместо auto для iOS */
+		overflow-x: hidden !important;
 		padding: 0 !important; /* КАК В ФИЛЬТРАХ (там padding: 20px, но у нас 0) */
 		display: flex !important; /* КАК В ФИЛЬТРАХ */
 		flex-direction: column !important; /* КАК В ФИЛЬТРАХ */
