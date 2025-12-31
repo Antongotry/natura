@@ -165,7 +165,7 @@
 		?>
 
 		<?php if ( class_exists( 'WooCommerce' ) ) : ?>
-		<!-- Mini Cart Sidebar -->
+		<!-- Старая Mini Cart Sidebar (отключена на мобильных) -->
 		<div class="mini-cart-sidebar" id="mini-cart-sidebar" data-mini-cart>
 			<div class="mini-cart-sidebar__overlay" data-mini-cart-close></div>
 			<div class="mini-cart-sidebar__content">
@@ -178,6 +178,26 @@
 					</button>
 				</div>
 				<div class="mini-cart-sidebar__body">
+					<div class="widget_shopping_cart_content">
+						<?php woocommerce_mini_cart(); ?>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Новая мобильная корзина -->
+		<div class="mini-cart-mobile" id="mini-cart-mobile" data-mini-cart-mobile>
+			<div class="mini-cart-mobile__overlay" data-mini-cart-mobile-close></div>
+			<div class="mini-cart-mobile__content">
+				<div class="mini-cart-mobile__header">
+					<h2 class="mini-cart-mobile__title"><?php esc_html_e( 'Кошик', 'natura' ); ?></h2>
+					<button class="mini-cart-mobile__close" type="button" data-mini-cart-mobile-close aria-label="<?php esc_attr_e( 'Закрити', 'natura' ); ?>">
+						<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M1 1L14 14M14 1L1 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+						</svg>
+					</button>
+				</div>
+				<div class="mini-cart-mobile__body">
 					<div class="widget_shopping_cart_content">
 						<?php woocommerce_mini_cart(); ?>
 					</div>
