@@ -6821,7 +6821,9 @@ li.product .product-card,
 		display: flex !important;
 		flex-direction: column !important;
 		min-height: 0 !important;
+		/* КРИТИЧНО: pointer-events и touch-action для гарантии работы touch-событий */
 		pointer-events: auto !important;
+		touch-action: pan-y !important; /* Разрешаем вертикальный скролл */
 	}
 
 	.mini-cart-sidebar__body .widget_shopping_cart_content {
