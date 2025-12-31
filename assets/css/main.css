@@ -6778,9 +6778,12 @@ li.product .product-card,
 
 	/* ФИНАЛЬНОЕ РЕШЕНИЕ: Делаем скроллируемым mini-cart-sidebar__body напрямую */
 	
+	/* КРИТИЧНО: Переопределяем базовые стили с максимальной специфичностью */
+	.mini-cart-sidebar.is-open .mini-cart-sidebar__body,
 	.mini-cart-sidebar__body {
-		/* КРИТИЧНО: Делаем body скроллируемым напрямую */
-		overflow-y: scroll !important;
+		/* КРИТИЧНО: Делаем body скроллируемым напрямую - ПЕРЕОПРЕДЕЛЯЕМ overflow: hidden из базовых стилей */
+		overflow: hidden !important; /* Сначала скрываем все */
+		overflow-y: scroll !important; /* Затем показываем вертикальный скролл */
 		overflow-x: hidden !important;
 		flex: 1 1 0% !important;
 		min-height: 0 !important;
