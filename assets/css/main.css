@@ -3804,7 +3804,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	position: sticky;
 	top: 6.533vw;
 	max-height: calc(100vh - 6.533vw - 2.083vw);
-	overflow-y: auto;
+	/* КРИТИЧНО: Убираем overflow-y: auto с самого блока - скроллиться будет только список товаров */
+	overflow: hidden;
+	/* КРИТИЧНО: Делаем flex контейнером для правильной работы скролла */
+	display: flex;
+	flex-direction: column;
 }
 
 .checkout-section {
@@ -4121,12 +4125,23 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-order-review {
 	margin: 0;
 	padding: 0;
+	/* КРИТИЧНО: Делаем flex контейнером для правильной работы скролла */
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
 }
 
 .checkout-order-review__items {
 	margin: 0;
 	padding: 0;
 	list-style: none;
+	/* КРИТИЧНО: Список товаров скроллируется */
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .checkout-order-review__item {
@@ -4227,6 +4242,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin-top: 1.25vw;
 	padding-top: 1.25vw;
 	border-top: 1px solid rgba(48, 48, 48, 0.1);
+	/* КРИТИЧНО: Итоги зафиксированы внизу, не скроллятся */
+	flex: 0 0 auto;
 }
 
 .checkout-order-review__subtotal,
@@ -4287,6 +4304,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Скрыть мобильную кнопку на десктопе */
 .checkout-order-review__mobile-submit {
 	display: none;
+	/* КРИТИЧНО: На мобильных кнопка тоже зафиксирована внизу */
+	flex: 0 0 auto;
 }
 
 .checkout-order-review__discount {
@@ -4309,6 +4328,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin-top: 3.125vw;
 	padding-top: 0;
 	border-top: none;
+	/* КРИТИЧНО: Купон зафиксирован внизу, не скроллится */
+	flex: 0 0 auto;
 }
 
 .checkout-order-review__coupon-label {
@@ -4638,9 +4659,29 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		font-size: 4vw;
 	}
 
+	.checkout-order-review {
+		/* КРИТИЧНО: На мобильных тоже flex контейнер */
+		display: flex !important;
+		flex-direction: column !important;
+		flex: 1 !important;
+		min-height: 0 !important;
+		overflow: hidden !important;
+	}
+
+	.checkout-order-review__items {
+		/* КРИТИЧНО: Список товаров скроллируется на мобильных */
+		flex: 1 1 auto !important;
+		min-height: 0 !important;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
 	.checkout-order-review__totals {
 		margin-top: 5.333vw;
 		padding-top: 5.333vw;
+		/* КРИТИЧНО: Итоги зафиксированы внизу на мобильных */
+		flex: 0 0 auto !important;
 	}
 
 	/* КРИТИЧНО: Скрываем промежуточный итог (subtotal) на мобильных */
@@ -4678,6 +4719,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-order-review__coupon {
 		margin-top: 5.333vw;
 		padding-top: 0;
+		/* КРИТИЧНО: Купон зафиксирован внизу на мобильных */
+		flex: 0 0 auto !important;
 	}
 
 	.checkout-order-review__coupon-label {
@@ -4711,6 +4754,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-order-review__mobile-submit {
 		display: block;
 		margin-top: 5.333vw;
+		/* КРИТИЧНО: Кнопка зафиксирована внизу на мобильных */
+		flex: 0 0 auto !important;
 	}
 
 	.checkout-order-review__mobile-submit .checkout-submit-button {
