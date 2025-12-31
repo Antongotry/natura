@@ -6741,11 +6741,18 @@ li.product .product-card,
 		width: 100% !important;
 		height: 100% !important;
 		overflow: hidden !important;
-		/* Убираем все что может блокировать touch события на body */
-		touch-action: none !important;
+		/* КРИТИЧНО: НЕ блокируем touch-action на body - это блокирует скролл внутри корзины! */
+		/* touch-action: none !important; - УБРАНО, блокировало скролл */
 	}
 	/* КРИТИЧНО: Разрешаем touch-action только внутри корзины */
 	body.mini-cart-open .mini-cart-sidebar__body {
+		touch-action: pan-y !important;
+	}
+	/* КРИТИЧНО: Также разрешаем touch-action на всех дочерних элементах корзины */
+	body.mini-cart-open .mini-cart-sidebar__content,
+	body.mini-cart-open .mini-cart-sidebar__body,
+	body.mini-cart-open .widget_shopping_cart_content,
+	body.mini-cart-open .woocommerce-mini-cart {
 		touch-action: pan-y !important;
 	}
 
