@@ -715,6 +715,12 @@
 
 /* Mobile */
 @media (max-width: 1025px) {
+	/* Hero block spacing on mobile */
+	.account-page .shop-archive-hero {
+		margin-top: calc(23.077vw + 24px);
+		margin-bottom: 2.083vw;
+	}
+
 	/* Layout */
 	.account-page__layout {
 		flex-direction: column;
