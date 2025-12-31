@@ -6761,6 +6761,11 @@ li.product .product-card,
 	body.mini-cart-open .widget_shopping_cart_content,
 	body.mini-cart-open .woocommerce-mini-cart {
 		touch-action: pan-y !important;
+		/* КРИТИЧНО для iOS: убираем все что может блокировать touch */
+		-webkit-user-select: none !important;
+		user-select: none !important;
+		-webkit-tap-highlight-color: transparent !important;
+		-webkit-touch-callout: none !important;
 	}
 
 	/* Mobile: keep mini-cart content above the bottom nav - no gap */
