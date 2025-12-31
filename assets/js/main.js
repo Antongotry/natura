@@ -105,51 +105,30 @@ const naturaLockPageScrollForMiniCart = () => {
 			? window.matchMedia('(max-width: 1025px)').matches
 			: (window.innerWidth || 0) <= 1025;
 
-	// Only stop Lenis on mobile - on desktop allow normal scrolling
+	// КРИТИЧНО: На мобильных ПОЛНОСТЬЮ отключаем Lenis - он блокирует touch-скролл!
 	if (isMobileViewport) {
-		// Stop Lenis smooth scrolling to prevent background scrolling (Lenis can ignore overflow:hidden)
 		const lenis = window.lenisInstance;
-		if (lenis && typeof lenis.stop === 'function') {
-			const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : false;
-			naturaMiniCartLenisWasRunning = !isStopped;
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Stopping Lenis',data:{isStoppedBefore:isStopped,willStop:true,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-			// #endregion
+		if (lenis) {
 			try {
-				// КРИТИЧНО: Полностью останавливаем Lenis
-				lenis.stop();
-				// #region agent log
-				const isStoppedAfter = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : 'unknown';
-				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Lenis stopped',data:{isStoppedAfter,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-				// #endregion
-				// КРИТИЧНО: Отключаем все обработчики Lenis которые могут блокировать touch
-				// Lenis может иметь обработчики wheel/touch которые блокируют скролл
-				// КРИТИЧНО: Если Lenis имеет wrapper, нужно убедиться что он не блокирует события
+				// Останавливаем Lenis
+				if (typeof lenis.stop === 'function') {
+					lenis.stop();
+					console.log('[naturaLockPageScrollForMiniCart] Lenis stopped');
+				}
+				// КРИТИЧНО: Отключаем RAF если он активен
+				if (typeof lenis.raf === 'function') {
+					lenis.raf = () => {}; // Заменяем на пустую функцию
+				}
+				// КРИТИЧНО: Отключаем все обработчики событий Lenis
+				// Lenis может добавлять обработчики на document/body которые блокируют touch-события
 				if (lenis.options && lenis.options.wrapper) {
 					const wrapper = lenis.options.wrapper;
-					// Убираем все обработчики touch с wrapper если они есть
-					if (wrapper && typeof wrapper.removeEventListener === 'function') {
-						// Lenis может добавить обработчики на wrapper - мы не можем их удалить напрямую,
-						// но stop() должен их отключить
-					}
+					console.log('[naturaLockPageScrollForMiniCart] Lenis wrapper:', wrapper);
 				}
-				// КРИТИЧНО: Убеждаемся что Lenis не блокирует touch события на document/body
-				// Lenis может добавить глобальные обработчики - stop() должен их отключить
-				// КРИТИЧНО: Также отключаем обработчики на самом Lenis объекте если они есть
-				if (lenis.destroy) {
-					// Lenis может иметь метод destroy, но мы не вызываем его, только stop()
-					// stop() должен отключить все обработчики
-				}
-				// КРИТИЧНО: Дополнительно проверяем что Lenis не имеет активных обработчиков
-				// Если Lenis имеет свойство _events или подобное, проверяем его
-				if (lenis._events) {
-					console.log('[naturaLockPageScrollForMiniCart] Lenis has _events:', Object.keys(lenis._events));
-				}
+				naturaMiniCartLenisWasRunning = typeof lenis.isStopped === 'boolean' ? !lenis.isStopped : false;
 			} catch (e) {
-				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Error stopping Lenis',data:{error:e.message,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-				// #endregion
 				console.error('[naturaLockPageScrollForMiniCart] Error stopping Lenis:', e);
+				naturaMiniCartLenisWasRunning = false;
 			}
 		} else {
 			naturaMiniCartLenisWasRunning = false;
