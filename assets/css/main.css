@@ -6772,6 +6772,9 @@ li.product .product-card,
 		right: 0 !important;
 		left: 0 !important;
 		width: 100% !important;
+		/* КРИТИЧНО: display: flex для правильной работы flex дочерних элементов */
+		display: flex !important;
+		flex-direction: column !important;
 	}
 	
 	/* Если есть нижняя панель, учитываем её высоту */
