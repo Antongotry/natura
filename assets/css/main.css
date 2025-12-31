@@ -712,11 +712,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		background-color: #ffffff;
 		padding: 0 4vw;
 		box-sizing: border-box;
-		/* КРИТИЧНО: Цвет линии как у футера - #F3F3F34D (полупрозрачный серый) */
-		/* Увеличена толщина и контраст для лучшей видимости на Android */
-		border-top: 2px solid rgba(243, 243, 243, 0.5);
+		/* КРИТИЧНО: Системная линия как в iOS - темная линия сверху */
+		border-top: 1px solid rgba(0, 0, 0, 0.1);
+		/* КРИТИЧНО: Добавляем box-shadow для более заметной линии на Android */
+		box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.1);
 		z-index: 10000003 !important;
-		box-shadow: none;
 		transform: none;
 		margin: 0;
 	}
