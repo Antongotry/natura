@@ -6266,14 +6266,20 @@ li.product .product-card,
 
 .mini-cart-sidebar__body {
 	flex: 1;
-	/* КРИТИЧНО: На десктопе overflow: hidden, на мобильных будет переопределено в media query */
-	/* overflow: hidden; - УБРАНО, чтобы не конфликтовало с media query */
+	/* КРИТИЧНО: На десктопе overflow-y: auto, на мобильных будет переопределено в media query */
 	overflow-y: auto; /* Для десктопа */
 	overflow-x: hidden;
 	padding: 0;
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
+}
+
+/* КРИТИЧНО: На мобильных переопределяем overflow-y: auto на scroll для лучшей работы */
+@media (max-width: 1025px) {
+	.mini-cart-sidebar__body {
+		overflow-y: scroll !important; /* На мобильных используем scroll вместо auto */
+	}
 }
 
 .mini-cart-sidebar__body .widget_shopping_cart_content {
