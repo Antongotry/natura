@@ -7328,6 +7328,7 @@ li.product .product-card,
 		right: 0;
 		width: 100%;
 		padding: 4vw 5.333vw;
+		padding-bottom: calc(4vw + 24px);
 		box-sizing: border-box;
 	}
 
