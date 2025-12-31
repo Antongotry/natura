@@ -6784,11 +6784,13 @@ li.product .product-card,
 		overflow-x: hidden !important;
 		flex: 1 1 0% !important;
 		min-height: 0 !important;
-		max-height: 100% !important;
+		/* КРИТИЧНО: Убираем max-height: 100% - он может блокировать скролл если контент больше */
+		/* max-height: 100% !important; */
 		display: flex !important;
 		flex-direction: column !important;
 		position: relative;
-		height: 100% !important;
+		/* КРИТИЧНО: Убираем height: 100% - используем только flex: 1 для правильной работы */
+		/* height: 100% !important; */
 		width: 100% !important;
 		/* КРИТИЧНО для iOS скролла */
 		-webkit-overflow-scrolling: touch !important;
