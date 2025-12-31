@@ -4493,6 +4493,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		max-width: var(--container-width-mobile);
 		padding-left: 0;
 		padding-right: 0;
+		/* КРИТИЧНО: Убираем большой отступ сверху */
+		margin-top: 0 !important;
+		padding-top: 0 !important;
 	}
 
 	.checkout-page__layout {
