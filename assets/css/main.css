@@ -4376,8 +4376,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 @media (max-width: 768px) {
+	/* КРИТИЧНО: Отступ сверху 40px на мобильных */
 	.checkout-page {
-		padding-top: 0;
+		padding-top: 40px !important;
 		padding-bottom: 10.667vw;
 	}
 
