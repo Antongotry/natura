@@ -4490,9 +4490,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		border-radius: 999999px;
 	}
 
-	/* КРИТИЧНО: Уменьшаем отступ сверху - убираем большой отступ */
+	/* КРИТИЧНО: Уменьшаем отступ сверху еще на 15%: 34px - 15% = 28.9px ≈ 29px */
 	.checkout-page {
-		padding-top: 0 !important;
+		padding-top: 29px !important;
 	}
 
 	.checkout-page__container {
