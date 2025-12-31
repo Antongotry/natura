@@ -160,23 +160,58 @@ const naturaUnlockPageScrollForMiniCart = () => {
 	if (!naturaMiniCartScrollLocked) return;
 	naturaMiniCartScrollLocked = false;
 
-	// No handlers to remove - we don't block scrolling on desktop anymore
-
-	// Resume Lenis only if it was running before we opened mini-cart (and only on mobile)
+	// КРИТИЧНО: Восстанавливаем scroll позицию ПЕРЕД разблокировкой
+	// Это нужно сделать до того как мы уберем position: fixed
 	const isMobileViewport =
 		typeof window.matchMedia === 'function'
 			? window.matchMedia('(max-width: 1025px)').matches
 			: (window.innerWidth || 0) <= 1025;
 
+	// КРИТИЧНО: На мобильных нужно восстановить scroll позицию
+	if (isMobileViewport) {
+		// Восстанавливаем scroll позицию
+		// Но сначала нужно убрать position: fixed с body/html
+		// Это делается через удаление классов, но мы должны сделать это синхронно
+		requestAnimationFrame(() => {
+			// КРИТИЧНО: Восстанавливаем scroll позицию после того как position: fixed убран
+			if (naturaMiniCartLockedScrollY !== undefined && naturaMiniCartLockedScrollY !== null) {
+				window.scrollTo(0, naturaMiniCartLockedScrollY);
+				// Также для Lenis если он используется
+				const lenis = window.lenisInstance;
+				if (lenis && typeof lenis.scrollTo === 'function') {
+					try {
+						lenis.scrollTo(naturaMiniCartLockedScrollY, { immediate: true });
+					} catch (e) {
+						console.error('[naturaUnlockPageScrollForMiniCart] Error scrolling with Lenis:', e);
+					}
+				}
+			}
+		});
+	}
+
+	// КРИТИЧНО: Перезапускаем Lenis только если он был запущен до открытия корзины
 	if (isMobileViewport && naturaMiniCartLenisWasRunning) {
 		const lenis = window.lenisInstance;
-		if (lenis && typeof lenis.start === 'function') {
+		if (lenis) {
 			try {
-				lenis.start();
-			} catch (e) {}
+				// КРИТИЧНО: Восстанавливаем оригинальный RAF если он был переопределен
+				if (lenis._originalRaf && typeof lenis._originalRaf === 'function') {
+					lenis.raf = lenis._originalRaf;
+				}
+				// Перезапускаем Lenis
+				if (typeof lenis.start === 'function') {
+					lenis.start();
+					console.log('[naturaUnlockPageScrollForMiniCart] Lenis restarted');
+				}
+			} catch (e) {
+				console.error('[naturaUnlockPageScrollForMiniCart] Error restarting Lenis:', e);
+			}
 		}
 	}
+	
+	// Сбрасываем флаг
 	naturaMiniCartLenisWasRunning = false;
+	naturaMiniCartLockedScrollY = 0;
 };
 
 /**
