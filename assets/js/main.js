@@ -117,6 +117,10 @@ const naturaLockPageScrollForMiniCart = () => {
 				}
 				// КРИТИЧНО: Отключаем RAF если он активен
 				if (typeof lenis.raf === 'function') {
+					// Сохраняем оригинальный RAF для восстановления
+					if (!lenis._originalRaf) {
+						lenis._originalRaf = lenis.raf;
+					}
 					lenis.raf = () => {}; // Заменяем на пустую функцию
 				}
 				// КРИТИЧНО: Удаляем обработчики событий Lenis с document/body
