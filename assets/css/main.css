@@ -6813,17 +6813,13 @@ li.product .product-card,
 	/* КРИТИЧНО: Используем ТОЧНО такую же структуру как в shop-filter-drawer__body - там работает! */
 	.mini-cart-sidebar.is-open .mini-cart-sidebar__body,
 	.mini-cart-sidebar__body {
-		/* КРИТИЧНО: ТОЧНО КАК В shop-filter-drawer__body - просто и работает */
-		flex: 1 !important; /* КАК В ФИЛЬТРАХ - просто flex: 1 */
-		overflow-y: scroll !important; /* КРИТИЧНО: scroll вместо auto для iOS */
-		overflow-x: hidden !important;
-		padding: 0 !important; /* КАК В ФИЛЬТРАХ (там padding: 20px, но у нас 0) */
-		display: flex !important; /* КАК В ФИЛЬТРАХ */
-		flex-direction: column !important; /* КАК В ФИЛЬТРАХ */
-		min-height: 0 !important; /* КАК В ФИЛЬТРАХ - важно для flex */
-		/* КРИТИЧНО для iOS скролла - оставляем только необходимое */
-		-webkit-overflow-scrolling: touch !important;
-		touch-action: pan-y !important;
+		/* КРИТИЧНО: body НЕ скроллируется - overflow: hidden, скроллируется woocommerce-mini-cart */
+		flex: 1 !important;
+		overflow: hidden !important; /* НЕ скроллируется - скроллируется дочерний элемент */
+		padding: 0 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		min-height: 0 !important;
 		pointer-events: auto !important;
 	}
 
