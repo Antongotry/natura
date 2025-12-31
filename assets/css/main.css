@@ -6282,7 +6282,8 @@ li.product .product-card,
 	flex: 1;
 	min-height: 0;
 	/* КРИТИЧНО: На десктопе overflow: hidden, на мобильных будет переопределено */
-	overflow: hidden;
+	/* КРИТИЧНО: Убрано overflow: hidden - может конфликтовать с media query */
+	overflow: visible; /* Позволяем контенту растягивать родителя */
 }
 
 /* WooCommerce Mini Cart Styles */
