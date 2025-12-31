@@ -3776,9 +3776,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 @media (max-width: 1025px) {
-	/* КРИТИЧНО: Увеличиваем отступ между хлебными крошками и плашкой с инпутами до 30px */
+	/* КРИТИЧНО: Увеличиваем отступ между хлебными крошками и плашкой с инпутами на 5% */
 	.checkout-page .woocommerce-breadcrumb {
-		margin-bottom: 30px !important;
+		margin-bottom: calc(30px * 1.05) !important; /* 30px + 5% = 31.5px */
 	}
 }
 
