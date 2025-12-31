@@ -4255,82 +4255,28 @@ const initMiniCart = () => {
 
 	const closeCart = () => {
 		console.log('[initMiniCart] Закрытие корзины');
-		
-		// Проверяем мобильное устройство
-		const isMobile = typeof window.matchMedia === 'function'
-			? window.matchMedia('(max-width: 1025px)').matches
-			: (window.innerWidth || 0) <= 1025;
-		
-		// На мобильных закрываем новую корзину
-		if (isMobile) {
-			const mobileCart = document.getElementById('mini-cart-mobile');
-			if (mobileCart) {
-				mobileCart.classList.remove('is-open');
-				document.body.classList.remove('mini-cart-mobile-open');
-				document.documentElement.classList.remove('mini-cart-mobile-open');
-				// Возобновляем Lenis на мобильных
-				const lenis = window.lenisInstance;
-				if (lenis && typeof lenis.start === 'function') {
-					try {
-						lenis.start();
-					} catch (e) {
-						console.error('[initMiniCart] Error starting Lenis:', e);
-					}
-				}
-				return;
-			}
-		}
-		
-		// На десктопе закрываем старую корзину
 		miniCart.classList.remove('is-open');
 		document.body.classList.remove('mini-cart-open');
 		document.documentElement.classList.remove('mini-cart-open');
 		naturaUnlockPageScrollForMiniCart();
 	};
 
-	// Обработчики закрытия для старой корзины
+	// Обработчики закрытия
 	const closeButtons = miniCart.querySelectorAll('[data-mini-cart-close]');
 	closeButtons.forEach(button => {
 		button.addEventListener('click', closeCart);
 	});
 
-	// Закрытие по клику на overlay старой корзины
+	// Закрытие по клику на overlay
 	const overlay = miniCart.querySelector('.mini-cart-sidebar__overlay');
 	if (overlay) {
 		overlay.addEventListener('click', closeCart);
 	}
-	
-	// Обработчики для новой мобильной корзины
-	const mobileCart = document.getElementById('mini-cart-mobile');
-	if (mobileCart) {
-		const mobileCloseButtons = mobileCart.querySelectorAll('[data-mini-cart-mobile-close]');
-		mobileCloseButtons.forEach(button => {
-			button.addEventListener('click', closeCart);
-		});
-		
-		const mobileOverlay = mobileCart.querySelector('.mini-cart-mobile__overlay');
-		if (mobileOverlay) {
-			mobileOverlay.addEventListener('click', closeCart);
-		}
-	}
 
 	// Закрытие по Escape
 	document.addEventListener('keydown', (e) => {
-		if (e.key === 'Escape') {
-			const isMobile = typeof window.matchMedia === 'function'
-				? window.matchMedia('(max-width: 1025px)').matches
-				: (window.innerWidth || 0) <= 1025;
-			
-			if (isMobile) {
-				const mobileCart = document.getElementById('mini-cart-mobile');
-				if (mobileCart && mobileCart.classList.contains('is-open')) {
-					closeCart();
-				}
-			} else {
-				if (miniCart.classList.contains('is-open')) {
-					closeCart();
-				}
-			}
+		if (e.key === 'Escape' && miniCart.classList.contains('is-open')) {
+			closeCart();
 		}
 	});
 
