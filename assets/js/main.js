@@ -4302,6 +4302,12 @@ const initMiniCart = () => {
 		console.log('[initMiniCart] Закрытие корзины');
 		miniCart.classList.remove('is-open');
 		// УДАЛЕНО: Все что связано с разблокировкой скролла - больше не блокируем скролл
+		
+		// КРИТИЧНО: Удаляем обработчик wheel событий на десктопе
+		if (miniCart._wheelHandler) {
+			window.removeEventListener('wheel', miniCart._wheelHandler, { passive: false, capture: true });
+			delete miniCart._wheelHandler;
+		}
 	};
 
 	// Обработчики закрытия
