@@ -3769,6 +3769,13 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 @media (max-width: 1025px) {
+	/* КРИТИЧНО: Увеличиваем отступ между хлебными крошками и блоком ниже на 5% */
+	.checkout-page .woocommerce-breadcrumb {
+		margin-bottom: calc(30px * 1.05) !important; /* 30px + 5% = 31.5px */
+	}
+}
+
+@media (max-width: 1025px) {
 	/* КРИТИЧНО: Увеличиваем отступ между хлебными крошками и плашкой с инпутами до 30px */
 	.checkout-page .woocommerce-breadcrumb {
 		margin-bottom: 30px !important;
@@ -4414,9 +4421,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 @media (max-width: 768px) {
-	/* КРИТИЧНО: Убираем большой отступ сверху */
+	/* КРИТИЧНО: Уменьшаем отступ сверху - был 40px, уменьшаем на 15% = 34px */
 	.checkout-page {
-		padding-top: 0 !important;
+		padding-top: 34px !important;
 		padding-bottom: 10.667vw;
 	}
 
