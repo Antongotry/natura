@@ -6848,14 +6848,19 @@ li.product .product-card,
 		/* КРИТИЧНО: Ограничиваем высоту чтобы список не растягивался на всю высоту */
 		max-height: 100% !important;
 		/* height: 100% !important; - не нужен, flex: 1 уже задает высоту */
-		/* КРИТИЧНО: Делаем список скроллируемым */
-		overflow-y: auto !important;
+		/* КРИТИЧНО: Делаем список скроллируемым - КРИТИЧНО для iOS использовать scroll вместо auto */
+		overflow-y: scroll !important; /* scroll вместо auto для iOS */
 		overflow-x: hidden !important;
 		position: relative !important;
 		pointer-events: auto !important;
-		touch-action: pan-y !important;
-		/* КРИТИЧНО для iOS скролла */
+		/* КРИТИЧНО для iOS скролла - ВСЕ эти свойства обязательны */
 		-webkit-overflow-scrolling: touch !important;
+		touch-action: pan-y !important;
+		/* КРИТИЧНО: Добавляем для гарантии работы на iOS */
+		-webkit-transform: translateZ(0) !important;
+		transform: translateZ(0) !important;
+		will-change: scroll-position !important;
+		overscroll-behavior-y: contain !important;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
