@@ -714,26 +714,138 @@
 }
 
 /* Mobile */
-@media (max-width: 1024px) {
+@media (max-width: 1025px) {
+	/* Layout */
 	.account-page__layout {
 		flex-direction: column;
-		gap: 24px;
+		gap: 5.333vw;
 	}
 
 	.account-page__sidebar {
 		width: 100%;
-		border-radius: 16px;
-		padding: 24px 24px 0 24px;
+		border-radius: 2.667vw;
+		padding: 5.333vw 5.333vw 0 5.333vw;
+		box-sizing: border-box;
 	}
 
 	.account-page__content {
 		width: 100%;
-		border-radius: 16px;
-		padding: 24px;
+		border-radius: 2.667vw;
+		padding: 5.333vw;
+		box-sizing: border-box;
 	}
-}
 
-@media (max-width: 1025px) {
+	/* Sidebar title */
+	.account-page__title {
+		font-size: 6.4vw;
+		margin-bottom: 4vw;
+	}
+
+	/* Sidebar menu */
+	.account-page__menu-item {
+		padding: 4.267vw 0;
+		font-size: 4.267vw;
+	}
+
+	.account-page__menu-item::after {
+		width: 8.533vw;
+		height: 8.533vw;
+		margin-left: 3.2vw;
+	}
+
+	/* Section title */
+	.account-section__title {
+		font-size: 5.333vw;
+		margin-bottom: 4vw;
+	}
+
+	/* Forms */
+	.account-form {
+		max-width: 100%;
+		gap: 5.333vw;
+	}
+
+	.account-form__field {
+		gap: 3.2vw;
+	}
+
+	.account-form__label {
+		font-size: 4vw;
+	}
+
+	.account-form__input {
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	.account-form__input::placeholder {
+		font-size: 4vw;
+	}
+
+	.account-form__submit {
+		padding: 4vw 8vw;
+		font-size: 4vw;
+		border-radius: 999999px;
+	}
+
+	/* WooCommerce edit-account / address forms (mobile) */
+	.woocommerce-EditAccountForm {
+		gap: 5.333vw;
+	}
+
+	.woocommerce-EditAccountForm label {
+		font-size: 4vw;
+		margin-bottom: 3.2vw;
+	}
+
+	.woocommerce-EditAccountForm input[type="text"],
+	.woocommerce-EditAccountForm input[type="email"],
+	.woocommerce-EditAccountForm input[type="tel"],
+	.woocommerce-EditAccountForm input[type="password"],
+	.woocommerce-EditAccountForm textarea,
+	.woocommerce-EditAccountForm select {
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	.woocommerce-EditAccountForm fieldset {
+		gap: 5.333vw;
+	}
+
+	.woocommerce-EditAccountForm .woocommerce-Button {
+		padding: 4vw 8vw;
+		font-size: 4vw;
+		border-radius: 999999px;
+	}
+
+	.woocommerce-address-fields .form-row {
+		margin-bottom: 5.333vw;
+	}
+
+	.woocommerce-address-fields label {
+		font-size: 4vw;
+		margin-bottom: 3.2vw;
+	}
+
+	.woocommerce-address-fields input[type="text"],
+	.woocommerce-address-fields input[type="email"],
+	.woocommerce-address-fields input[type="tel"],
+	.woocommerce-address-fields input[type="password"],
+	.woocommerce-address-fields textarea,
+	.woocommerce-address-fields select {
+		padding: 4vw;
+		font-size: 4vw;
+		border-radius: 2.667vw;
+	}
+
+	.woocommerce-address-fields button[type="submit"] {
+		padding: 4vw 8vw;
+		font-size: 4vw;
+		border-radius: 999999px;
+	}
+
 	/* Orders: Convert table to cards on mobile */
 	.account-orders__table-wrap {
 		overflow: visible;
