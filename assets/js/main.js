@@ -3952,15 +3952,37 @@ const initMiniCart = () => {
 				mobileCart.classList.add('is-open');
 				document.body.classList.add('mini-cart-mobile-open');
 				document.documentElement.classList.add('mini-cart-mobile-open');
-				// Останавливаем Lenis на мобильных
+				
+				// КРИТИЧНО: Останавливаем Lenis на мобильных
 				const lenis = window.lenisInstance;
 				if (lenis && typeof lenis.stop === 'function') {
 					try {
 						lenis.stop();
+						console.log('[initMiniCart] Lenis stopped for mobile cart');
 					} catch (e) {
 						console.error('[initMiniCart] Error stopping Lenis:', e);
 					}
 				}
+				
+				// КРИТИЧНО: Добавляем обработчики touch для гарантии работы скролла
+				requestAnimationFrame(() => {
+					const mobileBody = mobileCart.querySelector('.mini-cart-mobile__body');
+					const cartList = mobileCart.querySelector('.woocommerce-mini-cart');
+					
+					if (mobileBody && cartList) {
+						console.log('[initMiniCart] Mobile cart opened, scrollHeight:', cartList.scrollHeight, 'clientHeight:', cartList.clientHeight);
+						
+						// КРИТИЧНО: Явно разрешаем touch-события
+						const allowTouch = (e) => {
+							// НЕ блокируем события - позволяем нативному скроллу работать
+							console.log('[initMiniCart] Touch event on mobile cart:', e.type);
+						};
+						
+						cartList.addEventListener('touchstart', allowTouch, { passive: true });
+						cartList.addEventListener('touchmove', allowTouch, { passive: true });
+					}
+				});
+				
 				return;
 			}
 		}
