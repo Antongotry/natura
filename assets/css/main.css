@@ -6753,8 +6753,9 @@ li.product .product-card,
 	}
 
 	/* Mobile: add bottom padding to checkout button so it doesn't stick to bottom nav */
+	/* КРИТИЧНО: padding-bottom должен быть больше высоты нижней панели (15.385vw) чтобы кнопка была видна */
 	.mini-cart-sidebar .woocommerce-mini-cart__buttons {
-		padding-bottom: 4.103vw !important;
+		padding-bottom: 18vw !important; /* Высота нижней панели (15.385vw) + отступ */
 	}
 
 	/* Mobile: the items list must scroll, footer must stay pinned to the bottom */
@@ -6764,7 +6765,8 @@ li.product .product-card,
 		flex: 0 0 auto !important; /* КРИТИЧНО: footer не растягивается, зафиксирован внизу */
 		margin-top: auto !important; /* КРИТИЧНО: прижимает footer к низу */
 		position: relative;
-		z-index: 2;
+		/* КРИТИЧНО: z-index должен быть выше чем у нижней панели навигации (10000003) */
+		z-index: 10000004 !important;
 		background-color: #F3F3F3;
 		width: 100%;
 	}
