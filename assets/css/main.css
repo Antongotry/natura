@@ -4515,6 +4515,27 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-summary__title {
 		font-size: 5.333vw;
 		margin-bottom: 4vw;
+		/* КРИТИЧНО: Заголовок зафиксирован сверху на мобильных */
+		flex: 0 0 auto !important;
+	}
+
+	.checkout-summary {
+		/* КРИТИЧНО: На мобильных тоже flex контейнер */
+		display: flex !important;
+		flex-direction: column !important;
+		flex: 1 !important;
+		min-height: 0 !important;
+		overflow: hidden !important;
+	}
+
+	.checkout-summary__order-review {
+		/* КРИТИЧНО: На мобильных тоже flex контейнер */
+		display: flex !important;
+		flex-direction: column !important;
+		flex: 1 !important;
+		min-height: 0 !important;
+		overflow: hidden !important;
+		margin-top: 4vw !important;
 	}
 
 	/* Скрываем кнопку подтверждения в левой колонке на мобильном */
