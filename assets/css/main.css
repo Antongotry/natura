@@ -3830,6 +3830,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	vertical-align: middle;
 }
 
+.checkout-summary {
+	/* КРИТИЧНО: Делаем flex контейнером для правильной работы скролла */
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
 .checkout-summary__title {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
@@ -3838,10 +3847,18 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	letter-spacing: -0.03em;
 	color: #303030;
 	margin: 0 0 1.25vw 0;
+	/* КРИТИЧНО: Заголовок зафиксирован сверху, не скроллится */
+	flex: 0 0 auto;
 }
 
 .checkout-summary__order-review {
 	margin-top: 1.25vw;
+	/* КРИТИЧНО: Делаем flex контейнером для правильной работы скролла */
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
 }
 
 /* Checkout Form Fields Styles */
