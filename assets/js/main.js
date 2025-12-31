@@ -4044,10 +4044,92 @@ const initMiniCart = () => {
 			console.log('Window Height:', window.innerHeight);
 			console.log('Viewport Height:', window.visualViewport?.height);
 			console.log('Full Chain:', logChain);
+			
+			// КРИТИЧНО: Проверяем woocommerce-mini-cart (это скроллируемый элемент)
+			if (cartList) {
+				const cartComputed = window.getComputedStyle(cartList);
+				console.log('=== WOCOMMERCE-MINI-CART (SCROLLABLE) ===');
+				console.log('overflowY:', cartComputed.overflowY);
+				console.log('overflowX:', cartComputed.overflowX);
+				console.log('height:', cartComputed.height);
+				console.log('maxHeight:', cartComputed.maxHeight);
+				console.log('flex:', cartComputed.flex);
+				console.log('touchAction:', cartComputed.touchAction);
+				console.log('-webkit-overflow-scrolling:', cartComputed.webkitOverflowScrolling || 'not set');
+				console.log('scrollHeight:', cartList.scrollHeight);
+				console.log('clientHeight:', cartList.clientHeight);
+				console.log('offsetHeight:', cartList.offsetHeight);
+				console.log('CAN SCROLL:', cartList.scrollHeight > cartList.clientHeight);
+				console.log('scrollTop:', cartList.scrollTop);
+				console.log('scrollTopMax:', cartList.scrollHeight - cartList.clientHeight);
+			}
+			
+			// КРИТИЧНО: Проверяем родительские контейнеры
+			if (scrollBody) {
+				const bodyComputed = window.getComputedStyle(scrollBody);
+				console.log('=== MINI-CART-SIDEBAR__BODY (PARENT) ===');
+				console.log('overflow:', bodyComputed.overflow);
+				console.log('overflowY:', bodyComputed.overflowY);
+				console.log('height:', bodyComputed.height);
+				console.log('flex:', bodyComputed.flex);
+				console.log('scrollHeight:', scrollBody.scrollHeight);
+				console.log('clientHeight:', scrollBody.clientHeight);
+			}
+			
+			if (widgetContent) {
+				const widgetComputed = window.getComputedStyle(widgetContent);
+				console.log('=== WIDGET_SHOPPING_CART_CONTENT ===');
+				console.log('overflow:', widgetComputed.overflow);
+				console.log('height:', widgetComputed.height);
+				console.log('maxHeight:', widgetComputed.maxHeight);
+				console.log('flex:', widgetComputed.flex);
+				console.log('scrollHeight:', widgetContent.scrollHeight);
+				console.log('clientHeight:', widgetContent.clientHeight);
+			}
+			
 			console.log('ScrollBody can scroll:', logChain.scrollBody?.canScroll);
 			console.log('ScrollBody overflowY:', logChain.scrollBody?.overflowY);
 			console.log('ScrollBody scrollHeight vs clientHeight:', logChain.scrollBody?.scrollHeight, 'vs', logChain.scrollBody?.clientHeight);
 			console.groupEnd();
+			
+			// КРИТИЧНО: Добавляем тестовый обработчик для проверки touch-событий
+			if (isMobile && cartList) {
+				let touchStartY = 0;
+				let touchMoveCount = 0;
+				
+				const testTouchStart = (e) => {
+					touchStartY = e.touches[0].clientY;
+					console.log('✅ TOUCH START detected on woocommerce-mini-cart', {
+						touchY: touchStartY,
+						scrollTop: cartList.scrollTop,
+						scrollHeight: cartList.scrollHeight,
+						clientHeight: cartList.clientHeight
+					});
+				};
+				
+				const testTouchMove = (e) => {
+					touchMoveCount++;
+					const touchY = e.touches[0].clientY;
+					const deltaY = touchStartY - touchY;
+					console.log(`✅ TOUCH MOVE #${touchMoveCount} detected`, {
+						touchY,
+						deltaY,
+						scrollTop: cartList.scrollTop,
+						scrollHeight: cartList.scrollHeight,
+						clientHeight: cartList.clientHeight,
+						canScroll: cartList.scrollHeight > cartList.clientHeight
+					});
+					
+					// Останавливаем после 3 событий
+					if (touchMoveCount >= 3) {
+						cartList.removeEventListener('touchstart', testTouchStart);
+						cartList.removeEventListener('touchmove', testTouchMove);
+					}
+				};
+				
+				cartList.addEventListener('touchstart', testTouchStart, { passive: true });
+				cartList.addEventListener('touchmove', testTouchMove, { passive: true });
+			}
 			
 			// Также отправляем на сервер если доступен
 			fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3930',message:'F: Full container chain heights',data:{...logChain,isMobile,windowHeight:window.innerHeight,viewportHeight:window.visualViewport?.height},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'F'})}).catch(()=>{});
