@@ -6861,6 +6861,7 @@ li.product .product-card,
 	.mini-cart-mobile__body .woocommerce-mini-cart-item {
 		padding: 4.103vw 0;
 		border-bottom: 1px solid rgba(48, 48, 48, 0.2);
+		pointer-events: auto;
 	}
 	
 	.mini-cart-mobile__body .woocommerce-mini-cart-item:first-child {
@@ -6872,6 +6873,23 @@ li.product .product-card,
 		background: #F3F3F3;
 		padding: 5.128vw;
 		margin-top: auto;
+	}
+	
+	/* КРИТИЧНО: Убираем все что может блокировать touch на iOS */
+	.mini-cart-mobile__body,
+	.mini-cart-mobile__body * {
+		-webkit-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+		-webkit-touch-callout: none;
+	}
+	
+	/* КРИТИЧНО: Но разрешаем touch-action для скролла */
+	.mini-cart-mobile__body,
+	.mini-cart-mobile__body .widget_shopping_cart_content,
+	.mini-cart-mobile__body .woocommerce-mini-cart {
+		touch-action: pan-y !important;
+		pointer-events: auto !important;
 	}
 	
 	/* Lock background scroll */
