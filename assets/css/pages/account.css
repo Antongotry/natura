@@ -733,154 +733,262 @@
 	}
 }
 
-@media (max-width: 768px) {
-	/* Mobile: no hero banner on account page */
-	.shop-archive-hero {
-		display: none !important;
-	}
-
-	/* Header is fixed; add top spacing when hero is hidden */
-	.account-page {
-		padding-top: 21.333vw;
-		padding-bottom: 5.333vw;
-	}
-
-	.account-page__layout {
-		gap: 5.333vw;
-	}
-
-	.account-page__sidebar,
-	.account-page__content {
-		border-radius: 2.667vw;
-		padding: 5.333vw;
-	}
-
-	.account-page__sidebar {
-		padding-bottom: 0;
-	}
-
-	.account-page__title {
-		font-size: 6.4vw;
-		margin-bottom: 4vw;
-	}
-
-	.account-page__menu-item {
-		padding: 4.267vw 0;
-		font-size: 4.267vw;
-	}
-
-	.account-page__menu-item::after {
-		width: 8.533vw;
-		height: 8.533vw;
-		margin-left: 3.2vw;
-	}
-
-	.account-section__title {
-		font-size: 5.333vw;
-		margin-bottom: 4vw;
-	}
-
-	.account-form {
-		max-width: 100%;
-		gap: 5.333vw;
-	}
-
-	.account-form__field {
-		gap: 3.2vw;
-	}
-
-	.account-form__label {
-		font-size: 4vw;
-	}
-
-	.account-form__input {
-		padding: 4vw;
-		font-size: 4vw;
-		border-radius: 2.667vw;
-	}
-
-	.account-form__input::placeholder {
-		font-size: 4vw;
-	}
-
-	.account-form__submit {
-		padding: 4vw 8vw;
-		font-size: 4vw;
-		border-radius: 999999px;
-	}
-
-	/* WooCommerce edit-account / address forms (mobile) */
-	.woocommerce-EditAccountForm {
-		gap: 5.333vw;
-	}
-
-	.woocommerce-EditAccountForm label {
-		font-size: 4vw;
-		margin-bottom: 3.2vw;
-	}
-
-	.woocommerce-EditAccountForm input[type="text"],
-	.woocommerce-EditAccountForm input[type="email"],
-	.woocommerce-EditAccountForm input[type="tel"],
-	.woocommerce-EditAccountForm input[type="password"],
-	.woocommerce-EditAccountForm textarea,
-	.woocommerce-EditAccountForm select {
-		padding: 4vw;
-		font-size: 4vw;
-		border-radius: 2.667vw;
-	}
-
-	.woocommerce-EditAccountForm fieldset {
-		gap: 5.333vw;
-	}
-
-	.woocommerce-EditAccountForm .woocommerce-Button {
-		padding: 4vw 8vw;
-		font-size: 4vw;
-		border-radius: 999999px;
-	}
-
-	.woocommerce-address-fields .form-row {
-		margin-bottom: 5.333vw;
-	}
-
-	.woocommerce-address-fields label {
-		font-size: 4vw;
-		margin-bottom: 3.2vw;
-	}
-
-	.woocommerce-address-fields input[type="text"],
-	.woocommerce-address-fields input[type="email"],
-	.woocommerce-address-fields input[type="tel"],
-	.woocommerce-address-fields input[type="password"],
-	.woocommerce-address-fields textarea,
-	.woocommerce-address-fields select {
-		padding: 4vw;
-		font-size: 4vw;
-		border-radius: 2.667vw;
-	}
-
-	.woocommerce-address-fields button[type="submit"] {
-		padding: 4vw 8vw;
-		font-size: 4vw;
-		border-radius: 999999px;
-	}
-
+@media (max-width: 1025px) {
+	/* Orders: Convert table to cards on mobile */
 	.account-orders__table-wrap {
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
+		overflow: visible;
+		width: 100%;
 	}
 
-	.account-orders__table {
-		min-width: 900px;
+	.account-orders__table.account-orders__table--detailed {
+		display: block;
+		width: 100%;
+	}
+
+	.account-orders__table--detailed thead {
+		display: none;
+	}
+
+	.account-orders__table--detailed tbody {
+		display: block;
+		width: 100%;
+	}
+
+	.account-orders__table--detailed tr {
+		display: block;
+		margin-bottom: 5.333vw;
+		padding: 5.333vw;
+		background: #ffffff;
+		border: 1px solid rgba(48, 48, 48, 0.1);
+		border-radius: 2.667vw;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+		width: 100%;
+		box-sizing: border-box;
+		font-size: 0; /* Remove whitespace between inline-block elements */
+	}
+
+	.account-orders__table--detailed td {
+		display: block;
+		padding: 0;
+		border: none;
+		box-sizing: border-box;
+	}
+
+	/* Products - full width at top */
+	.account-orders__table--detailed .account-orders__cell--products {
+		width: 100% !important;
+		margin-bottom: 4vw;
+		padding-bottom: 4vw;
+		border-bottom: 1px solid rgba(48, 48, 48, 0.1);
+		font-size: 3.733vw; /* Restore font size for products */
+	}
+
+	.account-orders__table--detailed .account-orders__cell--products::before {
+		content: 'Товари: ';
+		font-weight: 500;
+		color: rgba(48, 48, 48, 0.6);
+		font-size: 3.467vw;
+		display: block;
+		margin-bottom: 2.667vw;
+	}
+
+	/* Info container for 2-column layout */
+	.account-orders__table--detailed .account-orders__cell--date,
+	.account-orders__table--detailed .account-orders__cell--number,
+	.account-orders__table--detailed .account-orders__cell--status,
+	.account-orders__table--detailed .account-orders__cell--total {
+		display: inline-block;
+		vertical-align: top;
+		box-sizing: border-box;
+		font-size: 4vw; /* Restore font size */
+	}
+
+	/* First row: Date and Number - 2 columns */
+	.account-orders__table--detailed .account-orders__cell--date {
+		width: calc(50% - 1.6vw) !important;
+		margin-bottom: 3.2vw;
+		margin-right: 3.2vw;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--number {
+		width: calc(50% - 1.6vw) !important;
+		margin-bottom: 3.2vw;
+	}
+
+	/* Second row: Status and Total - 2 columns */
+	.account-orders__table--detailed .account-orders__cell--status {
+		width: calc(50% - 1.6vw) !important;
+		margin-bottom: 0;
+		margin-right: 3.2vw;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--total {
+		width: calc(50% - 1.6vw) !important;
+		margin-bottom: 0;
+	}
+
+	/* Add labels before each cell on mobile */
+	.account-orders__table--detailed .account-orders__cell--date::before {
+		content: 'Дата: ';
+		font-weight: 500;
+		color: rgba(48, 48, 48, 0.6);
+		font-size: 3.2vw;
+		display: block;
+		margin-bottom: 1.067vw;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--number::before {
+		content: 'Номер: ';
+		font-weight: 500;
+		color: rgba(48, 48, 48, 0.6);
+		font-size: 3.2vw;
+		display: block;
+		margin-bottom: 1.067vw;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--status::before {
+		content: 'Статус: ';
+		font-weight: 500;
+		color: rgba(48, 48, 48, 0.6);
+		font-size: 3.2vw;
+		display: block;
+		margin-bottom: 1.067vw;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--total::before {
+		content: 'Сума: ';
+		font-weight: 500;
+		color: rgba(48, 48, 48, 0.6);
+		font-size: 3.2vw;
+		display: block;
+		margin-bottom: 1.067vw;
 	}
 
 	.account-orders {
 		--account-orders-thumb-size: 17.6vw;
 	}
 
+	.account-orders__products {
+		gap: 4vw;
+	}
+
 	.account-orders__product {
 		gap: 3.2vw;
+		align-items: flex-start;
+	}
+
+	.account-orders__product-thumb {
+		flex-shrink: 0;
+		border-radius: 1.6vw;
+		overflow: hidden;
+	}
+
+	.account-orders__product-info {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.account-orders__product-name {
+		font-size: 3.733vw;
+		white-space: normal;
+		overflow: visible;
+		text-overflow: clip;
+		line-height: 1.4;
+		margin-bottom: 0.8vw;
+	}
+
+	.account-orders__product-price {
+		font-size: 3.733vw;
+		margin-top: 0;
+	}
+
+	.account-orders__more {
+		font-size: 3.2vw;
+		margin-top: 2.133vw;
+		padding-top: 2.133vw;
+		border-top: 1px solid rgba(48, 48, 48, 0.1);
+	}
+
+	.account-orders__table--detailed .account-orders__cell--date,
+	.account-orders__table--detailed .account-orders__cell--number,
+	.account-orders__table--detailed .account-orders__cell--status,
+	.account-orders__table--detailed .account-orders__cell--total {
+		line-height: 1.4;
+	}
+
+	.account-orders__order-link {
+		font-size: 4vw;
+		color: #4DBD56;
+		text-decoration: none;
+		display: inline-block;
+		margin-top: 1.067vw;
+		font-weight: 600;
+		transition: opacity 0.2s;
+	}
+
+	.account-orders__order-link:hover {
+		opacity: 0.8;
+		text-decoration: underline;
+	}
+
+	.account-orders__table--detailed .account-orders__cell--total {
+		font-size: 4.8vw;
+		font-weight: 700;
+		color: #303030;
+	}
+
+	.account-orders__status {
+		display: inline-block;
+		font-size: 3.733vw;
+		padding: 2.133vw 4.267vw;
+		border-radius: 1.6vw;
+		background: rgba(77, 189, 86, 0.1);
+		color: #4DBD56;
+		margin-top: 1.067vw;
+		font-weight: 600;
+	}
+
+	/* Different status colors */
+	.account-orders__status--processing {
+		background: rgba(255, 193, 7, 0.1);
+		color: #F57C00;
+	}
+
+	.account-orders__status--on-hold {
+		background: rgba(255, 193, 7, 0.1);
+		color: #F57C00;
+	}
+
+	.account-orders__status--completed {
+		background: rgba(77, 189, 86, 0.1);
+		color: #4DBD56;
+	}
+
+	.account-orders__status--cancelled,
+	.account-orders__status--refunded,
+	.account-orders__status--failed {
+		background: rgba(244, 67, 54, 0.1);
+		color: #D32F2F;
+	}
+
+	.account-orders__empty {
+		padding: 10.667vw 5.333vw;
+	}
+
+	.account-orders__empty-icon {
+		font-size: 12.8vw;
+		margin-bottom: 5.333vw;
+	}
+
+	.account-orders__empty p {
+		font-size: 4.267vw;
+		margin-bottom: 5.333vw;
+		line-height: 1.5;
+	}
+
+	.account-orders__empty .account-form__submit {
+		font-size: 4.267vw;
+		padding: 4.267vw 8.533vw;
 	}
 
 	.woocommerce-orders-table {
