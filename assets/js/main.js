@@ -4010,11 +4010,12 @@ const initMiniCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
 		miniCart.classList.add('is-open');
 		
-		// КРИТИЧНО: На мобильных блокируем скролл сайта, но НЕ корзины
+		// КРИТИЧНО: Проверяем мобильное устройство один раз
 		const isMobile = typeof window.matchMedia === 'function'
 			? window.matchMedia('(max-width: 1025px)').matches
 			: (window.innerWidth || 0) <= 1025;
 		
+		// КРИТИЧНО: На мобильных блокируем скролл сайта, но НЕ корзины
 		if (isMobile) {
 			// Блокируем скролл сайта через CSS классы
 			document.body.classList.add('mini-cart-open');
@@ -4022,9 +4023,6 @@ const initMiniCart = () => {
 		}
 		
 		// КРИТИЧНО: На десктопе переводим фокус на корзину и перенаправляем wheel события
-		const isMobile = typeof window.matchMedia === 'function'
-			? window.matchMedia('(max-width: 1025px)').matches
-			: (window.innerWidth || 0) <= 1025;
 		
 		if (!isMobile) {
 			// На десктопе: фокус на корзину и перенаправление wheel событий
