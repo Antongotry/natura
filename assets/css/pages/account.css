@@ -782,6 +782,11 @@
 		font-size: 4vw;
 	}
 
+	/* Hide optional text in brackets on mobile */
+	.account-form__label--optional {
+		display: none !important;
+	}
+
 	.account-form__input {
 		padding: 4vw;
 		font-size: 4vw;
