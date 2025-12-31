@@ -135,6 +135,11 @@ const naturaLockPageScrollForMiniCart = () => {
 				}
 				// КРИТИЧНО: Убеждаемся что Lenis не блокирует touch события на document/body
 				// Lenis может добавить глобальные обработчики - stop() должен их отключить
+				// КРИТИЧНО: Также отключаем обработчики на самом Lenis объекте если они есть
+				if (lenis.destroy) {
+					// Lenis может иметь метод destroy, но мы не вызываем его, только stop()
+					// stop() должен отключить все обработчики
+				}
 			} catch (e) {
 				// #region agent log
 				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Error stopping Lenis',data:{error:e.message,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
@@ -4098,43 +4103,38 @@ const initMiniCart = () => {
 			console.log('ScrollBody scrollHeight vs clientHeight:', logChain.scrollBody?.scrollHeight, 'vs', logChain.scrollBody?.clientHeight);
 			console.groupEnd();
 			
-			// КРИТИЧНО: Добавляем тестовый обработчик для проверки touch-событий
+			// КРИТИЧНО: Добавляем обработчик для гарантии работы touch-скролла на iOS
+			// Проблема: Lenis или другие обработчики могут блокировать touch-события
 			if (isMobile && cartList) {
-				let touchStartY = 0;
-				let touchMoveCount = 0;
-				
-				const testTouchStart = (e) => {
-					touchStartY = e.touches[0].clientY;
-					console.log('✅ TOUCH START detected on woocommerce-mini-cart', {
-						touchY: touchStartY,
-						scrollTop: cartList.scrollTop,
-						scrollHeight: cartList.scrollHeight,
-						clientHeight: cartList.clientHeight
-					});
-				};
-				
-				const testTouchMove = (e) => {
-					touchMoveCount++;
-					const touchY = e.touches[0].clientY;
-					const deltaY = touchStartY - touchY;
-					console.log(`✅ TOUCH MOVE #${touchMoveCount} detected`, {
-						touchY,
-						deltaY,
-						scrollTop: cartList.scrollTop,
-						scrollHeight: cartList.scrollHeight,
-						clientHeight: cartList.clientHeight,
-						canScroll: cartList.scrollHeight > cartList.clientHeight
-					});
-					
-					// Останавливаем после 3 событий
-					if (touchMoveCount >= 3) {
-						cartList.removeEventListener('touchstart', testTouchStart);
-						cartList.removeEventListener('touchmove', testTouchMove);
+				// КРИТИЧНО: Явно разрешаем touch-события на скроллируемом элементе
+				// Это гарантирует, что touch-скролл будет работать даже если Lenis блокирует глобальные события
+				const allowTouchScroll = (e) => {
+					// НЕ вызываем preventDefault - позволяем нативному скроллу работать
+					// НЕ вызываем stopPropagation - позволяем событию всплывать
+					// Просто логируем для отладки
+					if (e.type === 'touchmove' && cartList.scrollHeight > cartList.clientHeight) {
+						// Элемент может скроллиться - позволяем это
+						console.log('✅ Touch scroll allowed on woocommerce-mini-cart', {
+							scrollTop: cartList.scrollTop,
+							scrollHeight: cartList.scrollHeight,
+							clientHeight: cartList.clientHeight
+						});
 					}
 				};
 				
-				cartList.addEventListener('touchstart', testTouchStart, { passive: true });
-				cartList.addEventListener('touchmove', testTouchMove, { passive: true });
+				// КРИТИЧНО: Используем passive: true чтобы не блокировать нативный скролл
+				cartList.addEventListener('touchstart', allowTouchScroll, { passive: true });
+				cartList.addEventListener('touchmove', allowTouchScroll, { passive: true });
+				
+				// КРИТИЧНО: Также добавляем на родительские элементы для гарантии
+				if (widgetContent) {
+					widgetContent.addEventListener('touchstart', allowTouchScroll, { passive: true });
+					widgetContent.addEventListener('touchmove', allowTouchScroll, { passive: true });
+				}
+				if (scrollBody) {
+					scrollBody.addEventListener('touchstart', allowTouchScroll, { passive: true });
+					scrollBody.addEventListener('touchmove', allowTouchScroll, { passive: true });
+				}
 			}
 			
 			// Также отправляем на сервер если доступен

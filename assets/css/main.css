@@ -6860,6 +6860,12 @@ li.product .product-card,
 		user-select: none !important;
 		-webkit-tap-highlight-color: transparent !important;
 		-webkit-touch-callout: none !important;
+		/* КРИТИЧНО: Гарантируем что элемент может получать touch-события */
+		-webkit-touch-callout: none !important;
+		/* КРИТИЧНО: Убираем pointer-events: none если он был установлен где-то выше */
+		pointer-events: auto !important;
+		/* КРИТИЧНО: Гарантируем что элемент имеет правильный z-index для получения событий */
+		z-index: 1 !important;
 	}
 
 	/* Remove extra margin under the checkout button on mobile */
