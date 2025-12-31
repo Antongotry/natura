@@ -4515,10 +4515,14 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page__right {
 		position: static;
 		width: 100% !important;
+		max-width: 100% !important;
 		max-height: none;
 		overflow-y: visible;
 		border-radius: 2.667vw;
 		padding: 5.333vw;
+		/* КРИТИЧНО: Ограничиваем padding и учитываем его в box-sizing */
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
 	}
 
 	.checkout-section__title,
