@@ -2626,10 +2626,9 @@ const updateCartCountGlobal = debounce(() => {
 								const openMiniCartNow = () => {
 									const miniCart = document.getElementById('mini-cart-sidebar');
 									if (miniCart) {
-										naturaLockPageScrollForMiniCart();
+										// УДАЛЕНО: Блокировка скролла - больше не блокируем скролл сайта
 										miniCart.classList.add('is-open');
-										document.body.classList.add('mini-cart-open');
-										document.documentElement.classList.add('mini-cart-open');
+										// УДАЛЕНО: Классы mini-cart-open - больше не добавляем, они блокировали скролл
 										requestAnimationFrame(() => {
 											const scrollEl =
 												miniCart.querySelector('.woocommerce-mini-cart') ||
@@ -4009,10 +4008,9 @@ const initMiniCart = () => {
 
 	const openCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
-		naturaLockPageScrollForMiniCart();
+		// УДАЛЕНО: Блокировка скролла - больше не блокируем скролл сайта
 		miniCart.classList.add('is-open');
-		document.body.classList.add('mini-cart-open');
-		document.documentElement.classList.add('mini-cart-open');
+		// УДАЛЕНО: Классы mini-cart-open - больше не добавляем, они блокировали скролл
 		
 		// КРИТИЧНО: На мобильных явно разрешаем touch-события для корзины
 		// Это гарантирует, что touch-события не будут заблокированы глобальными обработчиками
@@ -4299,30 +4297,7 @@ const initMiniCart = () => {
 	const closeCart = () => {
 		console.log('[initMiniCart] Закрытие корзины');
 		miniCart.classList.remove('is-open');
-		
-		// КРИТИЧНО: Удаляем обработчики touch-событий которые были добавлены при открытии
-		if (miniCart._allowTouchForCartHandler) {
-			document.removeEventListener('touchstart', miniCart._allowTouchForCartHandler, { passive: true, capture: true });
-			document.removeEventListener('touchmove', miniCart._allowTouchForCartHandler, { passive: true, capture: true });
-			delete miniCart._allowTouchForCartHandler;
-		}
-		
-		// КРИТИЧНО: Удаляем прямые обработчики на скроллируемый элемент
-		const scrollEl = miniCart.querySelector('.woocommerce-mini-cart');
-		if (scrollEl && scrollEl._directTouchHandler) {
-			scrollEl.removeEventListener('touchstart', scrollEl._directTouchHandler, { passive: true });
-			scrollEl.removeEventListener('touchmove', scrollEl._directTouchHandler, { passive: true });
-			delete scrollEl._directTouchHandler;
-		}
-		
-		// КРИТИЧНО: Сначала разблокируем скролл, потом убираем классы
-		// Это нужно для правильного восстановления scroll позиции
-		naturaUnlockPageScrollForMiniCart();
-		
-		// КРИТИЧНО: Убираем классы ПОСЛЕ разблокировки скролла
-		// Это позволяет правильно восстановить scroll позицию
-		document.body.classList.remove('mini-cart-open');
-		document.documentElement.classList.remove('mini-cart-open');
+		// УДАЛЕНО: Все что связано с разблокировкой скролла - больше не блокируем скролл
 	};
 
 	// Обработчики закрытия
