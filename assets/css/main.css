@@ -4564,7 +4564,6 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .woocommerce-checkout input[type="number"],
 	.checkout-page .woocommerce-checkout input[type="password"],
 	.checkout-page .woocommerce-checkout input[type="date"],
-	.checkout-page .woocommerce-checkout textarea,
 	.checkout-page .woocommerce-checkout select,
 	.checkout-page .checkout-section input[type="text"],
 	.checkout-page .checkout-section input[type="email"],
@@ -4572,14 +4571,37 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .checkout-section input[type="number"],
 	.checkout-page .checkout-section input[type="password"],
 	.checkout-page .checkout-section input[type="date"],
-	.checkout-page .checkout-section textarea,
 	.checkout-page .checkout-section select {
-		padding: 4vw;
-		font-size: 4vw;
-		border-radius: 2.667vw;
+		padding: 4vw !important;
+		padding-top: 4vw !important;
+		padding-bottom: 4vw !important;
+		padding-left: 4vw !important;
+		padding-right: 4vw !important;
+		font-size: 4vw !important;
+		border-radius: 2.667vw !important;
 		/* КРИТИЧНО: Исправляем растягивание поля с датой */
 		box-sizing: border-box !important;
 		max-width: 100% !important;
+		/* КРИТИЧНО: Одинаковая высота для всех полей */
+		height: 13.333vw !important;
+		min-height: 13.333vw !important;
+		max-height: 13.333vw !important;
+		line-height: 1.5 !important;
+		vertical-align: middle !important;
+	}
+
+	/* КРИТИЧНО: Textarea должна иметь большую высоту */
+	.checkout-page .woocommerce-checkout textarea,
+	.checkout-page .checkout-section textarea {
+		padding: 4vw !important;
+		font-size: 4vw !important;
+		border-radius: 2.667vw !important;
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+		/* Textarea имеет свою высоту */
+		height: auto !important;
+		min-height: 24vw !important;
+		line-height: 1.5 !important;
 	}
 	
 	/* КРИТИЧНО: Дополнительно для поля с датой - предотвращаем растягивание */
@@ -4599,6 +4621,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		/* КРИТИЧНО: Убираем любые margin/padding, которые могут вызывать выход за границы */
 		margin-left: 0 !important;
 		margin-right: 0 !important;
+		padding: 4vw !important;
+		padding-top: 4vw !important;
+		padding-bottom: 4vw !important;
 		padding-left: 4vw !important;
 		padding-right: 4vw !important;
 		/* КРИТИЧНО для iOS: Убираем нативные стили браузера */
@@ -4608,10 +4633,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		/* КРИТИЧНО для iOS: Убираем внутренние отступы iOS */
 		-webkit-padding-start: 4vw !important;
 		-webkit-padding-end: 4vw !important;
-		/* КРИТИЧНО: Фиксируем размеры для iOS */
-		height: auto !important;
+		/* КРИТИЧНО: Одинаковая высота как у всех полей */
+		height: 13.333vw !important;
 		min-height: 13.333vw !important;
+		max-height: 13.333vw !important;
 		line-height: 1.5 !important;
+		vertical-align: middle !important;
 	}
 
 	/* КРИТИЧНО: Дополнительные ограничения для контейнеров полей на мобильных */
@@ -4685,8 +4712,18 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .woocommerce-checkout select,
 	.checkout-page .checkout-section select {
 		background-size: 3.2vw;
-		padding-right: 12vw;
+		padding-right: 12vw !important;
 		background-position: right 4vw center;
+		/* КРИТИЧНО: Одинаковая высота как у всех полей */
+		height: 13.333vw !important;
+		min-height: 13.333vw !important;
+		max-height: 13.333vw !important;
+		line-height: 1.5 !important;
+		vertical-align: middle !important;
+		/* КРИТИЧНО: Убираем нативные стили для одинакового отображения */
+		-webkit-appearance: none !important;
+		-moz-appearance: none !important;
+		appearance: none !important;
 	}
 
 	/* Checkout Labels Mobile */
