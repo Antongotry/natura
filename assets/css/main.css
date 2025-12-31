@@ -6800,12 +6800,12 @@ li.product .product-card,
 	/* ФИНАЛЬНОЕ РЕШЕНИЕ: Делаем скроллируемым mini-cart-sidebar__body напрямую */
 	
 	/* КРИТИЧНО: Переопределяем базовые стили с максимальной специфичностью */
+	/* КРИТИЧНО: Используем такую же структуру как в фильтрах - там работает! */
 	.mini-cart-sidebar.is-open .mini-cart-sidebar__body,
 	.mini-cart-sidebar__body {
-		/* КРИТИЧНО: Делаем body скроллируемым напрямую - ПЕРЕОПРЕДЕЛЯЕМ overflow: hidden из базовых стилей */
-		/* КРИТИЧНО: НЕ используем overflow: hidden перед overflow-y - это может конфликтовать */
-		overflow-y: scroll !important; /* Вертикальный скролл */
-		overflow-x: hidden !important; /* Горизонтальный скролл скрыт */
+		/* КРИТИЧНО: Делаем body скроллируемым напрямую - КАК В shop-filter-drawer__body */
+		overflow-y: auto !important; /* КАК В ФИЛЬТРАХ - auto вместо scroll */
+		overflow-x: hidden !important;
 		flex: 1 1 0% !important;
 		min-height: 0 !important;
 		/* КРИТИЧНО: Убираем max-height: 100% - он может блокировать скролл если контент больше */
