@@ -6905,6 +6905,18 @@ li.product .product-card,
 		width: 100% !important;
 		height: 100% !important;
 		overflow: hidden !important;
+		/* КРИТИЧНО: НЕ блокируем touch-action на body - это блокирует скролл внутри корзины! */
+		/* touch-action: none - НЕ ДОБАВЛЯТЬ! */
+		pointer-events: auto !important;
+	}
+	
+	/* КРИТИЧНО: Разрешаем touch-action для новой корзины */
+	body.mini-cart-mobile-open .mini-cart-mobile,
+	body.mini-cart-mobile-open .mini-cart-mobile__content,
+	body.mini-cart-mobile-open .mini-cart-mobile__body,
+	body.mini-cart-mobile-open .mini-cart-mobile__body * {
+		touch-action: pan-y !important;
+		pointer-events: auto !important;
 	}
 	
 	/* ============================================

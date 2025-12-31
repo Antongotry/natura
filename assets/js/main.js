@@ -1722,7 +1722,7 @@ const updateCartCountGlobal = debounce(() => {
 			autoRaf: true,
 			lerp: 0.08, // ↓ чем меньше, тем плавнее (0.05–0.1 = комфортно)
 			smoothWheel: true, // колесо мыши тоже плавное
-			smoothTouch: !isMobile  // КРИТИЧНО: Отключаем на мобильных - блокирует нативный скролл iOS
+			smoothTouch: false  // КРИТИЧНО: ВСЕГДА отключаем smoothTouch - он блокирует нативный скролл iOS даже после stop()!
 		});
 
 		// Сохраняем в window для доступа из других функций
