@@ -6733,8 +6733,30 @@ li.product .product-card,
 }
 
 @media (max-width: 1025px) {
-	/* УДАЛЕНО: Все CSS правила которые блокировали скролл сайта при открытии корзины */
-	/* Теперь скролл сайта НЕ блокируется - пользователь может скроллить сайт даже когда корзина открыта */
+	/* КРИТИЧНО: Блокируем скролл сайта при открытии корзины на мобильных */
+	/* Но скролл внутри корзины должен работать */
+	html.mini-cart-open {
+		position: fixed !important;
+		width: 100% !important;
+		height: 100% !important;
+		overflow: hidden !important;
+	}
+	body.mini-cart-open {
+		position: fixed !important;
+		width: 100% !important;
+		height: 100% !important;
+		overflow: hidden !important;
+		/* КРИТИЧНО: НЕ блокируем touch-action на body - это блокирует скролл внутри корзины! */
+		pointer-events: auto !important;
+	}
+	/* КРИТИЧНО: Разрешаем touch-action только внутри корзины */
+	body.mini-cart-open .mini-cart-sidebar__body,
+	body.mini-cart-open .mini-cart-sidebar__content,
+	body.mini-cart-open .widget_shopping_cart_content,
+	body.mini-cart-open .woocommerce-mini-cart {
+		touch-action: pan-y !important;
+		pointer-events: auto !important;
+	}
 
 	/* Mobile: корзина всегда 100svh - полная высота экрана */
 	.mini-cart-sidebar__content {

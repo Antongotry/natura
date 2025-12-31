@@ -4008,10 +4008,18 @@ const initMiniCart = () => {
 
 	const openCart = () => {
 		console.log('[initMiniCart] Открытие корзины');
-		// УДАЛЕНО: Блокировка скролла - больше не блокируем скролл сайта
 		miniCart.classList.add('is-open');
-		// УДАЛЕНО: Классы mini-cart-open - больше не добавляем, они блокировали скролл
-		// УДАЛЕНО: Все обработчики touch-событий - больше не нужны, скролл не блокируется
+		
+		// КРИТИЧНО: На мобильных блокируем скролл сайта, но НЕ корзины
+		const isMobile = typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+		
+		if (isMobile) {
+			// Блокируем скролл сайта через CSS классы
+			document.body.classList.add('mini-cart-open');
+			document.documentElement.classList.add('mini-cart-open');
+		}
 		
 		// КРИТИЧНО: На десктопе переводим фокус на корзину и перенаправляем wheel события
 		const isMobile = typeof window.matchMedia === 'function'
@@ -4301,7 +4309,17 @@ const initMiniCart = () => {
 	const closeCart = () => {
 		console.log('[initMiniCart] Закрытие корзины');
 		miniCart.classList.remove('is-open');
-		// УДАЛЕНО: Все что связано с разблокировкой скролла - больше не блокируем скролл
+		
+		// КРИТИЧНО: На мобильных разблокируем скролл сайта
+		const isMobile = typeof window.matchMedia === 'function'
+			? window.matchMedia('(max-width: 1025px)').matches
+			: (window.innerWidth || 0) <= 1025;
+		
+		if (isMobile) {
+			// Разблокируем скролл сайта
+			document.body.classList.remove('mini-cart-open');
+			document.documentElement.classList.remove('mini-cart-open');
+		}
 		
 		// КРИТИЧНО: Удаляем обработчик wheel событий на десктопе
 		if (miniCart._wheelHandler) {
