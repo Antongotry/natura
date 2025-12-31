@@ -112,8 +112,15 @@ const naturaLockPageScrollForMiniCart = () => {
 		if (lenis && typeof lenis.stop === 'function') {
 			const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : false;
 			naturaMiniCartLenisWasRunning = !isStopped;
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Stopping Lenis',data:{isStoppedBefore:isStopped,willStop:true,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+			// #endregion
 			try {
 				lenis.stop();
+				// #region agent log
+				const isStoppedAfter = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : 'unknown';
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Lenis stopped',data:{isStoppedAfter,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+				// #endregion
 				// КРИТИЧНО: Отключаем все обработчики Lenis которые могут блокировать touch
 				// Lenis может иметь обработчики wheel/touch которые блокируют скролл
 				if (lenis.destroy) {
@@ -124,6 +131,9 @@ const naturaLockPageScrollForMiniCart = () => {
 					// Убираем обработчики если есть
 				}
 			} catch (e) {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:109',message:'D: Error stopping Lenis',data:{error:e.message,isMobile:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+				// #endregion
 				console.error('[naturaLockPageScrollForMiniCart] Error stopping Lenis:', e);
 			}
 		} else {
@@ -3879,6 +3889,19 @@ const initMiniCart = () => {
 				: (window.innerWidth || 0) <= 1025;
 		
 		if (isMobileViewport) {
+			// #region agent log
+			// Добавляем обработчик touchstart для проверки доходят ли события
+			const scrollBody = miniCart.querySelector('.mini-cart-sidebar__body');
+			if (scrollBody) {
+				const touchHandler = (e) => {
+					fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3881',message:'E: Touch event received',data:{target:e.target.tagName,targetClass:e.target.className,currentTarget:e.currentTarget.className,touches:e.touches.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+				};
+				scrollBody.addEventListener('touchstart', touchHandler, { passive: true, once: true });
+				scrollBody.addEventListener('touchmove', (e) => {
+					fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3881',message:'E: Touchmove event received',data:{target:e.target.tagName,deltaY:e.touches[0]?.clientY,scrollTop:scrollBody.scrollTop,scrollHeight:scrollBody.scrollHeight,clientHeight:scrollBody.clientHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+				}, { passive: true, once: true });
+			}
+			// #endregion
 			// On mobile, just ensure the element is ready for scrolling
 			// Don't focus as it can block touch events on iOS
 			return;
@@ -3904,7 +3927,37 @@ const initMiniCart = () => {
 		miniCart.classList.add('is-open');
 		document.body.classList.add('mini-cart-open');
 		document.documentElement.classList.add('mini-cart-open');
-		requestAnimationFrame(focusMiniCartScrollContainer);
+		requestAnimationFrame(() => {
+			// #region agent log
+			const scrollBody = miniCart.querySelector('.mini-cart-sidebar__body');
+			const widgetContent = miniCart.querySelector('.widget_shopping_cart_content');
+			const cartList = miniCart.querySelector('.woocommerce-mini-cart');
+			const isMobile = typeof window.matchMedia === 'function'
+				? window.matchMedia('(max-width: 1025px)').matches
+				: (window.innerWidth || 0) <= 1025;
+			
+			if (scrollBody) {
+				const computed = window.getComputedStyle(scrollBody);
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'A: Computed styles mini-cart-sidebar__body',data:{overflowY:computed.overflowY,overflowX:computed.overflowX,height:computed.height,maxHeight:computed.maxHeight,touchAction:computed.touchAction,pointerEvents:computed.pointerEvents,display:computed.display,flex:computed.flex,scrollHeight:scrollBody.scrollHeight,clientHeight:scrollBody.clientHeight,offsetHeight:scrollBody.offsetHeight,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			}
+			if (widgetContent) {
+				const computed = window.getComputedStyle(widgetContent);
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'B: Computed styles widget_shopping_cart_content',data:{overflow:computed.overflow,height:computed.height,maxHeight:computed.maxHeight,touchAction:computed.touchAction,pointerEvents:computed.pointerEvents,flex:computed.flex,scrollHeight:widgetContent.scrollHeight,clientHeight:widgetContent.clientHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+			}
+			if (cartList) {
+				const computed = window.getComputedStyle(cartList);
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'C: Computed styles woocommerce-mini-cart',data:{overflow:computed.overflow,height:computed.height,flex:computed.flex,scrollHeight:cartList.scrollHeight,clientHeight:cartList.clientHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+			}
+			const lenis = window.lenisInstance;
+			if (lenis) {
+				const isStopped = typeof lenis.isStopped === 'boolean' ? lenis.isStopped : 'unknown';
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'D: Lenis state',data:{isStopped,hasLenis:true,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+			} else {
+				fetch('http://127.0.0.1:7242/ingest/a0a27aba-46f6-4bb1-8a3e-0d3020a4629c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3907',message:'D: Lenis state',data:{hasLenis:false,isMobile},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+			}
+			// #endregion
+			focusMiniCartScrollContainer();
+		});
 	};
 
 	const updateCartCount = () => {
