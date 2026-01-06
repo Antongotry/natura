@@ -6841,7 +6841,7 @@ li.product .product-card,
 		display: flex;
 		align-items: center;
 		/* Quantity слева, delete прижат к правому углу ряда */
-		justify-content: flex-start;
+		justify-content: space-between;
 		width: 100%;
 		padding-right: 0;
 	}
@@ -6850,8 +6850,8 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__remove {
 		position: static;
 		transform: none;
-		/* Отступ слева auto выталкивает кнопку в правый угол ряда */
-		margin: 0 0 0 auto;
+		/* Без auto — flex сам расставляет: quantity слева, delete справа */
+		margin: 0;
 	}
 }
 
@@ -7297,7 +7297,7 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__quantity-wrapper {
 		flex: 0 1 auto;
 		width: auto;
-		max-width: calc(100% - 14vw); /* небольшой запас под кнопку удаления + gap */
+		max-width: 100%;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
