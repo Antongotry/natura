@@ -939,7 +939,7 @@
 	}
 
 	.account-orders__table--detailed .account-orders__cell--number .account-orders__order-link {
-		font-size: 4.8vw;
+		font-size: 12px;
 		font-weight: 600;
 		color: #303030;
 		margin-top: 0;
