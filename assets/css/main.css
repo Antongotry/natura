@@ -6840,15 +6840,18 @@ li.product .product-card,
 		position: relative;
 		display: flex;
 		align-items: center;
-		justify-content: space-between; /* слева quantity, справа удаление */
-		padding-right: 0; /* место под delete больше не нужно, всё внутри flex */
+		/* Quantity слева, delete прижат к правому углу ряда */
+		justify-content: flex-start;
+		width: 100%;
+		padding-right: 0;
 	}
 
-	/* Кнопка удаления в правом краю на одной линии по вертикали с quantity-wrapper, но внутри контейнера */
+	/* Кнопка удаления в правом углу на одной линии по вертикали с quantity-wrapper, но внутри контейнера */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__remove {
 		position: static;
 		transform: none;
-		margin: 0 0 0 3.333vw; /* небольшой отступ слева от калькулятора */
+		/* Отступ слева auto выталкивает кнопку в правый угол ряда */
+		margin: 0 0 0 auto;
 	}
 }
 
@@ -7287,21 +7290,20 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
 		/* Делаем кнопку удаления ближе к калькулятору количества */
 		gap: 3.333vw;
-		/* Добавляем место справа под иконку удаления, чтобы она не выходила за рамку ряда */
-		padding-right: 12vw;
+		padding-right: 0;
 	}
 
-	/* На мобильном quantity занимает ширину ряда за вычетом места под delete-иконку */
+	/* На мобильном quantity слева, delete справа, оба внутри ширины ряда */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__quantity-wrapper {
-		flex: 1 1 auto;
+		flex: 0 1 auto;
 		width: auto;
-		max-width: calc(100% - 12vw); /* небольшой запас под кнопку удаления */
+		max-width: calc(100% - 14vw); /* небольшой запас под кнопку удаления + gap */
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
 		/* Keep enough space for the remove button so controls don't overlap */
 		width: auto;
-		flex: 1 1 auto;
+		flex: 0 1 auto;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
