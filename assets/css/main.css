@@ -7356,11 +7356,12 @@ li.product .product-card,
 		left: 0;
 		right: 0;
 		width: 100%;
-		/* Контейнер полностью перекрывает изображение, хлебные крошки прижаты к низу на 20px */
+		/* Контейнер полностью перекрывает изображение, хлебные крошки прижаты к самому низу */
 		display: flex;
 		align-items: flex-end;
 		justify-content: flex-start;
-		padding: 0 5.333vw 20px 5.333vw;
+		/* Без дополнительного отступа снизу — текст прямо у края изображения */
+		padding: 0 5.333vw 0 5.333vw;
 		box-sizing: border-box;
 	}
 
@@ -7372,6 +7373,8 @@ li.product .product-card,
 
 	.shop-archive-hero__breadcrumb {
 		width: 100%;
+		margin: 0;
+		padding: 0;
 	}
 
 	.shop-archive-hero__breadcrumb .woocommerce-breadcrumb {
