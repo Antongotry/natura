@@ -6834,6 +6834,15 @@ li.product .product-card,
 		/* Межстрочка в кошику 100% */
 		line-height: 100% !important;
 	}
+
+	/* Кнопка удаления в правом краю, визуально на одной вертикали с ценой */
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove {
+		position: absolute;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		margin: 0;
+	}
 }
 
 .mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__remove {
