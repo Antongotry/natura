@@ -7295,15 +7295,16 @@ li.product .product-card,
 
 	/* На мобильном quantity слева, delete справа, оба внутри ширины ряда */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__quantity-wrapper {
-		flex: 0 1 auto;
+		/* Делаем калькулятор визуально шире примерно на 20% */
+		flex: 0 1 60%;
 		width: auto;
-		max-width: 100%;
+		max-width: 60%;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
 		/* Keep enough space for the remove button so controls don't overlap */
 		width: auto;
-		flex: 0 1 auto;
+		flex: 0 1 60%;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
