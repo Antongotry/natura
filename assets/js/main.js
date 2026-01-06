@@ -2832,28 +2832,49 @@ document.addEventListener('DOMContentLoaded', () => {
 		 * FIX: массово убираем скрытые/авто‑дефисы в названиях товаров.
 		 * Идея: если дефис стоит МЕЖДУ буквами (кириллица/латиница) — считаем,
 		 * что это нежелательный перенос и склеиваем слово обратно.
+		 * 
+		 * ВАЖНО: работаем с innerHTML, чтобы сохранить HTML структуру (например, <br> из кастомного названия).
+		 * НЕ перезаписываем текст, если он уже был изменен (сохраняем кастомные названия из админки).
 		 */
-		try {
-			const productTitles = document.querySelectorAll('.woocommerce-loop-product__title');
-			productTitles.forEach((el) => {
-				if (!el || !el.textContent) return;
+		const removeHyphensFromProductTitles = () => {
+			try {
+				const productTitles = document.querySelectorAll('.woocommerce-loop-product__title');
+				productTitles.forEach((el) => {
+					if (!el || !el.innerHTML) return;
 
-				let text = el.textContent;
+					let html = el.innerHTML;
 
-				// 1) Удаляем мягкие дефисы (soft hyphen: &shy; / \u00AD)
-				text = text.replace(/\u00AD/g, '');
+					// 1) Удаляем мягкие дефисы (soft hyphen: &shy; / \u00AD) из HTML
+					html = html.replace(/\u00AD/g, '');
+					html = html.replace(/&shy;/g, '');
 
-				// 2) Убираем дефисы, если они стоят между буквами (как "Мор-шинська")
-				//    Берём любые буквы (кириллица + латиница) вокруг дефиса.
-				text = text.replace(
-					/([A-Za-zА-Яа-яІіЇїЄєҐґЁё])[\u00AD\-‑–—]([A-Za-zА-Яа-яІіЇїЄєҐґЁё])/g,
-					'$1$2'
-				);
+					// 2) Убираем дефисы, если они стоят между буквами (как "Мор-шинська")
+					//    Берём любые буквы (кириллица + латиница) вокруг дефиса.
+					//    Работаем с HTML, но заменяем только в текстовых частях (не в тегах)
+					html = html.replace(
+						/([A-Za-zА-Яа-яІіЇїЄєҐґЁё])[\u00AD\-‑–—]([A-Za-zА-Яа-яІіЇїЄєҐґЁё])/g,
+						'$1$2'
+					);
 
-				el.textContent = text;
+					// Обновляем только если что-то изменилось (не трогаем кастомные названия без дефисов)
+					if (el.innerHTML !== html) {
+						el.innerHTML = html;
+					}
+				});
+			} catch (e) {
+				// Fail-safe: не рушим страницу, если что-то пойдёт не так
+			}
+		};
+
+		// Вызываем при загрузке страницы
+		removeHyphensFromProductTitles();
+
+		// Также вызываем после обновления фрагментов WooCommerce (на случай, если карточки обновятся)
+		if (typeof jQuery !== 'undefined') {
+			jQuery(document.body).on('wc_fragments_refreshed natura_fragments_refreshed', function() {
+				// Небольшая задержка, чтобы дать время DOM обновиться
+				setTimeout(removeHyphensFromProductTitles, 100);
 			});
-		} catch (e) {
-			// Fail-safe: не рушим страницу, если что-то пойдёт не так
 		}
 		initProductCardAddToCart();
 		initMiniCart();
