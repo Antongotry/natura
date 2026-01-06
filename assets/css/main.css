@@ -6850,8 +6850,8 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__remove {
 		position: static;
 		transform: none;
-		/* Легко смещаем внутрь ряда: отступ 2vw от правого края */
-		margin: 0 2vw 0 0;
+		/* Легко смещаем внутрь ряда: отступ 3vw от правого края */
+		margin: 0 3vw 0 0;
 	}
 }
 
