@@ -985,10 +985,12 @@
 	.account-orders__table--detailed .account-orders__cell--status,
 	.account-orders__table--detailed .account-orders__cell--total {
 		display: flex;
-		align-items: flex-start;
-		/* Уменьшаем промежуток между названием поля и значением,
-		   чтобы всё смотрелось более собранно по вертикали */
-		gap: 1.333vw;
+		align-items: baseline;
+		/* Как на макете: небольшое, аккуратное расстояние между меткой и значением */
+		gap: 1.6vw;
+		/* Чуть уменьшаем общий размер текста для мобильного варианта заказа */
+		font-size: 3.6vw;
+		line-height: 1.3;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--date::before,
@@ -997,10 +999,10 @@
 		display: inline-block;
 		font-weight: 500;
 		color: rgba(48, 48, 48, 0.6);
-		font-size: 3.2vw;
-		/* Ещё немного сужаем “виртуальную колонку” под названия полей,
-		   чтобы метка и значение были ближе друг к другу */
-		width: 30vw;
+		/* Метки поменьше и легче, как на скрине */
+		font-size: 2.9vw;
+		/* Фиксированная «колонка» под метку, чтобы все три строки выровнялись по одной вертикали */
+		width: 28vw;
 		flex-shrink: 0;
 		line-height: 1.4;
 	}
