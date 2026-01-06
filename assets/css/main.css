@@ -7273,10 +7273,17 @@ li.product .product-card,
 		gap: 3.333vw;
 	}
 
+	/* На мобильном quantity НЕ должен растягиваться на всю ширину ряда */
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__quantity-wrapper {
+		flex: 0 0 32vw;
+		width: 32vw;
+		max-width: 32vw;
+	}
+
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
-		/* Keep enough space for the remove button so controls don't overlap, но делаем блок на ~10% уже */
-		width: 36vw;
-		flex: 0 1 36vw;
+		/* Keep enough space for the remove button so controls don't overlap, но делаем блок уже */
+		width: 32vw;
+		flex: 0 0 32vw;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
