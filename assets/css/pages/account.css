@@ -993,6 +993,19 @@
 		line-height: 1.3;
 	}
 
+	/* Статус заказа внутри ячейки также строго 12px */
+	.account-orders__table--detailed .account-orders__cell--status .account-orders__status {
+		font-size: 12px;
+	}
+
+	/* Сумма заказа (число + символ валюты) тоже 12px */
+	.account-orders__table--detailed .account-orders__cell--total .woocommerce-Price-amount,
+	.account-orders__table--detailed .account-orders__cell--total .woocommerce-Price-amount bdi,
+	.account-orders__table--detailed .account-orders__cell--total .woocommerce-Price-amount .woocommerce-Price-currencySymbol {
+		font-size: 12px;
+		line-height: 1.3;
+	}
+
 	.account-orders__table--detailed .account-orders__cell--date::before,
 	.account-orders__table--detailed .account-orders__cell--status::before,
 	.account-orders__table--detailed .account-orders__cell--total::before {
