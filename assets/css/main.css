@@ -7274,9 +7274,9 @@ li.product .product-card,
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
-		/* Keep enough space for the remove button so controls don't overlap */
-		width: 40vw;
-		flex: 0 1 40vw;
+		/* Keep enough space for the remove button so controls don't overlap, но делаем блок на ~10% уже */
+		width: 36vw;
+		flex: 0 1 36vw;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
