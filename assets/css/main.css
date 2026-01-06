@@ -549,8 +549,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		border: 1px solid rgba(48, 48, 48, 0.2) !important;
 		box-shadow: none !important;
 		max-height: 50vh !important;
-		z-index: 1000007 !important;
-		/* z-index выше хедера (1000005) для корректного отображения */
+		/* z-index НИЖЕ мобильного меню/гамбургера, чтобы меню всегда перекрывало поиск */
+		z-index: 1000004 !important;
 		background-color: #ffffff !important;
 		overflow-y: auto !important;
 		overflow-x: hidden !important;
