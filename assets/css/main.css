@@ -3793,7 +3793,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page__right {
 	background-color: #ffffff;
 	border-radius: 0.26vw;
-	border: 1px solid rgba(48, 48, 48, 0.1);
+	/* Линии блоков в чекауте делаем очень лёгкими (20% opacity) */
+	border: 1px solid rgba(48, 48, 48, 0.2);
 	padding: 2.083vw;
 	box-sizing: border-box;
 	flex-shrink: 0;
@@ -6642,12 +6643,13 @@ li.product .product-card,
 	align-items: center; /* выравниваем картинку, quantity и иконку удаления по одной линии по высоте */
 	gap: 1.042vw;
 	padding: 1.563vw 0;
-	border-bottom: 1px solid rgba(48, 48, 48, 0.4);
+	/* Линия-разделитель в мини-корзине: делаем более деликатной (20% opacity) */
+	border-bottom: 1px solid rgba(48, 48, 48, 0.2);
 	position: relative;
 }
 
 .mini-cart-sidebar .woocommerce-mini-cart-item:first-child {
-	border-top: 1px solid rgba(48, 48, 48, 0.4);
+	border-top: 1px solid rgba(48, 48, 48, 0.2);
 }
 
 .mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__image {
@@ -6738,7 +6740,8 @@ li.product .product-card,
 	border-radius: 999px;
 	padding: 0 0.521vw;
 	margin: 0;
-	border: 1px solid rgba(48, 48, 48, 0.4); /* #30303066 */
+	/* Рамка калькулятора количества — тоже более лёгкая линия (20% opacity) */
+	border: 1px solid rgba(48, 48, 48, 0.2); /* #30303033 */
 	width: 27.187vw;
 	height: 3.125vw;
 	min-height: 3.125vw;
@@ -6828,6 +6831,8 @@ li.product .product-card,
 		position: absolute;
 		top: 0;
 		right: 0;
+		/* Межстрочка в кошику 100% */
+		line-height: 100% !important;
 	}
 }
 
@@ -6863,7 +6868,8 @@ li.product .product-card,
 
 .mini-cart-sidebar .woocommerce-mini-cart__total {
 	padding: 2.083vw;
-	border-top: 1px solid rgba(48, 48, 48, 0.4);
+	/* Линия над итогом в мини-корзине — 20% opacity */
+	border-top: 1px solid rgba(48, 48, 48, 0.2);
 	margin: 0;
 	margin-top: auto;
 	flex-shrink: 0;
@@ -7250,19 +7256,21 @@ li.product .product-card,
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name {
-		font-size: 3.59vw;
+		/* На мобильном уменьшаем шрифт на ~2px относительно предыдущего значения */
+		font-size: 3.1vw;
+		line-height: 100% !important;
 		/* Prevent overlap with absolutely positioned price */
 		display: block;
 		padding-right: 20vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name::after {
-		font-size: 3.59vw;
+		font-size: 3.1vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
-		/* More breathing room between quantity control and remove button */
-		gap: 6.667vw;
+		/* Делаем кнопку удаления ближе к калькулятору количества */
+		gap: 3.333vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
@@ -7291,7 +7299,9 @@ li.product .product-card,
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price,
 	.mini-cart-sidebar .mini-cart-total__price {
-		font-size: 3.59vw;
+		/* На мобильном уменьшаем шрифт на ~2px */
+		font-size: 3.1vw;
+		line-height: 100% !important;
 	}
 
 	.mini-cart-sidebar .mini-cart-total__label {
