@@ -2797,7 +2797,7 @@ const updateCartCountGlobal = debounce(() => {
 		}
 	};
 
-	document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 		const lenis = initLenis();
 		initHeaderScroll();
 		initHamburgerMenu();
@@ -2827,6 +2827,34 @@ const updateCartCountGlobal = debounce(() => {
 		CartManager.init();
 		initQuantityButtons();
 		initRelatedProductsCarousel();
+
+		/**
+		 * FIX: массово убираем скрытые/авто‑дефисы в названиях товаров.
+		 * Идея: если дефис стоит МЕЖДУ буквами (кириллица/латиница) — считаем,
+		 * что это нежелательный перенос и склеиваем слово обратно.
+		 */
+		try {
+			const productTitles = document.querySelectorAll('.woocommerce-loop-product__title');
+			productTitles.forEach((el) => {
+				if (!el || !el.textContent) return;
+
+				let text = el.textContent;
+
+				// 1) Удаляем мягкие дефисы (soft hyphen: &shy; / \u00AD)
+				text = text.replace(/\u00AD/g, '');
+
+				// 2) Убираем дефисы, если они стоят между буквами (как "Мор-шинська")
+				//    Берём любые буквы (кириллица + латиница) вокруг дефиса.
+				text = text.replace(
+					/([A-Za-zА-Яа-яІіЇїЄєҐґЁё])[\u00AD\-‑–—]([A-Za-zА-Яа-яІіЇїЄєҐґЁё])/g,
+					'$1$2'
+				);
+
+				el.textContent = text;
+			});
+		} catch (e) {
+			// Fail-safe: не рушим страницу, если что-то пойдёт не так
+		}
 		initProductCardAddToCart();
 		initMiniCart();
 		initShopFilterDrawer();

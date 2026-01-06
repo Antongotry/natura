@@ -2922,7 +2922,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .woocommerce-breadcrumb__icon {
-	width: 0.625vw;
+	width: 0.5vw; /* было 0.625vw, уменьшили примерно на 20% */
 	height: auto;
 	display: block;
 }
@@ -5104,7 +5104,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 	
 	.woocommerce-breadcrumb__icon {
-		width: 2.133vw !important;
+		width: 1.5vw !important; /* было 2.133vw -> 1.7vw, сейчас еще ~10% меньше */
 		height: auto !important;
 	}
 }
@@ -6170,6 +6170,13 @@ li.product .product-card,
 
 .product-card__title-link .woocommerce-loop-product__title {
 	display: inline;
+	/* Глобально отключаем авто‑дефисы у заголовков товаров */
+	word-wrap: normal !important;
+	overflow-wrap: normal !important;
+	word-break: normal !important;
+	hyphens: none !important;
+	-webkit-hyphens: none !important;
+	-ms-hyphens: none !important;
 }
 
 .product-card__title-wrapper .woocommerce-loop-product__title {
@@ -6183,9 +6190,13 @@ li.product .product-card,
 	padding: 0;
 	vertical-align: middle;
 	display: block;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	hyphens: auto;
+	/* Десктоп: не делим слова дефисами, переносим только по пробелам (жёстко отключаем авто‑перенос) */
+	word-wrap: normal !important;
+	overflow-wrap: normal !important;
+	word-break: normal !important;
+	hyphens: none !important;
+	-webkit-hyphens: none !important;
+	-ms-hyphens: none !important;
 	min-width: 0;
 }
 
@@ -7379,7 +7390,7 @@ li.product .product-card,
 
 	.shop-archive-hero__breadcrumb .woocommerce-breadcrumb__icon {
 		filter: brightness(0) invert(1);
-		width: 2.133vw;
+		width: 1.5vw; /* было 2.133vw -> 1.7vw, сейчас еще ~10% меньше */
 		height: auto;
 	}
 
@@ -7669,7 +7680,8 @@ li.product .product-card,
 	.product-card__title-wrapper .woocommerce-loop-product__title {
 		font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 		font-weight: 600;
-		font-size: 3.2vw !important; /* Увеличено на 20% (было 2.667vw) */
+		/* На мобильных уменьшаем размер до ~11.5px (при ширине 390px это примерно 2.95vw) */
+		font-size: 2.95vw !important;
 		line-height: 1.2;
 		letter-spacing: -0.03em;
 		vertical-align: middle;
@@ -7678,9 +7690,13 @@ li.product .product-card,
 		margin-bottom: 0 !important;
 		padding: 0;
 		display: block;
-		word-wrap: break-word;
-		overflow-wrap: break-word;
-		hyphens: auto;
+		/* Мобайл: тоже не делим слова дефисами, перенос только по пробелам (жёстко отключаем авто‑перенос) */
+		word-wrap: normal !important;
+		overflow-wrap: normal !important;
+		word-break: normal !important;
+		hyphens: none !important;
+		-webkit-hyphens: none !important;
+		-ms-hyphens: none !important;
 		min-width: 0;
 	}
 
