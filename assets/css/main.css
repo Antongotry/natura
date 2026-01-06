@@ -6838,15 +6838,17 @@ li.product .product-card,
 	/* Контейнер с quantity + delete — база для выравнивания */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
 		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: space-between; /* слева quantity, справа удаление */
+		padding-right: 0; /* место под delete больше не нужно, всё внутри flex */
 	}
 
-	/* Кнопка удаления в правом краю, на одной линии по вертикали с quantity-wrapper */
+	/* Кнопка удаления в правом краю на одной линии по вертикали с quantity-wrapper, но внутри контейнера */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__remove {
-		position: absolute;
-		right: 0;
-		top: 50%;
-		transform: translateY(-50%);
-		margin: 0;
+		position: static;
+		transform: none;
+		margin: 0 0 0 3.333vw; /* небольшой отступ слева от калькулятора */
 	}
 }
 
@@ -7291,15 +7293,15 @@ li.product .product-card,
 
 	/* На мобильном quantity занимает ширину ряда за вычетом места под delete-иконку */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__quantity-wrapper {
-		flex: 0 0 calc(100% - 12vw);
-		width: calc(100% - 12vw);
-		max-width: calc(100% - 12vw);
+		flex: 1 1 auto;
+		width: auto;
+		max-width: calc(100% - 12vw); /* небольшой запас под кнопку удаления */
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
 		/* Keep enough space for the remove button so controls don't overlap */
-		width: calc(100% - 12vw);
-		flex: 0 0 calc(100% - 12vw);
+		width: auto;
+		flex: 1 1 auto;
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
