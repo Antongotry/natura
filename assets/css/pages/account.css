@@ -993,8 +993,8 @@
 	.account-orders__table--detailed .account-orders__cell--total {
 		display: flex;
 		align-items: baseline;
-		/* Как на макете: небольшое, аккуратное расстояние между меткой и значением */
-		gap: 1.6vw;
+		/* Расстояние между меткой и значением примерно как 3 пробела */
+		gap: 12px;
 		/* Жёстко фиксируем размер шрифта 12px для мобильного варианта заказа */
 		font-size: 12px;
 		line-height: 1.3;
