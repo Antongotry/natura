@@ -986,7 +986,9 @@
 	.account-orders__table--detailed .account-orders__cell--total {
 		display: flex;
 		align-items: flex-start;
-		gap: 2.133vw;
+		/* Уменьшаем промежуток между названием поля и значением,
+		   чтобы всё смотрелось более собранно по вертикали */
+		gap: 1.333vw;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--date::before,
@@ -996,9 +998,9 @@
 		font-weight: 500;
 		color: rgba(48, 48, 48, 0.6);
 		font-size: 3.2vw;
-		/* Чуть уменьшаем "виртуальную колонку" под названия полей,
-		   чтобы визуально убрать лишний отступ слева и выровнять по одной вертикали */
-		width: 34vw;
+		/* Ещё немного сужаем “виртуальную колонку” под названия полей,
+		   чтобы метка и значение были ближе друг к другу */
+		width: 30vw;
 		flex-shrink: 0;
 		line-height: 1.4;
 	}
