@@ -50,9 +50,11 @@ $product_card_title = get_post_meta( $product->get_id(), '_product_card_title', 
 								echo esc_html( get_the_title() );
 							}
 							?>
+							<?php /* Единицы измерения скрыты в карточках товара
 							<?php if ( $product_unit ) : ?>
 								<span class="product-card__unit">( <?php echo esc_html( $product_unit ); ?> )</span>
 							<?php endif; ?>
+							*/ ?>
 						</span>
 					</a>
 				</div>

@@ -22,9 +22,11 @@ if ( empty( $product_unit ) ) {
 ?>
 <h1 class="product_title entry-title">
 	<?php the_title(); ?>
+	<?php /* Единицы измерения скрыты на странице товара
 	<?php if ( ! empty( $product_unit ) ) : ?>
 		<span class="product-title__unit">( <?php echo esc_html( $product_unit ); ?> )</span>
 	<?php endif; ?>
+	*/ ?>
 </h1>
 
 
