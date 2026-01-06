@@ -7616,9 +7616,10 @@ li.product .product-card,
 
 	.product-card__image-wrapper {
 		width: 100% !important;
-		height: 47.436vw !important; /* высота блока с фоткой */
-		min-height: 47.436vw !important;
-		max-height: 47.436vw !important;
+		/* Прямоугольные фото: высота ~21.867vw, ширина 100%, без обрезания */
+		height: 21.867vw !important;
+		min-height: 21.867vw !important;
+		max-height: 21.867vw !important;
 		margin-top: 0 !important;
 		margin-bottom: 5.333vw !important;
 		border-radius: 1.333vw !important;
@@ -7635,6 +7636,7 @@ li.product .product-card,
 	.product-card__image-wrapper .attachment-woocommerce_thumbnail {
 		width: 100% !important;
 		height: 100% !important;
+		/* Не обрезаем фото, просто вписываем внутрь прямоугольника */
 		object-fit: contain !important;
 		border-radius: 1.333vw !important;
 		display: block !important;
