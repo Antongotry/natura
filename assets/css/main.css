@@ -7355,7 +7355,8 @@ li.product .product-card,
 		left: 0;
 		right: 0;
 		width: 100%;
-		padding: 4vw 5.333vw;
+		/* Внутри блока: хлебные крошки прижаты к низу на 20px, без лишнего отступа сверху */
+		padding: 0 5.333vw 20px 5.333vw;
 		box-sizing: border-box;
 	}
 
