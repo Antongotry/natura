@@ -337,6 +337,13 @@
 	padding-left: 1.042vw;
 }
 
+/* Desktop: слегка уменьшаем отступ слева именно для колонок Дата и Статус,
+   чтобы значения не «уплывали» вправо относительно макета */
+.account-orders__table td.account-orders__cell--date,
+.account-orders__table td.account-orders__cell--status {
+	padding-left: 1.042vw;
+}
+
 /* Products column */
 .account-orders__products {
 	display: flex;
