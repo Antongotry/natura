@@ -7285,19 +7285,21 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
 		/* Делаем кнопку удаления ближе к калькулятору количества */
 		gap: 3.333vw;
+		/* Добавляем место справа под иконку удаления, чтобы она не выходила за рамку ряда */
+		padding-right: 12vw;
 	}
 
-	/* На мобильном quantity НЕ должен растягиваться на всю ширину ряда, но делаем его чуть шире (~+30%) */
+	/* На мобильном quantity занимает ширину ряда за вычетом места под delete-иконку */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row .mini-cart-item__quantity-wrapper {
-		flex: 0 0 42vw;
-		width: 42vw;
-		max-width: 42vw;
+		flex: 0 0 calc(100% - 12vw);
+		width: calc(100% - 12vw);
+		max-width: calc(100% - 12vw);
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__quantity-wrapper {
-		/* Keep enough space for the remove button so controls don't overlap, ширина ~на 30% больше прежнего значения */
-		width: 42vw;
-		flex: 0 0 42vw;
+		/* Keep enough space for the remove button so controls don't overlap */
+		width: calc(100% - 12vw);
+		flex: 0 0 calc(100% - 12vw);
 		height: 10.256vw;
 		min-height: 10.256vw;
 		max-height: 10.256vw;
