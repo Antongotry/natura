@@ -1,0 +1,6 @@
+[core]
+	autocrlf = false
+[pull]
+	rebase = false
+	ff = only
+
