@@ -4906,6 +4906,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		align-self: center !important;
 	}
 
+	/* Додаємо пробіл перед описом через ::before */
+	.checkout-page .wc_payment_methods label .payment-method-description::before {
+		content: " ";
+		display: inline-block;
+	}
+
 	.checkout-page .wc_payment_methods input[type="radio"] {
 		align-self: center !important;
 		width: 5vw;
