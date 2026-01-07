@@ -7724,7 +7724,7 @@ li.product .product-card,
 		align-items: flex-start !important;
 		justify-content: flex-start !important;
 		gap: 0 !important;
-		margin-bottom: 5.333vw !important; /* Отступ от названия до цены равен отступу от цены до кнопки */
+		margin-bottom: 5.333vw !important; /* Отступ от названия до цены равен отступу от цены до кнопки (5.333vw) */
 		min-width: 0;
 		flex: 1 1 auto !important; /* Занимает доступное пространство, растягивается */
 		order: 1 !important;
