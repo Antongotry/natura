@@ -59,15 +59,48 @@ https://github.com/Antongotry/natura/settings/hooks/new
 ### Якщо webhook не спрацьовує:
 1. Перевірте, чи правильно вказано URL
 2. Перевірте логи delivery в GitHub (Settings → Webhooks → ваш webhook → Recent Deliveries)
-3. Перевірте, чи правильно налаштований git config на сервері (див. DEPLOYMENT.md)
+3. Перевірте, чи правильно налаштований git config на сервері (див. нижче)
 
 ### Якщо деплой падає з помилкою про розбіжні гілки:
-Виконайте на сервері через SSH:
+
+**Крок 1: Виконайте на сервері через SSH:**
 ```bash
 cd /wp-content/themes/natura
+bash fix-deployment.sh
+```
+
+Або вручну:
+```bash
+cd /wp-content/themes/natura
+git config --global pull.rebase false
+git config --global pull.ff only
 git config pull.rebase false
 git config pull.ff only
 ```
 
-Або налаштуйте в Hostinger використання скрипту `deploy.sh` замість стандартного `git pull`.
+**Крок 2: Змініть команду деплою в Hostinger:**
+
+В налаштуваннях автоматичного деплою Hostinger замініть стандартну команду `git pull` на:
+
+**Варіант 1 (РЕКОМЕНДОВАНО):**
+```bash
+bash deploy.sh
+```
+
+**Варіант 2:**
+```bash
+git fetch origin && git reset --hard origin/main
+```
+
+**Варіант 3:**
+```bash
+git pull --no-rebase --ff-only
+```
+
+### Якщо webhook працював раніше, але зараз не працює:
+
+1. Перевірте логи delivery в GitHub (Settings → Webhooks → Recent Deliveries)
+2. Перевірте, чи не змінилася команда деплою в Hostinger
+3. Виконайте `fix-deployment.sh` на сервері
+4. Зробіть тестовий коміт для перевірки
 
