@@ -3,6 +3,10 @@
 # This script should be run by Hostinger on deployment
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
+# Налаштування git для обробки розбіжних гілок
+git config pull.rebase false
+git config pull.ff only
+
 # Fetch latest changes
 git fetch origin
 
@@ -15,5 +19,5 @@ git clean -fd
 # Force update file timestamps to prevent caching
 touch assets/css/main.css assets/js/main.js header.php
 
-echo "Deployment completed successfully"
+echo "✅ Deployment completed successfully"
 
