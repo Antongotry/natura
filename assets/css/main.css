@@ -3987,13 +3987,17 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 /* Стиль для селектів, коли вибрано значення за замовчуванням (плейсхолдер) */
 .checkout-page .woocommerce-checkout select:invalid,
-.checkout-page .checkout-section select:invalid {
+.checkout-page .checkout-section select:invalid,
+.checkout-page .woocommerce-checkout select.is-placeholder,
+.checkout-page .checkout-section select.is-placeholder {
 	color: #3030304D;
 }
 
 /* Стиль для селектів з вибраним значенням */
 .checkout-page .woocommerce-checkout select:valid,
-.checkout-page .checkout-section select:valid {
+.checkout-page .checkout-section select:valid,
+.checkout-page .woocommerce-checkout select.has-value,
+.checkout-page .checkout-section select.has-value {
 	color: #303030;
 }
 
