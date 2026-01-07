@@ -4244,16 +4244,16 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	align-items: flex-start;
 	gap: 1.042vw;
 	padding: 1.563vw 0;
-	border-bottom: 1px solid rgba(48, 48, 48, 0.2);
+	border-bottom: 1px solid rgba(48, 48, 48, 0.1);
 }
 
 .checkout-order-review__item:first-of-type {
-	border-top: 1px solid rgba(48, 48, 48, 0.2);
+	border-top: 1px solid rgba(48, 48, 48, 0.1);
 }
 
 /* Розділювач між товарами */
 .checkout-order-review__item:not(:last-child) {
-	border-bottom: 1px solid rgba(48, 48, 48, 0.2);
+	border-bottom: 1px solid rgba(48, 48, 48, 0.1);
 }
 
 .checkout-order-review__item-image {
@@ -4960,7 +4960,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.checkout-order-review__item-details {
 		height: auto;
-		gap: 2vw;
+		gap: 1vw;
 		justify-content: center;
 	}
 
@@ -4970,10 +4970,28 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.checkout-order-review__item-price {
 		font-size: 4vw;
+		display: flex;
+		align-items: baseline;
+		gap: 0.3em;
 	}
 
 	.checkout-order-review__item-price::before {
 		font-size: 4vw;
+		vertical-align: baseline;
+		display: inline-block;
+	}
+
+	/* Вирівнювання ціни та символу гривні на мобільному */
+	.checkout-order-review__item-price .woocommerce-Price-amount,
+	.checkout-order-review__item-price .woocommerce-Price-amount bdi {
+		vertical-align: baseline;
+		line-height: 100%;
+	}
+
+	.checkout-order-review__item-price .woocommerce-Price-currencySymbol {
+		vertical-align: baseline;
+		display: inline-block;
+		line-height: 100%;
 	}
 
 	.checkout-order-review {
