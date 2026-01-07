@@ -4977,23 +4977,23 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.checkout-order-review__item-details {
 		height: auto;
-		gap: 1vw;
+		gap: 10px;
 		justify-content: center;
 	}
 
 	.checkout-order-review__item-name {
-		font-size: 4vw;
+		font-size: 12px;
 	}
 
 	.checkout-order-review__item-price {
-		font-size: 4vw;
+		font-size: 12px;
 		display: flex;
 		align-items: baseline;
 		gap: 0.3em;
 	}
 
 	.checkout-order-review__item-price::before {
-		font-size: 4vw;
+		font-size: 12px;
 		vertical-align: baseline;
 		display: inline-block;
 	}
