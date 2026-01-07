@@ -4338,8 +4338,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .checkout-order-review__totals {
-	margin-top: 1.25vw;
-	padding-top: 1.25vw;
+	margin-top: 0.625vw;
+	padding-top: 0.625vw;
 	border-top: 1px solid rgba(48, 48, 48, 0.1);
 	/* КРИТИЧНО: Итоги зафиксированы внизу, не скроллятся */
 	flex: 0 0 auto;
@@ -4983,8 +4983,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 
 	.checkout-order-review__totals {
-		margin-top: 5.333vw;
-		padding-top: 5.333vw;
+		margin-top: 2.667vw;
+		padding-top: 2.667vw;
 		/* КРИТИЧНО: Итоги зафиксированы внизу на мобильных */
 		flex: 0 0 auto !important;
 	}
