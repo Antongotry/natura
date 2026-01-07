@@ -1066,7 +1066,7 @@
 
 	.account-orders__product {
 		gap: 3.2vw;
-		align-items: flex-start;
+		align-items: center;
 	}
 
 	.account-orders__product-thumb {
@@ -1078,6 +1078,9 @@
 	.account-orders__product-info {
 		flex: 1;
 		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 
 	.account-orders__product-name {
