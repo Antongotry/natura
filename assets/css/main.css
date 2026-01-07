@@ -3958,14 +3958,22 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		padding-right: 3.125vw;
 	}
 
-	/* Стиль для селектів з плейсхолдером на мобільному */
+	/* Стиль для селектів та інпутів з плейсхолдером на мобільному */
 	.checkout-page .woocommerce-checkout select:invalid,
-	.checkout-page .checkout-section select:invalid {
+	.checkout-page .checkout-section select:invalid,
+	.checkout-page .woocommerce-checkout select.is-placeholder,
+	.checkout-page .checkout-section select.is-placeholder,
+	.checkout-page .woocommerce-checkout input[type="date"].is-placeholder,
+	.checkout-page .checkout-section input[type="date"].is-placeholder {
 		color: #3030304D;
 	}
 
 	.checkout-page .woocommerce-checkout select:valid,
-	.checkout-page .checkout-section select:valid {
+	.checkout-page .checkout-section select:valid,
+	.checkout-page .woocommerce-checkout select.has-value,
+	.checkout-page .checkout-section select.has-value,
+	.checkout-page .woocommerce-checkout input[type="date"].has-value,
+	.checkout-page .checkout-section input[type="date"].has-value {
 		color: #303030;
 	}
 
