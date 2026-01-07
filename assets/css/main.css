@@ -4324,6 +4324,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	color: #303030;
 	vertical-align: middle;
 	position: relative;
+	display: flex;
+	align-items: baseline;
+	gap: 0.3em;
 }
 
 .checkout-order-review__item-price::before {
@@ -4334,7 +4337,21 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	line-height: 100%;
 	letter-spacing: -0.03em;
 	color: #30303066;
-	vertical-align: middle;
+	vertical-align: baseline;
+	display: inline-block;
+}
+
+/* Вирівнювання ціни та символу гривні на десктопі */
+.checkout-order-review__item-price .woocommerce-Price-amount,
+.checkout-order-review__item-price .woocommerce-Price-amount bdi {
+	vertical-align: baseline;
+	line-height: 100%;
+}
+
+.checkout-order-review__item-price .woocommerce-Price-currencySymbol {
+	vertical-align: baseline;
+	display: inline-block;
+	line-height: 100%;
 }
 
 .checkout-order-review__totals {
