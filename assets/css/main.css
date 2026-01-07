@@ -4338,8 +4338,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .checkout-order-review__totals {
-	margin-top: 0.625vw;
-	padding-top: 0.625vw;
+	margin-top: 30px;
+	padding-top: 30px;
 	border-top: 1px solid rgba(48, 48, 48, 0.1);
 	/* КРИТИЧНО: Итоги зафиксированы внизу, не скроллятся */
 	flex: 0 0 auto;
