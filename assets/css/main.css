@@ -4244,12 +4244,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	align-items: flex-start;
 	gap: 1.042vw;
 	padding: 1.563vw 0;
-	border-bottom: 1px solid #30303066;
+	border-bottom: 1px solid rgba(48, 48, 48, 0.2);
 }
 
 .checkout-order-review__item:first-of-type {
 	border-top: 1px solid rgba(48, 48, 48, 0.2);
-	border-bottom: 1px solid rgba(48, 48, 48, 0.2);
 }
 
 /* Розділювач між товарами */
