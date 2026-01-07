@@ -4960,6 +4960,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-order-review__item {
 		gap: 4vw;
 		padding: 5.333vw 0;
+		align-items: center;
 	}
 
 	.checkout-order-review__item-image {
