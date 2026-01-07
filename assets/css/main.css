@@ -4248,8 +4248,13 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .checkout-order-review__item:first-of-type {
-	border-top: 1px solid #30303066;
-	border-bottom: 1px solid #30303066;
+	border-top: 1px solid rgba(48, 48, 48, 0.2);
+	border-bottom: 1px solid rgba(48, 48, 48, 0.2);
+}
+
+/* Розділювач між товарами */
+.checkout-order-review__item:not(:last-child) {
+	border-bottom: 1px solid rgba(48, 48, 48, 0.2);
 }
 
 .checkout-order-review__item-image {
@@ -4341,7 +4346,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	flex: 0 0 auto;
 }
 
-.checkout-order-review__subtotal,
+/* Приховати проміжний підсумок на десктопі */
+.checkout-order-review__subtotal {
+	display: none;
+}
+
 .checkout-order-review__total {
 	display: flex;
 	justify-content: space-between;
@@ -4373,7 +4382,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-order-review__total {
 	margin-top: 0.833vw;
 	padding-top: 0.833vw;
-	border-top: 1px solid rgba(48, 48, 48, 0.1);
+	border-top: none;
 }
 
 .checkout-order-review__total-label {
