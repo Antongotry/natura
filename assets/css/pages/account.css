@@ -1013,9 +1013,12 @@
 		align-items: center;
 	}
 
-	/* Статус заказа внутри ячейки также строго 12px */
+	/* Статус заказа внутри ячейки также строго 12px, центрируем относительно лейбла */
 	.account-orders__table--detailed .account-orders__cell--status .account-orders__status {
 		font-size: 12px;
+		line-height: 1.4;
+		display: inline-block;
+		vertical-align: middle;
 	}
 
 	/* Сумма заказа (число + символ валюты) тоже 12px */
@@ -1119,14 +1122,16 @@
 	}
 
 	.account-orders__status {
-		display: inline;
-		font-size: 4vw;
+		display: inline-block;
+		font-size: 12px;
 		padding: 0;
 		border-radius: 0;
 		background: transparent;
 		color: #303030;
-		margin-top: 1.067vw;
+		margin-top: 0;
 		font-weight: 400;
+		line-height: 1.4;
+		vertical-align: middle;
 	}
 
 	/* Remove status colors on mobile - use plain text */
