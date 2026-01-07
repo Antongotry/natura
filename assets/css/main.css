@@ -6969,7 +6969,7 @@ li.product .product-card,
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
 		position: absolute;
-		top: 0;
+		top: -5px;
 		right: 0;
 		/* Межстрочка в кошику 100% */
 		line-height: 100% !important;
