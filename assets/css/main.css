@@ -6909,10 +6909,16 @@ li.product .product-card,
 
 /* Keep Woo price inner spans aligned with the label (global span line-height can otherwise shift baseline) */
 .mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-amount,
-.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-amount bdi,
+.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-amount bdi {
+	line-height: inherit !important;
+	vertical-align: baseline;
+}
+
+/* Вирівнювання символу гривні по цифрах */
 .mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-currencySymbol {
 	line-height: inherit !important;
-	vertical-align: middle;
+	vertical-align: baseline;
+	display: inline-block;
 }
 
 @media (max-width: 1025px) {
@@ -7020,6 +7026,20 @@ li.product .product-card,
 	letter-spacing: -0.03em;
 	vertical-align: middle;
 	color: #303030;
+	display: flex;
+	align-items: baseline;
+	gap: 0.2em;
+}
+
+/* Вирівнювання символу гривні в загальній сумі міні-корзини */
+.mini-cart-sidebar .mini-cart-total__price .woocommerce-Price-amount,
+.mini-cart-sidebar .mini-cart-total__price .woocommerce-Price-amount bdi {
+	vertical-align: baseline;
+}
+
+.mini-cart-sidebar .mini-cart-total__price .woocommerce-Price-currencySymbol {
+	vertical-align: baseline;
+	display: inline-block;
 }
 
 .mini-cart-sidebar .woocommerce-mini-cart__buttons {
