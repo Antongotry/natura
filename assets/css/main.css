@@ -6969,14 +6969,16 @@ li.product .product-card,
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
 		position: absolute;
-		top: 5px;
+		top: 0;
 		right: 0;
 		/* Межстрочка в кошику 100% */
 		line-height: 100% !important;
-		/* Вирівнюємо ціну по висоті з назвою товару */
+		/* Вирівнюємо ціну по центру першого рядка назви */
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		gap: 0.2em;
+		/* Висота першого рядка назви (font-size + line-height) */
+		height: 4vw;
 	}
 
 	/* Вирівнювання символу гривні на мобільному */
