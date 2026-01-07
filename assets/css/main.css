@@ -7778,7 +7778,7 @@ li.product .product-card,
 	/* Показываем цену на уровне content для мобильных и фиксируем внизу */
 	.product-card__price-wrapper--mobile {
 		flex-shrink: 0 !important;
-		margin-top: auto !important; /* Прижимаем цену вниз перед кнопкой */
+		margin-top: auto !important; /* КРИТИЧНО: Прижимаем цену вниз перед кнопкой - работает только если родитель flex с flex: 1 */
 		margin-bottom: 5.333vw !important; /* Отступ от цены до кнопки */
 		margin-left: 0 !important;
 		margin-right: 0 !important;
@@ -7795,6 +7795,8 @@ li.product .product-card,
 		/* КРИТИЧНО: Разрешаем pan-y для скролла корзины */
 		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 		-webkit-overflow-scrolling: auto !important;
+		/* КРИТИЧНО: Добавляем отступ сверху для симметрии с отступом снизу */
+		padding-top: 5.333vw !important; /* Отступ от названия до цены равен отступу от цены до кнопки */
 	}
 	
 	/* КРИТИЧНО: В корзине ВСЕ элементы должны разрешать pan-y для скролла */
