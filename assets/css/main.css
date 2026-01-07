@@ -3966,8 +3966,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .woocommerce-checkout select.is-placeholder,
 	.checkout-page .checkout-section select.is-placeholder,
 	.checkout-page .woocommerce-checkout input[type="date"].is-placeholder,
-	.checkout-page .checkout-section input[type="date"].is-placeholder {
-		color: #3030304D;
+	.checkout-page .checkout-section input[type="date"].is-placeholder,
+	.checkout-page .woocommerce-checkout select:not(.has-value),
+	.checkout-page .checkout-section select:not(.has-value) {
+		color: #3030304D !important;
 	}
 
 	.checkout-page .woocommerce-checkout select:valid,
