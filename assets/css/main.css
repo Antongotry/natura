@@ -3948,14 +3948,59 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
-.checkout-page .woocommerce-checkout select,
-.checkout-page .checkout-section select {
-	appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23303030' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 1.042vw center;
-	background-size: 0.833vw;
-	padding-right: 3.125vw;
+	.checkout-page .woocommerce-checkout select,
+	.checkout-page .checkout-section select {
+		appearance: none;
+		background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23303030' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 1.042vw center;
+		background-size: 0.833vw;
+		padding-right: 3.125vw;
+	}
+
+	/* Стиль для селектів з плейсхолдером на мобільному */
+	.checkout-page .woocommerce-checkout select:invalid,
+	.checkout-page .checkout-section select:invalid {
+		color: #3030304D;
+	}
+
+	.checkout-page .woocommerce-checkout select:valid,
+	.checkout-page .checkout-section select:valid {
+		color: #303030;
+	}
+
+	.checkout-page .woocommerce-checkout select option:first-child,
+	.checkout-page .checkout-section select option:first-child {
+		color: #3030304D;
+	}
+
+	.checkout-page .woocommerce-checkout select option:not(:first-child),
+	.checkout-page .checkout-section select option:not(:first-child) {
+		color: #303030;
+	}
+
+/* Стиль для селектів з плейсхолдером (коли вибрано перший option) */
+.checkout-page .woocommerce-checkout select option:first-child,
+.checkout-page .checkout-section select option:first-child {
+	color: #3030304D;
+}
+
+/* Стиль для селектів, коли вибрано значення за замовчуванням (плейсхолдер) */
+.checkout-page .woocommerce-checkout select:invalid,
+.checkout-page .checkout-section select:invalid {
+	color: #3030304D;
+}
+
+/* Стиль для селектів з вибраним значенням */
+.checkout-page .woocommerce-checkout select:valid,
+.checkout-page .checkout-section select:valid {
+	color: #303030;
+}
+
+/* Стиль для option з вибраним значенням (не плейсхолдер) */
+.checkout-page .woocommerce-checkout select option:not(:first-child),
+.checkout-page .checkout-section select option:not(:first-child) {
+	color: #303030;
 }
 
 /* Checkout Labels */
