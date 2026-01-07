@@ -6943,6 +6943,19 @@ li.product .product-card,
 		gap: 0.2em;
 	}
 
+	/* Вирівнювання символу гривні на мобільному */
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-amount,
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-amount bdi {
+		vertical-align: baseline;
+		line-height: 100% !important;
+	}
+
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price .woocommerce-Price-currencySymbol {
+		vertical-align: baseline;
+		display: inline-block;
+		line-height: 100% !important;
+	}
+
 	/* Контейнер с quantity + delete — база для выравнивания */
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
 		position: relative;
