@@ -995,18 +995,22 @@
 	.account-orders__table--detailed .account-orders__cell--status,
 	.account-orders__table--detailed .account-orders__cell--total {
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		/* Базовое расстояние между меткой и значением */
 		gap: 12px;
 		/* Жёстко фиксируем размер шрифта 12px для мобильного варианта заказа */
 		font-size: 12px;
-		line-height: 1.3;
+		line-height: 1.4;
+		/* Одинаковая высота для всех строк */
+		min-height: 22px;
+		height: auto;
 	}
 
 	/* Для строки Дата даём чуть больше воздуха между меткой и самим значением,
-	   чтобы число не «слипалось» с двоеточием */
+	   чтобы число не «слипалось» с двоеточием, и центрируем дату относительно лейбла */
 	.account-orders__table--detailed .account-orders__cell--date {
 		gap: 16px;
+		align-items: center;
 	}
 
 	/* Статус заказа внутри ячейки также строго 12px */
