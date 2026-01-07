@@ -4884,7 +4884,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		/* КРИТИЧНО: Убираем flex, чтобы текст мог переноситься */
 		flex-wrap: wrap !important;
 		display: flex !important;
-		align-items: flex-start !important;
+		align-items: center !important;
 	}
 
 	/* КРИТИЧНО: Стили для описания метода оплаты на мобильных */
@@ -4899,9 +4899,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		min-width: 0 !important;
 		max-width: 100% !important;
 		display: inline-block !important;
+		/* Додаємо пробіл перед описом */
+		margin-left: 0.5em !important;
+		/* Відцентровуємо відносно лейбла */
+		vertical-align: middle !important;
+		align-self: center !important;
 	}
 
 	.checkout-page .wc_payment_methods input[type="radio"] {
+		align-self: center !important;
 		width: 5vw;
 		height: 5vw;
 		margin-right: 3vw;
