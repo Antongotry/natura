@@ -70,22 +70,24 @@ $product_card_title = get_post_meta( $product->get_id(), '_product_card_title', 
 				</div>
 			<?php endif; ?>
 
-			<div class="product-card__price-wrapper product-card__price-wrapper--mobile">
-				<?php woocommerce_template_loop_price(); ?>
-			</div>
+			<div class="product-card__price-button-wrapper">
+				<div class="product-card__price-wrapper product-card__price-wrapper--mobile">
+					<?php woocommerce_template_loop_price(); ?>
+				</div>
 
-			<div class="product-card__button-wrapper">
-				<?php woocommerce_template_loop_add_to_cart(); ?>
-				<?php
-				// Выводим поле количества под кнопкой
-				wc_get_template(
-					'loop/quantity-input.php',
-					array(
-						'product'     => $product,
-						'input_value' => 1,
-					)
-				);
-				?>
+				<div class="product-card__button-wrapper">
+					<?php woocommerce_template_loop_add_to_cart(); ?>
+					<?php
+					// Выводим поле количества под кнопкой
+					wc_get_template(
+						'loop/quantity-input.php',
+						array(
+							'product'     => $product,
+							'input_value' => 1,
+						)
+					);
+					?>
+				</div>
 			</div>
 		</div>
 	</div>

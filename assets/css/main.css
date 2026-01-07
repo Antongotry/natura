@@ -7776,16 +7776,26 @@ li.product .product-card,
 		display: none !important; /* Скрываем на мобильных */
 	}
 	
-	/* Показываем цену на уровне content для мобильных и фиксируем внизу */
+	/* Объединяем цену и кнопку в один контейнер для фиксации внизу */
+	.product-card__price-button-wrapper {
+		display: flex !important;
+		flex-direction: column !important;
+		flex-shrink: 0 !important;
+		margin-top: auto !important; /* КРИТИЧНО: Прижимаем цену и кнопку вниз */
+		width: 100% !important;
+		order: 2 !important; /* После названия */
+		gap: 0 !important;
+	}
+	
+	/* Показываем цену на уровне content для мобильных */
 	.product-card__price-wrapper--mobile {
 		flex-shrink: 0 !important;
-		margin-top: auto !important; /* КРИТИЧНО: Прижимаем цену вниз перед кнопкой */
+		margin-top: 5.333vw !important; /* Отступ от названия до цены */
 		margin-bottom: 5.333vw !important; /* Отступ от цены до кнопки */
 		margin-left: 0 !important;
 		margin-right: 0 !important;
 		text-align: left !important;
 		width: 100% !important;
-		order: 2 !important; /* После названия, перед кнопкой */
 		display: flex !important;
 		align-items: baseline !important;
 		justify-content: flex-start !important;
@@ -7796,9 +7806,6 @@ li.product .product-card,
 		/* КРИТИЧНО: Разрешаем pan-y для скролла корзины */
 		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 		-webkit-overflow-scrolling: auto !important;
-		/* КРИТИЧНО: Добавляем отступ сверху для симметрии */
-		padding-top: 5.333vw !important; /* Отступ от названия до цены равен отступу от цены до кнопки */
-		box-sizing: border-box !important;
 	}
 	
 	/* КРИТИЧНО: В корзине ВСЕ элементы должны разрешать pan-y для скролла */
@@ -7842,7 +7849,7 @@ li.product .product-card,
 		margin-top: 0 !important; /* Отступ уже задан через margin-bottom цены */
 		margin-bottom: 0 !important;
 		width: 100% !important;
-		order: 4 !important;
+		order: 1 !important; /* Внутри price-button-wrapper */
 		position: relative !important;
 		z-index: 4 !important;
 		display: flex !important;
