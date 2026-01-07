@@ -7795,25 +7795,6 @@ li.product .product-card,
 		/* КРИТИЧНО: Разрешаем pan-y для скролла корзины */
 		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 		-webkit-overflow-scrolling: auto !important;
-		/* КРИТИЧНО: Добавляем отступ сверху для симметрии - используем отрицательный margin-top для компенсации auto */
-		margin-top: calc(auto - 5.333vw) !important; /* Не работает, используем другой подход */
-	}
-	
-	/* КРИТИЧНО: Создаем отступ сверху через wrapper с псевдоэлементом */
-	.product-card__price-wrapper--mobile {
-		position: relative !important;
-	}
-	
-	.product-card__price-wrapper--mobile::before {
-		content: '' !important;
-		display: block !important;
-		position: absolute !important;
-		top: -5.333vw !important; /* Отступ от названия до цены */
-		left: 0 !important;
-		right: 0 !important;
-		height: 5.333vw !important;
-		pointer-events: none !important;
-	}
 	
 	/* КРИТИЧНО: В корзине ВСЕ элементы должны разрешать pan-y для скролла */
 	.mini-cart-sidebar .product-card__price-wrapper,
