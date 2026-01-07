@@ -7772,6 +7772,11 @@ li.product .product-card,
 	}
 
 	/* Скрываем цену для мобильных внутри title-price-wrapper */
+	.product-card__title-price-wrapper .product-card__price-wrapper--desktop {
+		display: none !important; /* Скрываем на мобильных */
+	}
+	
+	/* Дополнительно скрываем десктопную цену на мобильных */
 	.product-card__price-wrapper--desktop {
 		display: none !important; /* Скрываем на мобильных */
 	}
