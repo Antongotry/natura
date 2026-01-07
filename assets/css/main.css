@@ -7724,7 +7724,7 @@ li.product .product-card,
 		align-items: flex-start !important;
 		justify-content: flex-start !important;
 		gap: 0 !important;
-		margin-bottom: 0 !important; /* Отступ от названия до цены создается через padding-top цены */
+		margin-bottom: 5.333vw !important; /* Отступ от названия до цены равен отступу от цены до кнопки (5.333vw) */
 		min-width: 0;
 		flex: 1 1 auto !important; /* Занимает доступное пространство, растягивается - КРИТИЧНО для margin-top: auto */
 		order: 1 !important;
@@ -7795,15 +7795,24 @@ li.product .product-card,
 		/* КРИТИЧНО: Разрешаем pan-y для скролла корзины */
 		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 		-webkit-overflow-scrolling: auto !important;
+		/* КРИТИЧНО: Добавляем отступ сверху для симметрии - используем отрицательный margin-top для компенсации auto */
+		margin-top: calc(auto - 5.333vw) !important; /* Не работает, используем другой подход */
 	}
 	
-	/* КРИТИЧНО: Добавляем отступ сверху для цены через псевдоэлемент для симметрии */
+	/* КРИТИЧНО: Создаем отступ сверху через wrapper с псевдоэлементом */
+	.product-card__price-wrapper--mobile {
+		position: relative !important;
+	}
+	
 	.product-card__price-wrapper--mobile::before {
 		content: '' !important;
 		display: block !important;
-		height: 5.333vw !important; /* Отступ от названия до цены равен отступу от цены до кнопки */
-		flex-shrink: 0 !important;
-		order: -1 !important; /* Перед ценой */
+		position: absolute !important;
+		top: -5.333vw !important; /* Отступ от названия до цены */
+		left: 0 !important;
+		right: 0 !important;
+		height: 5.333vw !important;
+		pointer-events: none !important;
 	}
 	
 	/* КРИТИЧНО: В корзине ВСЕ элементы должны разрешать pan-y для скролла */
