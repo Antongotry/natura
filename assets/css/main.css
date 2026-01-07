@@ -6927,7 +6927,7 @@ li.product .product-card,
 	letter-spacing: -0.03em;
 	vertical-align: middle;
 	color: #303030;
-	margin-top: calc(0.521vw + 3px);
+	margin-top: calc(0.521vw + 6px);
 	display: flex;
 	align-items: center;
 	gap: 0.35em;
