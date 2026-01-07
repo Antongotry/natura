@@ -5175,3 +5175,63 @@ const initRelatedProductsCarousel = () => {
 	});
 };
 
+/**
+ * Обробка плейсхолдерів для селектів на checkout
+ * Додає клас для стилізації, коли вибрано плейсхолдер
+ */
+const initCheckoutSelectPlaceholders = () => {
+	const checkoutSelects = document.querySelectorAll('.checkout-page select[data-placeholder]');
+	
+	const updateSelectPlaceholder = (select) => {
+		const firstOption = select.options[0];
+		const isPlaceholder = select.selectedIndex === 0 && (!firstOption.value || firstOption.value === '');
+		
+		if (isPlaceholder) {
+			select.classList.add('is-placeholder');
+			select.classList.remove('has-value');
+		} else {
+			select.classList.remove('is-placeholder');
+			select.classList.add('has-value');
+		}
+	};
+	
+	checkoutSelects.forEach(select => {
+		// Перевіряємо початковий стан
+		updateSelectPlaceholder(select);
+		
+		// Обробляємо зміни
+		select.addEventListener('change', () => {
+			updateSelectPlaceholder(select);
+		});
+	});
+	
+	// Також обробляємо селекти без data-placeholder, але з першим option як плейсхолдер
+	const allCheckoutSelects = document.querySelectorAll('.checkout-page select');
+	allCheckoutSelects.forEach(select => {
+		if (select.options.length > 0) {
+			const firstOption = select.options[0];
+			// Якщо перший option має порожнє значення або текст як плейсхолдер
+			if (!firstOption.value || firstOption.value === '' || firstOption.textContent.includes('Оберіть')) {
+				updateSelectPlaceholder(select);
+				select.addEventListener('change', () => {
+					updateSelectPlaceholder(select);
+				});
+			}
+		}
+	});
+};
+
+// Ініціалізація при завантаженні сторінки
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initCheckoutSelectPlaceholders);
+} else {
+	initCheckoutSelectPlaceholders();
+}
+
+// Також ініціалізуємо після AJAX оновлень WooCommerce
+if (typeof jQuery !== 'undefined') {
+	jQuery(document.body).on('updated_checkout', function() {
+		initCheckoutSelectPlaceholders();
+	});
+}
+
