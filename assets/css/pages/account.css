@@ -981,13 +981,13 @@
 	.account-orders__table--detailed .account-orders__cell--status {
 		order: 4;
 		margin-bottom: 0;
-		margin-top: 12px; /* Gap 12px между датой и статусом */
+		margin-top: 0;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--total {
 		order: 5;
 		margin-bottom: 0;
-		margin-top: 12px; /* Gap 12px между статусом и суммой */
+		margin-top: 0;
 	}
 
 	/* Add labels before each cell on mobile - aligned with fixed width */
