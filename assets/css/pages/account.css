@@ -981,26 +981,26 @@
 	.account-orders__table--detailed .account-orders__cell--status {
 		order: 4;
 		margin-bottom: 0;
-		margin-top: 16px; /* Gap 16px между датой и статусом */
+		margin-top: 3.2vw; /* Однаковий відступ між датою та статусом */
 	}
 
 	.account-orders__table--detailed .account-orders__cell--total {
 		order: 5;
 		margin-bottom: 0;
-		margin-top: 16px; /* Gap 16px между статусом и суммой */
+		margin-top: 3.2vw; /* Однаковий відступ між статусом та сумою */
 	}
 
-	/* Add labels before each cell on mobile - centered vertically */
+	/* Add labels before each cell on mobile - aligned with fixed width */
 	.account-orders__table--detailed .account-orders__cell--date,
 	.account-orders__table--detailed .account-orders__cell--status,
 	.account-orders__table--detailed .account-orders__cell--total {
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		/* Базовое расстояние между меткой и значением */
 		gap: 12px;
 		/* Жёстко фиксируем размер шрифта 12px для мобильного варианта заказа */
 		font-size: 12px;
-		line-height: 1.4;
+		line-height: 1.3;
 	}
 
 	/* Для строки Дата даём чуть больше воздуха между меткой и самим значением,
@@ -1012,7 +1012,6 @@
 	/* Статус заказа внутри ячейки также строго 12px */
 	.account-orders__table--detailed .account-orders__cell--status .account-orders__status {
 		font-size: 12px;
-		line-height: 1.4;
 	}
 
 	/* Сумма заказа (число + символ валюты) тоже 12px */
@@ -1020,7 +1019,7 @@
 	.account-orders__table--detailed .account-orders__cell--total .woocommerce-Price-amount bdi,
 	.account-orders__table--detailed .account-orders__cell--total .woocommerce-Price-amount .woocommerce-Price-currencySymbol {
 		font-size: 12px;
-		line-height: 1.4;
+		line-height: 1.3;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--date::before,
@@ -1036,8 +1035,6 @@
 		min-width: 0;
 		flex-shrink: 0;
 		line-height: 1.4;
-		/* Синхронизируем line-height с значением для вертикального центрирования */
-		vertical-align: middle;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--date::before {
@@ -1119,14 +1116,13 @@
 
 	.account-orders__status {
 		display: inline;
-		font-size: 12px;
+		font-size: 4vw;
 		padding: 0;
 		border-radius: 0;
 		background: transparent;
 		color: #303030;
-		margin-top: 0;
+		margin-top: 1.067vw;
 		font-weight: 400;
-		line-height: 1.4;
 	}
 
 	/* Remove status colors on mobile - use plain text */
