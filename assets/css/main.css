@@ -6054,6 +6054,19 @@ ul.products {
 	box-sizing: border-box !important;
 	opacity: 1 !important;
 	visibility: visible !important;
+	position: relative !important;
+}
+
+/* Красная линия в каталоге */
+ul.products::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background-color: #ff0000;
+	z-index: 1;
 }
 
 ul.products.columns-4 li.product {
