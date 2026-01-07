@@ -4379,8 +4379,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 .checkout-order-review__total {
-	margin-top: 0.833vw;
-	padding-top: 0.833vw;
+	margin-top: 0;
+	padding-top: 0;
 	border-top: none;
 }
 
@@ -4995,6 +4995,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 
 	.checkout-order-review__total {
+		margin-top: 0;
+		padding-top: 0;
 		margin-bottom: 4vw;
 	}
 
