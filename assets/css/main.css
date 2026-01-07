@@ -4024,9 +4024,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 /* Лейбли для полів доставки з плейсхолдером - колір як у плейсхолдера */
 .checkout-page #shipping_delivery_date_field:has(select.is-placeholder) label,
+.checkout-page #shipping_delivery_date_field:has(input.is-placeholder) label,
 .checkout-page #shipping_delivery_time_field:has(select.is-placeholder) label,
 .checkout-page #shipping_packaging_field:has(select.is-placeholder) label,
 .checkout-page p#shipping_delivery_date_field:has(select.is-placeholder) label,
+.checkout-page p#shipping_delivery_date_field:has(input.is-placeholder) label,
 .checkout-page p#shipping_delivery_time_field:has(select.is-placeholder) label,
 .checkout-page p#shipping_packaging_field:has(select.is-placeholder) label,
 .checkout-page #shipping_delivery_date_field label.is-placeholder-label,
@@ -4040,9 +4042,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 /* Лейбли для полів доставки з вибраним значенням - звичайний колір */
 .checkout-page #shipping_delivery_date_field:has(select.has-value) label,
+.checkout-page #shipping_delivery_date_field:has(input.has-value) label,
 .checkout-page #shipping_delivery_time_field:has(select.has-value) label,
 .checkout-page #shipping_packaging_field:has(select.has-value) label,
 .checkout-page p#shipping_delivery_date_field:has(select.has-value) label,
+.checkout-page p#shipping_delivery_date_field:has(input.has-value) label,
 .checkout-page p#shipping_delivery_time_field:has(select.has-value) label,
 .checkout-page p#shipping_packaging_field:has(select.has-value) label,
 .checkout-page #shipping_delivery_date_field label.has-value-label,
@@ -4821,9 +4825,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	/* Лейбли для полів доставки з плейсхолдером на мобільному */
 	.checkout-page #shipping_delivery_date_field:has(select.is-placeholder) label,
+	.checkout-page #shipping_delivery_date_field:has(input.is-placeholder) label,
 	.checkout-page #shipping_delivery_time_field:has(select.is-placeholder) label,
 	.checkout-page #shipping_packaging_field:has(select.is-placeholder) label,
 	.checkout-page p#shipping_delivery_date_field:has(select.is-placeholder) label,
+	.checkout-page p#shipping_delivery_date_field:has(input.is-placeholder) label,
 	.checkout-page p#shipping_delivery_time_field:has(select.is-placeholder) label,
 	.checkout-page p#shipping_packaging_field:has(select.is-placeholder) label,
 	.checkout-page #shipping_delivery_date_field label.is-placeholder-label,
@@ -4837,9 +4843,11 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	/* Лейбли для полів доставки з вибраним значенням на мобільному */
 	.checkout-page #shipping_delivery_date_field:has(select.has-value) label,
+	.checkout-page #shipping_delivery_date_field:has(input.has-value) label,
 	.checkout-page #shipping_delivery_time_field:has(select.has-value) label,
 	.checkout-page #shipping_packaging_field:has(select.has-value) label,
 	.checkout-page p#shipping_delivery_date_field:has(select.has-value) label,
+	.checkout-page p#shipping_delivery_date_field:has(input.has-value) label,
 	.checkout-page p#shipping_delivery_time_field:has(select.has-value) label,
 	.checkout-page p#shipping_packaging_field:has(select.has-value) label,
 	.checkout-page #shipping_delivery_date_field label.has-value-label,

@@ -5231,6 +5231,38 @@ const initCheckoutSelectPlaceholders = () => {
 			}
 		}
 	});
+	
+	// Обробляємо поле дати доставки (input[type="date"])
+	const dateInput = document.querySelector('#shipping_delivery_date');
+	if (dateInput) {
+		const updateDatePlaceholder = () => {
+			const fieldWrapper = dateInput.closest('.woocommerce-shipping-fields__field-wrapper, p');
+			const label = fieldWrapper ? fieldWrapper.querySelector('label') : null;
+			
+			if (!dateInput.value || dateInput.value === '') {
+				dateInput.classList.add('is-placeholder');
+				dateInput.classList.remove('has-value');
+				if (label) {
+					label.classList.add('is-placeholder-label');
+					label.classList.remove('has-value-label');
+				}
+			} else {
+				dateInput.classList.remove('is-placeholder');
+				dateInput.classList.add('has-value');
+				if (label) {
+					label.classList.remove('is-placeholder-label');
+					label.classList.add('has-value-label');
+				}
+			}
+		};
+		
+		// Перевіряємо початковий стан
+		updateDatePlaceholder();
+		
+		// Обробляємо зміни
+		dateInput.addEventListener('change', updateDatePlaceholder);
+		dateInput.addEventListener('input', updateDatePlaceholder);
+	}
 };
 
 // Ініціалізація при завантаженні сторінки
