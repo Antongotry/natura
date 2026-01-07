@@ -5186,12 +5186,24 @@ const initCheckoutSelectPlaceholders = () => {
 		const firstOption = select.options[0];
 		const isPlaceholder = select.selectedIndex === 0 && (!firstOption.value || firstOption.value === '');
 		
+		// Знаходимо лейбл для цього селекта
+		const fieldWrapper = select.closest('.woocommerce-shipping-fields__field-wrapper, p');
+		const label = fieldWrapper ? fieldWrapper.querySelector('label') : null;
+		
 		if (isPlaceholder) {
 			select.classList.add('is-placeholder');
 			select.classList.remove('has-value');
+			if (label) {
+				label.classList.add('is-placeholder-label');
+				label.classList.remove('has-value-label');
+			}
 		} else {
 			select.classList.remove('is-placeholder');
 			select.classList.add('has-value');
+			if (label) {
+				label.classList.remove('is-placeholder-label');
+				label.classList.add('has-value-label');
+			}
 		}
 	};
 	
