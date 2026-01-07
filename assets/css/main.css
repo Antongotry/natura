@@ -3948,15 +3948,17 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
-	.checkout-page .woocommerce-checkout select,
-	.checkout-page .checkout-section select {
-		appearance: none;
-		background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23303030' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-		background-repeat: no-repeat;
-		background-position: right 1.042vw center;
-		background-size: 0.833vw;
-		padding-right: 3.125vw;
-	}
+.checkout-page .woocommerce-checkout select,
+.checkout-page .checkout-section select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23303030' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 1.042vw center;
+	background-size: 0.833vw;
+	padding-right: 3.125vw;
+	/* За замовчуванням колір плейсхолдера, поки не вибрано значення */
+	color: #3030304D;
+}
 
 	/* Стиль для селектів та інпутів з плейсхолдером на мобільному */
 	.checkout-page .woocommerce-checkout select:invalid,
@@ -3999,8 +4001,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .woocommerce-checkout select.is-placeholder,
 .checkout-page .checkout-section select.is-placeholder,
 .checkout-page .woocommerce-checkout input[type="date"].is-placeholder,
-.checkout-page .checkout-section input[type="date"].is-placeholder {
-	color: #3030304D;
+.checkout-page .checkout-section input[type="date"].is-placeholder,
+.checkout-page .woocommerce-checkout select:not(.has-value),
+.checkout-page .checkout-section select:not(.has-value) {
+	color: #3030304D !important;
 }
 
 /* Стиль для селектів та інпутів з вибраним значенням */
