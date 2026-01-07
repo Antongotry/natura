@@ -59,7 +59,7 @@ $product_card_title = get_post_meta( $product->get_id(), '_product_card_title', 
 					</a>
 				</div>
 
-				<div class="product-card__price-wrapper">
+				<div class="product-card__price-wrapper product-card__price-wrapper--desktop">
 					<?php woocommerce_template_loop_price(); ?>
 				</div>
 			</div>
@@ -69,6 +69,10 @@ $product_card_title = get_post_meta( $product->get_id(), '_product_card_title', 
 					<?php echo wp_kses_post( $product->get_short_description() ); ?>
 				</div>
 			<?php endif; ?>
+
+			<div class="product-card__price-wrapper product-card__price-wrapper--mobile">
+				<?php woocommerce_template_loop_price(); ?>
+			</div>
 
 			<div class="product-card__button-wrapper">
 				<?php woocommerce_template_loop_add_to_cart(); ?>

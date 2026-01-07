@@ -554,6 +554,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		background-color: #ffffff !important;
 		overflow-y: auto !important;
 		overflow-x: hidden !important;
+		-webkit-overflow-scrolling: touch !important;
 		/* Fixed позиционирование выносит элемент из потока, не влияет на высоту header */
 		-webkit-transform: translateZ(0) !important;
 		transform: translateZ(0) !important;
@@ -1803,6 +1804,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	z-index: 1000004;
 	max-height: 60vh;
 	overflow-y: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
 	display: none;
 	box-shadow: none;
 }
@@ -3793,8 +3796,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page__right {
 	background-color: #ffffff;
 	border-radius: 0.26vw;
-	/* Линии блоков в чекауте делаем очень лёгкими (20% opacity) */
-	border: 1px solid rgba(48, 48, 48, 0.2);
+	border: 1px solid rgba(48, 48, 48, 0.1);
 	padding: 2.083vw;
 	box-sizing: border-box;
 	flex-shrink: 0;
@@ -6230,8 +6232,13 @@ li.product .product-card,
 
 /* Desktop: nudge price down to align visually with the first line of the title */
 @media (min-width: 1026px) {
-	.product-card__price-wrapper {
-		transform: translateY(0.1em);
+	.product-card__price-wrapper--desktop {
+		display: flex !important;
+		transform: translateY(calc(0.1em - 0.05vw));
+	}
+	
+	.product-card__price-wrapper--mobile {
+		display: none !important;
 	}
 }
 
@@ -7291,6 +7298,7 @@ li.product .product-card,
 		/* Делаем кнопку удаления ближе к калькулятору количества */
 		gap: 3.333vw;
 		padding-right: 0;
+		margin-top: 16px;
 	}
 
 	/* На мобильном quantity слева, delete справа, оба внутри ширины ряда */
@@ -7691,7 +7699,7 @@ li.product .product-card,
 		display: flex !important;
 		flex-direction: column !important;
 		flex: 1 !important;
-		justify-content: space-between !important;
+		justify-content: flex-start !important; /* Изменено с space-between на flex-start для правильной работы margin-top: auto */
 		min-height: 0 !important;
 	}
 
@@ -7716,8 +7724,10 @@ li.product .product-card,
 		align-items: flex-start !important;
 		justify-content: flex-start !important;
 		gap: 0 !important;
-		margin-bottom: 0;
+		margin-bottom: 5.333vw !important; /* Отступ от названия до цены равен отступу от цены до кнопки */
 		min-width: 0;
+		flex: 1 1 auto !important; /* Занимает доступное пространство, растягивается */
+		order: 1 !important;
 	}
 
 	.product-card__title-wrapper {
@@ -7760,22 +7770,28 @@ li.product .product-card,
 		white-space: nowrap;
 	}
 
-	.product-card__price-wrapper {
-		flex-shrink: 0;
-		align-self: flex-start;
-		margin-top: 6.933vw !important;
-		margin-bottom: 5.333vw !important;
+	/* Скрываем цену для мобильных внутри title-price-wrapper */
+	.product-card__price-wrapper--desktop {
+		display: none !important; /* Скрываем на мобильных */
+	}
+	
+	/* Показываем цену на уровне content для мобильных и фиксируем внизу */
+	.product-card__price-wrapper--mobile {
+		flex-shrink: 0 !important;
+		margin-top: auto !important; /* Прижимаем цену вниз перед кнопкой */
+		margin-bottom: 5.333vw !important; /* Отступ от цены до кнопки */
+		margin-left: 0 !important;
+		margin-right: 0 !important;
 		text-align: left !important;
 		width: 100% !important;
-		order: 2 !important;
+		order: 2 !important; /* После названия, перед кнопкой */
 		display: flex !important;
 		align-items: baseline !important;
+		justify-content: flex-start !important;
 		gap: 1.6vw !important;
 		white-space: nowrap;
 		/* Prevent scrolling on price wrapper */
 		overflow: visible !important;
-		/* КРИТИЧНО: УБРАНО touch-action: none - оно блокировало скролл всей корзины! */
-		/* touch-action: none !important; - УДАЛЕНО */
 		/* КРИТИЧНО: Разрешаем pan-y для скролла корзины */
 		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 		-webkit-overflow-scrolling: auto !important;
@@ -7819,7 +7835,7 @@ li.product .product-card,
 	}
 
 	.product-card__button-wrapper {
-		margin-top: auto !important;
+		margin-top: 0 !important; /* Отступ уже задан через margin-bottom цены */
 		margin-bottom: 0 !important;
 		width: 100% !important;
 		order: 4 !important;
