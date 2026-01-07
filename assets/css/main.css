@@ -7701,6 +7701,7 @@ li.product .product-card,
 		flex: 1 !important;
 		justify-content: flex-start !important; /* Изменено с space-between на flex-start для правильной работы margin-top: auto */
 		min-height: 0 !important;
+		height: 100% !important; /* КРИТИЧНО: Для правильной работы margin-top: auto */
 	}
 
 	/* Убираем горизонтальный скролл у всех элементов карточки */
