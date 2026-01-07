@@ -319,7 +319,7 @@ function natura_customize_checkout_fields($fields) {
 	// Комментарий - делаем однострочным полем
 	if (isset($fields['order']['order_comments'])) {
 		$fields['order']['order_comments']['label'] = __('Коментар', 'natura');
-		$fields['order']['order_comments']['placeholder'] = __('Нотатки до вашого замовлення. Якщо маєте побажання або примітки по доставці - вкажіть.', 'natura');
+		$fields['order']['order_comments']['placeholder'] = __('Нотатки до вашого замовлення', 'natura');
 		$fields['order']['order_comments']['required'] = false;
 		$fields['order']['order_comments']['class'] = array('form-row-wide');
 		$fields['order']['order_comments']['type'] = 'text';
