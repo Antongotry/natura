@@ -7795,6 +7795,7 @@ li.product .product-card,
 		/* КРИТИЧНО: Разрешаем pan-y для скролла корзины */
 		touch-action: pan-y !important; /* Разрешаем вертикальный скролл корзины */
 		-webkit-overflow-scrolling: auto !important;
+	}
 	
 	/* КРИТИЧНО: В корзине ВСЕ элементы должны разрешать pan-y для скролла */
 	.mini-cart-sidebar .product-card__price-wrapper,
