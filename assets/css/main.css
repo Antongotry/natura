@@ -4094,7 +4094,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	line-height: 0 !important;
 }
 
-/* Красная подсветка незаполненных обязательных полей - используем классы WooCommerce */
+/* Красная подсветка незаполненных обязательных полей - используем классы WooCommerce, точно как focus */
 .checkout-page .form-row--error input,
 .checkout-page .form-row--error select,
 .checkout-page .form-row--error textarea,
@@ -4107,8 +4107,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page input.woocommerce-invalid,
 .checkout-page select.woocommerce-invalid,
 .checkout-page textarea.woocommerce-invalid {
+	outline: none;
 	border-color: #ff0000 !important;
-	border-width: 1px !important;
 	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1) !important;
 }
 
