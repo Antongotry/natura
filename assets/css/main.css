@@ -4856,9 +4856,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .checkout-section input[type="password"],
 	.checkout-page .checkout-section input[type="date"],
 	.checkout-page .checkout-section select {
-		padding: 4vw !important;
-		padding-top: 4vw !important;
-		padding-bottom: 4vw !important;
+		padding: 0 4vw !important;
+		padding-top: 0 !important;
+		padding-bottom: 0 !important;
 		padding-left: 4vw !important;
 		padding-right: 4vw !important;
 		font-size: 4vw !important;
@@ -4873,8 +4873,6 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		/* КРИТИЧНО: Исправляем выравнивание текста по высоте и предотвращаем обрезание букв */
 		line-height: 13.333vw !important;
 		vertical-align: middle !important;
-		display: flex !important;
-		align-items: center !important;
 		text-align: left !important;
 		/* КРИТИЧНО: Предотвращаем обрезание букв */
 		overflow: visible !important;
@@ -4909,9 +4907,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		/* КРИТИЧНО: Убираем любые margin/padding, которые могут вызывать выход за границы */
 		margin-left: 0 !important;
 		margin-right: 0 !important;
-		padding: 4vw !important;
-		padding-top: 4vw !important;
-		padding-bottom: 4vw !important;
+		padding: 0 4vw !important;
+		padding-top: 0 !important;
+		padding-bottom: 0 !important;
 		padding-left: 4vw !important;
 		padding-right: 4vw !important;
 		/* КРИТИЧНО для iOS: Убираем нативные стили браузера */
@@ -4928,8 +4926,6 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		/* КРИТИЧНО: Исправляем выравнивание текста по высоте и предотвращаем обрезание букв */
 		line-height: 13.333vw !important;
 		vertical-align: middle !important;
-		display: flex !important;
-		align-items: center !important;
 		/* КРИТИЧНО: Убираем центрирование текста - выравниваем по левому краю */
 		text-align: left !important;
 		/* КРИТИЧНО: Предотвращаем обрезание букв */
