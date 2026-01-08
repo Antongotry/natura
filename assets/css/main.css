@@ -7236,6 +7236,8 @@ li.product .product-card,
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__content {
 		position: relative;
+		/* КРИТИЧНО: Уменьшаем отступ между названием и калькулятором */
+		gap: 2vw !important;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
@@ -7724,7 +7726,8 @@ li.product .product-card,
 		line-height: 100% !important;
 		/* Prevent overlap with absolutely positioned price */
 		display: block;
-		padding-right: 20vw;
+		/* КРИТИЧНО: Уменьшаем padding-right, чтобы дать больше места для названия */
+		padding-right: 15vw;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name::after {
