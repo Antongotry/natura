@@ -5386,17 +5386,34 @@ function initCheckoutErrorHighlighting() {
 		let firstErrorField = null;
 
 		errorRows.forEach(function(row) {
-			console.log('Обрабатываем row:', row);
+			console.log('Обрабатываем row:', row, row.className);
 			// Находим ТОЛЬКО input, select, textarea внутри row, НЕ сам row
-			const inputs = row.querySelectorAll('input, select, textarea');
+			// Ищем сначала в .woocommerce-input-wrapper, потом везде
+			let inputs = row.querySelectorAll('.woocommerce-input-wrapper input, .woocommerce-input-wrapper select, .woocommerce-input-wrapper textarea');
+			if (inputs.length === 0) {
+				inputs = row.querySelectorAll('input, select, textarea');
+			}
 			console.log('Найдено inputs в row:', inputs.length);
 			inputs.forEach(function(input) {
-				console.log('Применяем стили к input:', input);
+				console.log('Применяем стили к input:', input, input.type, input.id);
 				// Применяем стили точно как focus, только красным - используем полное свойство border
 				input.style.setProperty('outline', 'none', 'important');
 				input.style.setProperty('border', '1px solid #ff0000', 'important');
 				input.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
-				console.log('Стили применены, border:', input.style.border);
+				console.log('Стили применены, border:', input.style.border, 'computed:', window.getComputedStyle(input).border);
+				
+				// Дополнительно скрываем все текстовые сообщения об ошибках в этом row
+				const errorMessages = row.querySelectorAll('.woocommerce-error, .woocommerce-error-message, span.woocommerce-error');
+				errorMessages.forEach(function(msg) {
+					msg.style.setProperty('display', 'none', 'important');
+					msg.style.setProperty('visibility', 'hidden', 'important');
+					msg.style.setProperty('height', '0', 'important');
+					msg.style.setProperty('overflow', 'hidden', 'important');
+					msg.style.setProperty('margin', '0', 'important');
+					msg.style.setProperty('padding', '0', 'important');
+					msg.style.setProperty('font-size', '0', 'important');
+					msg.style.setProperty('line-height', '0', 'important');
+				});
 				
 				if (!firstErrorField) {
 					firstErrorField = input;

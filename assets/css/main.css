@@ -4062,7 +4062,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	color: #30303099;
 }
 
-/* Скрываем все текстовые сообщения об ошибках */
+/* КРИТИЧНО: Скрываем ВСЕ текстовые сообщения об ошибках - максимально агрессивно */
 .checkout-page .woocommerce-error,
 .checkout-page .woocommerce-error li,
 .checkout-page .woocommerce-error-message,
@@ -4089,6 +4089,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .form-row--error > .woocommerce-error-message,
 .checkout-page .woocommerce-form-row--error > .woocommerce-error,
 .checkout-page .woocommerce-form-row--error > .woocommerce-error-message,
+/* Дополнительно: скрываем ВСЕ span с классом woocommerce-error */
+.checkout-page span.woocommerce-error,
+.checkout-page .form-row--error span.woocommerce-error,
+.checkout-page .woocommerce-form-row--error span.woocommerce-error,
+.checkout-page #billing_phone_field .woocommerce-error,
+.checkout-page #billing_phone_field span.woocommerce-error,
 /* Скрываем любые текстовые узлы с текстом об ошибках внутри .form-row */
 .checkout-page .form-row--error:not(:has(input)):not(:has(select)):not(:has(textarea)),
 .checkout-page .form-row--error *:not(input):not(select):not(textarea):not(label):not(.woocommerce-input-wrapper),
