@@ -4293,7 +4293,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-order-review__item-name {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	font-size: 1.25vw;
+	font-size: 1.042vw;
 	line-height: 100%;
 	letter-spacing: -0.03em;
 	color: #303030;
@@ -4318,7 +4318,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-order-review__item-price {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	font-size: 1.25vw;
+	font-size: 1.042vw;
 	line-height: 100%;
 	letter-spacing: -0.03em;
 	color: #303030;
@@ -4333,7 +4333,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	content: 'Вартість товару: ';
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	font-size: 1.25vw;
+	font-size: 1.042vw;
 	line-height: 100%;
 	letter-spacing: -0.03em;
 	color: #30303066;
