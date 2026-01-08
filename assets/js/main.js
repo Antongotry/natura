@@ -5379,6 +5379,8 @@ function initCheckoutErrorHighlighting() {
 
 	// Функция для проверки и подсветки ошибок
 	function highlightErrors() {
+		let hasErrors = false;
+		
 		// Находим все обязательные поля
 		const requiredFields = checkoutForm.querySelectorAll('input[required], select[required], textarea[required]');
 		
@@ -5397,53 +5399,85 @@ function initCheckoutErrorHighlighting() {
 			}
 			
 			if (isEmpty) {
+				hasErrors = true;
 				field.classList.add('has-error');
-				field.style.borderColor = '#ff0000';
-				field.style.borderWidth = '1px';
+				field.style.setProperty('border-color', '#ff0000', 'important');
+				field.style.setProperty('border-width', '1px', 'important');
+				
+				// Прокручиваем к первому полю с ошибкой
+				if (!document.querySelector('.checkout-page__scroll-to-error')) {
+					field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					field.focus();
+					// Добавляем маркер, чтобы не прокручивать несколько раз
+					document.body.classList.add('checkout-page__scroll-to-error');
+					setTimeout(function() {
+						document.body.classList.remove('checkout-page__scroll-to-error');
+					}, 1000);
+				}
 			} else {
 				field.classList.remove('has-error');
-				field.style.borderColor = '';
-				field.style.borderWidth = '';
+				field.style.removeProperty('border-color');
+				field.style.removeProperty('border-width');
 			}
 		});
 
 		// Также проверяем поля с классом form-row--error
 		const errorRows = checkoutForm.querySelectorAll('.form-row--error');
 		errorRows.forEach(function(row) {
+			hasErrors = true;
 			const inputs = row.querySelectorAll('input, select, textarea');
 			inputs.forEach(function(input) {
 				input.classList.add('has-error');
-				input.style.borderColor = '#ff0000';
-				input.style.borderWidth = '1px';
+				input.style.setProperty('border-color', '#ff0000', 'important');
+				input.style.setProperty('border-width', '1px', 'important');
 			});
 		});
+
+		return hasErrors;
 	}
 
-	// Обработчик клика на кнопку отправки (до отправки формы)
+	// Обработчик клика на кнопку отправки (до отправки формы) - с максимальным приоритетом
 	const submitButton = checkoutForm.querySelector('#place_order');
 	if (submitButton) {
 		submitButton.addEventListener('click', function(e) {
-			// Небольшая задержка, чтобы проверить после того как WooCommerce начнет валидацию
-			setTimeout(highlightErrors, 50);
-		});
+			// Проверяем сразу, без задержки
+			const hasErrors = highlightErrors();
+			
+			if (hasErrors) {
+				// Предотвращаем отправку формы
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				return false;
+			}
+		}, true); // Используем capture phase для раннего перехвата
 	}
 
-	// Обработчик попытки отправки формы
+	// Обработчик попытки отправки формы - с максимальным приоритетом
 	checkoutForm.addEventListener('submit', function(e) {
-		highlightErrors();
-		// Если есть ошибки, предотвращаем отправку и подсвечиваем еще раз
-		setTimeout(highlightErrors, 100);
-	});
+		const hasErrors = highlightErrors();
+		
+		if (hasErrors) {
+			// Предотвращаем отправку формы
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			return false;
+		}
+	}, true); // Используем capture phase
 
 	// Используем jQuery события WooCommerce
 	if (typeof jQuery !== 'undefined') {
-		// Слушаем событие валидации
-		jQuery(document.body).on('checkout_error', function() {
-			setTimeout(highlightErrors, 100);
+		// Перехватываем событие до того, как WooCommerce обработает его
+		jQuery(document.body).on('checkout_place_order', function(e, data) {
+			const hasErrors = highlightErrors();
+			if (hasErrors) {
+				return false; // Предотвращаем отправку
+			}
 		});
 
-		// Слушаем событие попытки разместить заказ
-		jQuery(document.body).on('checkout_place_order', function() {
+		// Слушаем событие валидации
+		jQuery(document.body).on('checkout_error', function() {
 			setTimeout(highlightErrors, 50);
 		});
 
@@ -5464,8 +5498,8 @@ function initCheckoutErrorHighlighting() {
 					
 					if (!isEmpty) {
 						field.classList.remove('has-error');
-						field.style.borderColor = '';
-						field.style.borderWidth = '';
+						field.style.removeProperty('border-color');
+						field.style.removeProperty('border-width');
 					}
 				}
 			}, 10);
