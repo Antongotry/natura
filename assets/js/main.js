@@ -5382,17 +5382,92 @@ function initCheckoutErrorHighlighting() {
 	// Функция для подсветки полей с ошибками (использует классы WooCommerce)
 	function highlightErrorFields() {
 		console.log('🔍 ========== highlightErrorFields вызвана ==========');
+		
+		// ДИАГНОСТИКА: Проверяем ВСЕ возможные варианты классов ошибок
+		console.log('🔎 ДИАГНОСТИКА: Ищем все возможные классы ошибок...');
+		const allPossibleErrorSelectors = [
+			'.form-row--error',
+			'.woocommerce-form-row--error',
+			'.form-row.woocommerce-invalid',
+			'.form-row.woocommerce-invalid-required-field',
+			'p.woocommerce-invalid',
+			'p.woocommerce-invalid-required-field',
+			'#billing_phone_field.woocommerce-invalid',
+			'#billing_phone_field.woocommerce-invalid-required-field'
+		];
+		
+		allPossibleErrorSelectors.forEach(function(selector) {
+			const elements = checkoutForm.querySelectorAll(selector);
+			if (elements.length > 0) {
+				console.log(`  ✅ Найдено ${elements.length} элементов с селектором: ${selector}`);
+				elements.forEach(function(el, i) {
+					console.log(`    [${i}] ID: ${el.id}, Classes: ${el.className}, Tag: ${el.tagName}`);
+				});
+			}
+		});
+		
+		// Ищем по тексту ошибки
+		console.log('🔎 Ищем элементы с текстом ошибки...');
+		const allElements = checkoutForm.querySelectorAll('*');
+		allElements.forEach(function(el) {
+			const text = el.textContent || '';
+			if (text.includes('обов') || text.includes('Оплата') || text.includes('обязательн')) {
+				console.log('  📝 Найден элемент с текстом ошибки:', el);
+				console.log('    - Tag:', el.tagName);
+				console.log('    - ID:', el.id);
+				console.log('    - Classes:', el.className);
+				console.log('    - Text:', text.substring(0, 100));
+				console.log('    - Parent:', el.parentElement?.tagName, el.parentElement?.className, el.parentElement?.id);
+			}
+		});
+		
 		// Находим все поля с классом form-row--error (WooCommerce добавляет этот класс при ошибке)
 		const errorRows = checkoutForm.querySelectorAll('.form-row--error, .woocommerce-form-row--error');
-		console.log('📋 Найдено errorRows:', errorRows.length);
+		console.log('📋 Найдено errorRows (стандартные классы):', errorRows.length);
 		
-		if (errorRows.length === 0) {
+		// Также ищем по другим возможным классам
+		const errorRowsAlt = checkoutForm.querySelectorAll('.form-row.woocommerce-invalid, .form-row.woocommerce-invalid-required-field, p.woocommerce-invalid, p.woocommerce-invalid-required-field');
+		console.log('📋 Найдено errorRows (альтернативные классы):', errorRowsAlt.length);
+		
+		// Объединяем все найденные rows
+		const allErrorRows = new Set();
+		errorRows.forEach(row => allErrorRows.add(row));
+		errorRowsAlt.forEach(row => allErrorRows.add(row));
+		
+		console.log('📋 Всего уникальных errorRows:', allErrorRows.size);
+		
+		if (allErrorRows.size === 0) {
 			console.log('⚠️ Нет элементов с классом form-row--error или woocommerce-form-row--error');
+			console.log('🔍 Проверяем все .form-row элементы...');
+			const allFormRows = checkoutForm.querySelectorAll('.form-row, p.form-row');
+			console.log('  Найдено всего .form-row:', allFormRows.length);
+			allFormRows.forEach(function(row, i) {
+				if (i < 5) { // Показываем первые 5
+					console.log(`    [${i}] ID: ${row.id}, Classes: ${row.className}, Tag: ${row.tagName}`);
+				}
+			});
 		}
 		
 		let firstErrorField = null;
 
-		errorRows.forEach(function(row, index) {
+		// Используем объединенный список
+		const rowsToProcess = Array.from(allErrorRows);
+		if (rowsToProcess.length === 0) {
+			// Если не нашли по классам, ищем по наличию текста ошибки
+			console.log('🔍 Ищем rows по наличию текста ошибки...');
+			const allRows = checkoutForm.querySelectorAll('.form-row, p.form-row, .woocommerce-form-row');
+			allRows.forEach(function(row) {
+				const text = row.textContent || '';
+				if (text.includes('обов') || text.includes('Оплата') || text.includes('обязательн')) {
+					console.log('  ✅ Найден row с текстом ошибки:', row);
+					console.log('    - ID:', row.id);
+					console.log('    - Classes:', row.className);
+					rowsToProcess.push(row);
+				}
+			});
+		}
+
+		rowsToProcess.forEach(function(row, index) {
 			console.log(`\n📦 Обрабатываем row #${index + 1}:`, row);
 			console.log('  - ID:', row.id);
 			console.log('  - Classes:', row.className);
