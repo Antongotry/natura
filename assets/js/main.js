@@ -5532,12 +5532,13 @@ function initCheckoutErrorHighlighting() {
 				}
 				
 				// Дополнительно скрываем все текстовые сообщения об ошибках в этом row
-				const errorMessages = row.querySelectorAll('.woocommerce-error, .woocommerce-error-message, span.woocommerce-error');
+				const errorMessages = row.querySelectorAll('.woocommerce-error, .woocommerce-error-message, span.woocommerce-error, .checkout-inline-error-message, p.checkout-inline-error-message, #billing_phone_description');
 				console.log('    - Найдено errorMessages:', errorMessages.length);
 				errorMessages.forEach(function(msg, msgIndex) {
 					console.log(`      [${msgIndex}] Скрываем сообщение:`, msg);
 					console.log('        - Tag:', msg.tagName);
 					console.log('        - Classes:', msg.className);
+					console.log('        - ID:', msg.id);
 					console.log('        - Text:', msg.textContent?.substring(0, 50));
 					console.log('        - Display ДО:', window.getComputedStyle(msg).display);
 					
@@ -5552,6 +5553,17 @@ function initCheckoutErrorHighlighting() {
 					
 					console.log('        - Display ПОСЛЕ:', window.getComputedStyle(msg).display);
 					console.log('        - Visibility ПОСЛЕ:', window.getComputedStyle(msg).visibility);
+				});
+				
+				// Также скрываем блоки с ошибками вверху формы
+				const noticeGroups = checkoutForm.querySelectorAll('.woocommerce-NoticeGroup, .woocommerce-NoticeGroup-checkout');
+				noticeGroups.forEach(function(group) {
+					group.style.setProperty('display', 'none', 'important');
+					group.style.setProperty('visibility', 'hidden', 'important');
+					group.style.setProperty('height', '0', 'important');
+					group.style.setProperty('overflow', 'hidden', 'important');
+					group.style.setProperty('margin', '0', 'important');
+					group.style.setProperty('padding', '0', 'important');
 				});
 				
 				if (!firstErrorField) {

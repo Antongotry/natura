@@ -4095,6 +4095,18 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .woocommerce-form-row--error span.woocommerce-error,
 .checkout-page #billing_phone_field .woocommerce-error,
 .checkout-page #billing_phone_field span.woocommerce-error,
+/* КРИТИЧНО: Скрываем checkout-inline-error-message (текст под инпутом) */
+.checkout-page .checkout-inline-error-message,
+.checkout-page p.checkout-inline-error-message,
+.checkout-page #billing_phone_description,
+.checkout-page .form-row--error .checkout-inline-error-message,
+.checkout-page .form-row--error p.checkout-inline-error-message,
+.checkout-page .woocommerce-form-row--error .checkout-inline-error-message,
+.checkout-page .woocommerce-form-row--error p.checkout-inline-error-message,
+/* Скрываем блоки с ошибками вверху формы */
+.checkout-page .woocommerce-NoticeGroup,
+.checkout-page .woocommerce-NoticeGroup-checkout,
+.checkout-page .woocommerce-NoticeGroup ul.woocommerce-error,
 /* Скрываем любые текстовые узлы с текстом об ошибках внутри .form-row */
 .checkout-page .form-row--error:not(:has(input)):not(:has(select)):not(:has(textarea)),
 .checkout-page .form-row--error *:not(input):not(select):not(textarea):not(label):not(.woocommerce-input-wrapper),
