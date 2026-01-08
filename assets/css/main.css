@@ -7239,20 +7239,18 @@ li.product .product-card,
 		position: relative;
 		/* КРИТИЧНО: Уменьшаем отступ между названием, ценой, калькулятором и удалением */
 		gap: 1vw !important;
+		/* Выравниваем элементы по центру вертикально относительно фото */
+		justify-content: center !important;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
-		position: absolute;
-		top: -5px;
-		right: 0;
+		position: static;
 		/* Межстрочка в кошику 100% */
 		line-height: 100% !important;
-		/* Вирівнюємо ціну по центру першого рядка назви */
+		/* Вирівнюємо ціну по центру */
 		display: flex;
 		align-items: center;
 		gap: 0.2em;
-		/* Висота першого рядка назви (font-size + line-height) */
-		height: 4vw;
 	}
 
 	/* Вирівнювання символу гривні на мобільному */
