@@ -4879,6 +4879,22 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		overflow: visible !important;
 		text-overflow: clip !important;
 	}
+	
+	/* КРИТИЧНО: Дополнительные стили для select на мобильной версии */
+	.checkout-page .woocommerce-checkout select,
+	.checkout-page .checkout-section select {
+		/* КРИТИЧНО: Учитываем иконку справа при padding-right */
+		padding-right: 12vw !important;
+		/* КРИТИЧНО: Исправляем выравнивание текста по высоте */
+		line-height: 13.333vw !important;
+		vertical-align: middle !important;
+		/* КРИТИЧНО: Предотвращаем обрезание букв */
+		overflow: visible !important;
+		text-overflow: clip !important;
+		/* КРИТИЧНО: Выравнивание по левому краю */
+		text-align: left !important;
+		text-align-last: left !important;
+	}
 
 	/* КРИТИЧНО: Textarea должна иметь большую высоту */
 	.checkout-page .woocommerce-checkout textarea,
