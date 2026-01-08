@@ -5414,6 +5414,18 @@ function initCheckoutErrorHighlighting() {
 			}
 			
 			inputs.forEach(function(input) {
+				// Пропускаем необязательные поля (order_comments и другие без required)
+				if (!input.hasAttribute('required') && 
+				    !input.hasAttribute('aria-required') && 
+				    input.getAttribute('aria-required') !== 'true' &&
+				    input.id !== 'order_comments' &&
+				    input.name !== 'order_comments') {
+					// Проверяем, есть ли класс woocommerce-invalid-required-field (только для обязательных)
+					if (!row.classList.contains('woocommerce-invalid-required-field')) {
+						return; // Пропускаем необязательные поля
+					}
+				}
+				
 				// Применяем стили точно как focus, только красным - используем полное свойство border
 				input.style.setProperty('outline', 'none', 'important');
 				input.style.setProperty('border', '1px solid #ff0000', 'important');
