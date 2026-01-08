@@ -5003,15 +5003,20 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page #shipping_delivery_date.is-placeholder {
 		color: transparent !important;
 		opacity: 1 !important;
-		/* КРИТИЧНО: Делаем текст прозрачным, чтобы показать псевдоэлемент */
+		/* КРИТИЧНО: Делаем текст прозрачным, чтобы показать псевдоэлемент на wrapper */
 		-webkit-text-fill-color: transparent !important;
 	}
 	
-	/* КРИТИЧНО для iOS: Псевдоэлемент для отображения placeholder "дд.мм.рррр" */
-	.checkout-page .woocommerce-checkout input[type="date"].is-placeholder::before,
-	.checkout-page .checkout-section input[type="date"].is-placeholder::before,
-	.checkout-page input[type="date"].is-placeholder::before,
-	.checkout-page #shipping_delivery_date.is-placeholder::before {
+	/* КРИТИЧНО для iOS: Обертка для позиционирования псевдоэлемента */
+	.checkout-page #shipping_delivery_date_field .woocommerce-input-wrapper,
+	.checkout-page p#shipping_delivery_date_field .woocommerce-input-wrapper {
+		position: relative !important;
+	}
+	
+	/* КРИТИЧНО для iOS: Псевдоэлемент для отображения placeholder "дд.мм.рррр" на wrapper */
+	.checkout-page #shipping_delivery_date_field .woocommerce-input-wrapper:has(input[type="date"].is-placeholder)::before,
+	.checkout-page p#shipping_delivery_date_field .woocommerce-input-wrapper:has(input[type="date"].is-placeholder)::before,
+	.checkout-page .woocommerce-input-wrapper:has(#shipping_delivery_date.is-placeholder)::before {
 		content: 'дд.мм.рррр' !important;
 		position: absolute !important;
 		left: 4vw !important;
@@ -5022,12 +5027,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		font-size: 4vw !important;
 		line-height: 1 !important;
 		white-space: nowrap !important;
-	}
-	
-	/* КРИТИЧНО для iOS: Обертка для позиционирования псевдоэлемента */
-	.checkout-page #shipping_delivery_date_field .woocommerce-input-wrapper,
-	.checkout-page p#shipping_delivery_date_field .woocommerce-input-wrapper {
-		position: relative !important;
+		z-index: 1 !important;
 	}
 	
 	/* КРИТИЧНО для iOS: Стили для выбранной даты */
@@ -5037,14 +5037,6 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page #shipping_delivery_date.has-value {
 		color: #303030 !important;
 		-webkit-text-fill-color: #303030 !important;
-	}
-	
-	/* КРИТИЧНО: Убираем псевдоэлемент когда есть значение */
-	.checkout-page .woocommerce-checkout input[type="date"].has-value::before,
-	.checkout-page .checkout-section input[type="date"].has-value::before,
-	.checkout-page input[type="date"].has-value::before,
-	.checkout-page #shipping_delivery_date.has-value::before {
-		content: none !important;
 	}
 
 	.checkout-page .woocommerce-checkout textarea,
