@@ -5363,3 +5363,10 @@ if (document.readyState === 'loading') {
 	initAccountOrdersExpand();
 }
 
+// Также инициализируем после AJAX обновлений (если есть)
+if (typeof jQuery !== 'undefined') {
+	jQuery(document).ready(function() {
+		initAccountOrdersExpand();
+	});
+}
+

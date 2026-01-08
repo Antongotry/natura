@@ -431,8 +431,12 @@
 	font-size: 0.938vw;
 	line-height: 110%;
 	letter-spacing: -0.02em;
-	color: rgba(48, 48, 48, 0.4);
+	color: rgba(48, 48, 48, 0.6);
+	cursor: pointer;
 	transition: color 0.2s ease;
+	user-select: none;
+	margin-top: 1.563vw;
+	display: block;
 }
 
 .account-orders__more:hover {
@@ -1127,6 +1131,9 @@
 		margin-top: 2.133vw;
 		padding-top: 2.133vw;
 		border-top: 1px solid rgba(48, 48, 48, 0.1);
+		color: rgba(48, 48, 48, 0.6);
+		cursor: pointer;
+		user-select: none;
 	}
 
 	.account-orders__table--detailed .account-orders__cell--date,
