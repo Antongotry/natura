@@ -431,7 +431,7 @@
 }
 
 .account-orders__products.expanded .account-orders__product--hidden {
-	max-height: 200px;
+	max-height: 1000px;
 	opacity: 1;
 	transform: translateY(0);
 	margin-bottom: 1.563vw;
@@ -449,6 +449,7 @@
 	-webkit-user-select: none;
 	user-select: none;
 	margin-top: 1.563vw !important;
+	margin-bottom: 0.5vw !important;
 	display: block !important;
 	visibility: visible !important;
 	opacity: 1 !important;
@@ -1147,7 +1148,7 @@
 	}
 
 	.account-orders__products.expanded .account-orders__product--hidden {
-		max-height: 300px;
+		max-height: 2000px;
 		opacity: 1;
 		transform: translateY(0);
 		margin-bottom: 4vw;
@@ -1157,7 +1158,7 @@
 		font-size: 2.56vw;
 		margin-top: 2.133vw;
 		padding-top: 2.133vw;
-		padding-bottom: 2.133vw;
+		padding-bottom: 1.5vw;
 		border-top: 1px solid rgba(48, 48, 48, 0.1);
 		color: rgba(48, 48, 48, 0.6);
 		cursor: pointer;
