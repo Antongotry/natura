@@ -5374,79 +5374,21 @@ if (typeof jQuery !== 'undefined') {
 function initCheckoutErrorHighlighting() {
 	const checkoutForm = document.querySelector('form.checkout');
 	if (!checkoutForm) {
-		console.log('❌ checkoutForm не найден!');
 		return;
 	}
-	console.log('✅ checkoutForm найден:', checkoutForm);
 
 	// Функция для подсветки полей с ошибками (использует классы WooCommerce)
 	function highlightErrorFields() {
-		console.log('🔍 ========== highlightErrorFields вызвана ==========');
-		
-		// ДИАГНОСТИКА: Проверяем ВСЕ возможные варианты классов ошибок
-		console.log('🔎 ДИАГНОСТИКА: Ищем все возможные классы ошибок...');
-		const allPossibleErrorSelectors = [
-			'.form-row--error',
-			'.woocommerce-form-row--error',
-			'.form-row.woocommerce-invalid',
-			'.form-row.woocommerce-invalid-required-field',
-			'p.woocommerce-invalid',
-			'p.woocommerce-invalid-required-field',
-			'#billing_phone_field.woocommerce-invalid',
-			'#billing_phone_field.woocommerce-invalid-required-field'
-		];
-		
-		allPossibleErrorSelectors.forEach(function(selector) {
-			const elements = checkoutForm.querySelectorAll(selector);
-			if (elements.length > 0) {
-				console.log(`  ✅ Найдено ${elements.length} элементов с селектором: ${selector}`);
-				elements.forEach(function(el, i) {
-					console.log(`    [${i}] ID: ${el.id}, Classes: ${el.className}, Tag: ${el.tagName}`);
-				});
-			}
-		});
-		
-		// Ищем по тексту ошибки
-		console.log('🔎 Ищем элементы с текстом ошибки...');
-		const allElements = checkoutForm.querySelectorAll('*');
-		allElements.forEach(function(el) {
-			const text = el.textContent || '';
-			if (text.includes('обов') || text.includes('Оплата') || text.includes('обязательн')) {
-				console.log('  📝 Найден элемент с текстом ошибки:', el);
-				console.log('    - Tag:', el.tagName);
-				console.log('    - ID:', el.id);
-				console.log('    - Classes:', el.className);
-				console.log('    - Text:', text.substring(0, 100));
-				console.log('    - Parent:', el.parentElement?.tagName, el.parentElement?.className, el.parentElement?.id);
-			}
-		});
-		
 		// Находим все поля с классом form-row--error (WooCommerce добавляет этот класс при ошибке)
 		const errorRows = checkoutForm.querySelectorAll('.form-row--error, .woocommerce-form-row--error');
-		console.log('📋 Найдено errorRows (стандартные классы):', errorRows.length);
 		
 		// Также ищем по другим возможным классам
 		const errorRowsAlt = checkoutForm.querySelectorAll('.form-row.woocommerce-invalid, .form-row.woocommerce-invalid-required-field, p.woocommerce-invalid, p.woocommerce-invalid-required-field');
-		console.log('📋 Найдено errorRows (альтернативные классы):', errorRowsAlt.length);
 		
 		// Объединяем все найденные rows
 		const allErrorRows = new Set();
 		errorRows.forEach(row => allErrorRows.add(row));
 		errorRowsAlt.forEach(row => allErrorRows.add(row));
-		
-		console.log('📋 Всего уникальных errorRows:', allErrorRows.size);
-		
-		if (allErrorRows.size === 0) {
-			console.log('⚠️ Нет элементов с классом form-row--error или woocommerce-form-row--error');
-			console.log('🔍 Проверяем все .form-row элементы...');
-			const allFormRows = checkoutForm.querySelectorAll('.form-row, p.form-row');
-			console.log('  Найдено всего .form-row:', allFormRows.length);
-			allFormRows.forEach(function(row, i) {
-				if (i < 5) { // Показываем первые 5
-					console.log(`    [${i}] ID: ${row.id}, Classes: ${row.className}, Tag: ${row.tagName}`);
-				}
-			});
-		}
 		
 		let firstErrorField = null;
 
@@ -5454,94 +5396,32 @@ function initCheckoutErrorHighlighting() {
 		const rowsToProcess = Array.from(allErrorRows);
 		if (rowsToProcess.length === 0) {
 			// Если не нашли по классам, ищем по наличию текста ошибки
-			console.log('🔍 Ищем rows по наличию текста ошибки...');
 			const allRows = checkoutForm.querySelectorAll('.form-row, p.form-row, .woocommerce-form-row');
 			allRows.forEach(function(row) {
 				const text = row.textContent || '';
 				if (text.includes('обов') || text.includes('Оплата') || text.includes('обязательн')) {
-					console.log('  ✅ Найден row с текстом ошибки:', row);
-					console.log('    - ID:', row.id);
-					console.log('    - Classes:', row.className);
 					rowsToProcess.push(row);
 				}
 			});
 		}
 
-		rowsToProcess.forEach(function(row, index) {
-			console.log(`\n📦 Обрабатываем row #${index + 1}:`, row);
-			console.log('  - ID:', row.id);
-			console.log('  - Classes:', row.className);
-			console.log('  - Tag:', row.tagName);
-			console.log('  - HTML:', row.outerHTML.substring(0, 200));
-			
-			// Проверяем все дочерние элементы
-			const allChildren = row.querySelectorAll('*');
-			console.log('  - Всего дочерних элементов:', allChildren.length);
-			allChildren.forEach(function(child, i) {
-				if (i < 5) { // Показываем первые 5
-					console.log(`    [${i}] ${child.tagName} - classes: ${child.className} - id: ${child.id}`);
-				}
-			});
-			
+		rowsToProcess.forEach(function(row) {
 			// Находим ТОЛЬКО input, select, textarea внутри row, НЕ сам row
 			// Ищем сначала в .woocommerce-input-wrapper, потом везде
 			let inputs = row.querySelectorAll('.woocommerce-input-wrapper input, .woocommerce-input-wrapper select, .woocommerce-input-wrapper textarea');
-			console.log('  - Инпуты в .woocommerce-input-wrapper:', inputs.length);
 			if (inputs.length === 0) {
 				inputs = row.querySelectorAll('input, select, textarea');
-				console.log('  - Инпуты везде:', inputs.length);
 			}
 			
-			if (inputs.length === 0) {
-				console.log('  ❌ НЕТ ИНПУТОВ В ЭТОМ ROW!');
-			}
-			
-			inputs.forEach(function(input, inputIndex) {
-				console.log(`\n  🎯 Обрабатываем input #${inputIndex + 1}:`, input);
-				console.log('    - Type:', input.type);
-				console.log('    - ID:', input.id);
-				console.log('    - Name:', input.name);
-				console.log('    - Classes:', input.className);
-				console.log('    - Parent:', input.parentElement?.tagName, input.parentElement?.className);
-				
-				// Проверяем текущие стили ДО применения
-				const beforeBorder = window.getComputedStyle(input).border;
-				const beforeBoxShadow = window.getComputedStyle(input).boxShadow;
-				console.log('    - Border ДО:', beforeBorder);
-				console.log('    - Box-shadow ДО:', beforeBoxShadow);
-				
+			inputs.forEach(function(input) {
 				// Применяем стили точно как focus, только красным - используем полное свойство border
 				input.style.setProperty('outline', 'none', 'important');
 				input.style.setProperty('border', '1px solid #ff0000', 'important');
 				input.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
 				
-				// Проверяем стили ПОСЛЕ применения
-				const afterBorder = window.getComputedStyle(input).border;
-				const afterBoxShadow = window.getComputedStyle(input).boxShadow;
-				const inlineBorder = input.style.border;
-				const inlineBoxShadow = input.style.boxShadow;
-				console.log('    - Border ПОСЛЕ (computed):', afterBorder);
-				console.log('    - Border ПОСЛЕ (inline):', inlineBorder);
-				console.log('    - Box-shadow ПОСЛЕ (computed):', afterBoxShadow);
-				console.log('    - Box-shadow ПОСЛЕ (inline):', inlineBoxShadow);
-				
-				if (afterBorder.includes('rgb(255, 0, 0)') || afterBorder.includes('#ff0000')) {
-					console.log('    ✅ Красная рамка применена!');
-				} else {
-					console.log('    ❌ Красная рамка НЕ применена!');
-				}
-				
 				// Дополнительно скрываем все текстовые сообщения об ошибках в этом row
 				const errorMessages = row.querySelectorAll('.woocommerce-error, .woocommerce-error-message, span.woocommerce-error, .checkout-inline-error-message, p.checkout-inline-error-message, #billing_phone_description');
-				console.log('    - Найдено errorMessages:', errorMessages.length);
-				errorMessages.forEach(function(msg, msgIndex) {
-					console.log(`      [${msgIndex}] Скрываем сообщение:`, msg);
-					console.log('        - Tag:', msg.tagName);
-					console.log('        - Classes:', msg.className);
-					console.log('        - ID:', msg.id);
-					console.log('        - Text:', msg.textContent?.substring(0, 50));
-					console.log('        - Display ДО:', window.getComputedStyle(msg).display);
-					
+				errorMessages.forEach(function(msg) {
 					msg.style.setProperty('display', 'none', 'important');
 					msg.style.setProperty('visibility', 'hidden', 'important');
 					msg.style.setProperty('height', '0', 'important');
@@ -5550,51 +5430,37 @@ function initCheckoutErrorHighlighting() {
 					msg.style.setProperty('padding', '0', 'important');
 					msg.style.setProperty('font-size', '0', 'important');
 					msg.style.setProperty('line-height', '0', 'important');
-					
-					console.log('        - Display ПОСЛЕ:', window.getComputedStyle(msg).display);
-					console.log('        - Visibility ПОСЛЕ:', window.getComputedStyle(msg).visibility);
-				});
-				
-				// Также скрываем блоки с ошибками вверху формы
-				const noticeGroups = checkoutForm.querySelectorAll('.woocommerce-NoticeGroup, .woocommerce-NoticeGroup-checkout');
-				noticeGroups.forEach(function(group) {
-					group.style.setProperty('display', 'none', 'important');
-					group.style.setProperty('visibility', 'hidden', 'important');
-					group.style.setProperty('height', '0', 'important');
-					group.style.setProperty('overflow', 'hidden', 'important');
-					group.style.setProperty('margin', '0', 'important');
-					group.style.setProperty('padding', '0', 'important');
 				});
 				
 				if (!firstErrorField) {
 					firstErrorField = input;
 				}
 			});
+			
+			// Также скрываем блоки с ошибками вверху формы
+			const noticeGroups = checkoutForm.querySelectorAll('.woocommerce-NoticeGroup, .woocommerce-NoticeGroup-checkout');
+			noticeGroups.forEach(function(group) {
+				group.style.setProperty('display', 'none', 'important');
+				group.style.setProperty('visibility', 'hidden', 'important');
+				group.style.setProperty('height', '0', 'important');
+				group.style.setProperty('overflow', 'hidden', 'important');
+				group.style.setProperty('margin', '0', 'important');
+				group.style.setProperty('padding', '0', 'important');
+			});
 		});
 
 		// Также подсвечиваем поля с классом woocommerce-invalid-required-field (только если это input/select/textarea)
 		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field, input.woocommerce-invalid, select.woocommerce-invalid, textarea.woocommerce-invalid');
-		console.log('\n🔍 Найдено invalidFields (с классами woocommerce-invalid):', invalidFields.length);
-		invalidFields.forEach(function(field, index) {
-			console.log(`\n  🎯 Обрабатываем invalidField #${index + 1}:`, field);
-			console.log('    - Type:', field.type);
-			console.log('    - ID:', field.id);
-			console.log('    - Classes:', field.className);
-			console.log('    - Border ДО:', window.getComputedStyle(field).border);
-			
+		invalidFields.forEach(function(field) {
 			// Применяем стили точно как focus, только красным - используем полное свойство border
 			field.style.setProperty('outline', 'none', 'important');
 			field.style.setProperty('border', '1px solid #ff0000', 'important');
 			field.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
 			
-			console.log('    - Border ПОСЛЕ:', window.getComputedStyle(field).border);
-			
 			if (!firstErrorField) {
 				firstErrorField = field;
 			}
 		});
-		
-		console.log('\n✅ ========== highlightErrorFields завершена ==========\n');
 
 		// Прокручиваем к первому полю с ошибкой
 		if (firstErrorField && !document.body.classList.contains('checkout-page__scroll-to-error')) {
@@ -5626,7 +5492,6 @@ function initCheckoutErrorHighlighting() {
 	if (typeof jQuery !== 'undefined') {
 		// Слушаем событие ошибки валидации - WooCommerce вызывает это после попытки отправки
 		jQuery(document.body).on('checkout_error', function() {
-			console.log('checkout_error событие получено');
 			// WooCommerce добавил классы ошибок, теперь подсвечиваем
 			setTimeout(function() {
 				highlightErrorFields();
@@ -5637,7 +5502,6 @@ function initCheckoutErrorHighlighting() {
 
 		// Слушаем обновление checkout (после AJAX валидации)
 		jQuery(document.body).on('updated_checkout', function() {
-			console.log('updated_checkout событие получено');
 			// Проверяем наличие ошибок после обновления
 			setTimeout(function() {
 				highlightErrorFields();
@@ -5700,7 +5564,6 @@ function initCheckoutErrorHighlighting() {
 	const submitButton = checkoutForm.querySelector('button[type="submit"], input[type="submit"], #place_order');
 	if (submitButton) {
 		submitButton.addEventListener('click', function() {
-			console.log('Кнопка отправки нажата');
 			setTimeout(function() {
 				highlightErrorFields();
 				setTimeout(highlightErrorFields, 300);
