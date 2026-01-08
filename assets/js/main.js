@@ -5374,37 +5374,98 @@ if (typeof jQuery !== 'undefined') {
 function initCheckoutErrorHighlighting() {
 	const checkoutForm = document.querySelector('form.checkout');
 	if (!checkoutForm) {
+		console.log('❌ checkoutForm не найден!');
 		return;
 	}
+	console.log('✅ checkoutForm найден:', checkoutForm);
 
 	// Функция для подсветки полей с ошибками (использует классы WooCommerce)
 	function highlightErrorFields() {
-		console.log('highlightErrorFields вызвана');
+		console.log('🔍 ========== highlightErrorFields вызвана ==========');
 		// Находим все поля с классом form-row--error (WooCommerce добавляет этот класс при ошибке)
 		const errorRows = checkoutForm.querySelectorAll('.form-row--error, .woocommerce-form-row--error');
-		console.log('Найдено errorRows:', errorRows.length);
+		console.log('📋 Найдено errorRows:', errorRows.length);
+		
+		if (errorRows.length === 0) {
+			console.log('⚠️ Нет элементов с классом form-row--error или woocommerce-form-row--error');
+		}
+		
 		let firstErrorField = null;
 
-		errorRows.forEach(function(row) {
-			console.log('Обрабатываем row:', row, row.className);
+		errorRows.forEach(function(row, index) {
+			console.log(`\n📦 Обрабатываем row #${index + 1}:`, row);
+			console.log('  - ID:', row.id);
+			console.log('  - Classes:', row.className);
+			console.log('  - Tag:', row.tagName);
+			console.log('  - HTML:', row.outerHTML.substring(0, 200));
+			
+			// Проверяем все дочерние элементы
+			const allChildren = row.querySelectorAll('*');
+			console.log('  - Всего дочерних элементов:', allChildren.length);
+			allChildren.forEach(function(child, i) {
+				if (i < 5) { // Показываем первые 5
+					console.log(`    [${i}] ${child.tagName} - classes: ${child.className} - id: ${child.id}`);
+				}
+			});
+			
 			// Находим ТОЛЬКО input, select, textarea внутри row, НЕ сам row
 			// Ищем сначала в .woocommerce-input-wrapper, потом везде
 			let inputs = row.querySelectorAll('.woocommerce-input-wrapper input, .woocommerce-input-wrapper select, .woocommerce-input-wrapper textarea');
+			console.log('  - Инпуты в .woocommerce-input-wrapper:', inputs.length);
 			if (inputs.length === 0) {
 				inputs = row.querySelectorAll('input, select, textarea');
+				console.log('  - Инпуты везде:', inputs.length);
 			}
-			console.log('Найдено inputs в row:', inputs.length);
-			inputs.forEach(function(input) {
-				console.log('Применяем стили к input:', input, input.type, input.id);
+			
+			if (inputs.length === 0) {
+				console.log('  ❌ НЕТ ИНПУТОВ В ЭТОМ ROW!');
+			}
+			
+			inputs.forEach(function(input, inputIndex) {
+				console.log(`\n  🎯 Обрабатываем input #${inputIndex + 1}:`, input);
+				console.log('    - Type:', input.type);
+				console.log('    - ID:', input.id);
+				console.log('    - Name:', input.name);
+				console.log('    - Classes:', input.className);
+				console.log('    - Parent:', input.parentElement?.tagName, input.parentElement?.className);
+				
+				// Проверяем текущие стили ДО применения
+				const beforeBorder = window.getComputedStyle(input).border;
+				const beforeBoxShadow = window.getComputedStyle(input).boxShadow;
+				console.log('    - Border ДО:', beforeBorder);
+				console.log('    - Box-shadow ДО:', beforeBoxShadow);
+				
 				// Применяем стили точно как focus, только красным - используем полное свойство border
 				input.style.setProperty('outline', 'none', 'important');
 				input.style.setProperty('border', '1px solid #ff0000', 'important');
 				input.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
-				console.log('Стили применены, border:', input.style.border, 'computed:', window.getComputedStyle(input).border);
+				
+				// Проверяем стили ПОСЛЕ применения
+				const afterBorder = window.getComputedStyle(input).border;
+				const afterBoxShadow = window.getComputedStyle(input).boxShadow;
+				const inlineBorder = input.style.border;
+				const inlineBoxShadow = input.style.boxShadow;
+				console.log('    - Border ПОСЛЕ (computed):', afterBorder);
+				console.log('    - Border ПОСЛЕ (inline):', inlineBorder);
+				console.log('    - Box-shadow ПОСЛЕ (computed):', afterBoxShadow);
+				console.log('    - Box-shadow ПОСЛЕ (inline):', inlineBoxShadow);
+				
+				if (afterBorder.includes('rgb(255, 0, 0)') || afterBorder.includes('#ff0000')) {
+					console.log('    ✅ Красная рамка применена!');
+				} else {
+					console.log('    ❌ Красная рамка НЕ применена!');
+				}
 				
 				// Дополнительно скрываем все текстовые сообщения об ошибках в этом row
 				const errorMessages = row.querySelectorAll('.woocommerce-error, .woocommerce-error-message, span.woocommerce-error');
-				errorMessages.forEach(function(msg) {
+				console.log('    - Найдено errorMessages:', errorMessages.length);
+				errorMessages.forEach(function(msg, msgIndex) {
+					console.log(`      [${msgIndex}] Скрываем сообщение:`, msg);
+					console.log('        - Tag:', msg.tagName);
+					console.log('        - Classes:', msg.className);
+					console.log('        - Text:', msg.textContent?.substring(0, 50));
+					console.log('        - Display ДО:', window.getComputedStyle(msg).display);
+					
 					msg.style.setProperty('display', 'none', 'important');
 					msg.style.setProperty('visibility', 'hidden', 'important');
 					msg.style.setProperty('height', '0', 'important');
@@ -5413,6 +5474,9 @@ function initCheckoutErrorHighlighting() {
 					msg.style.setProperty('padding', '0', 'important');
 					msg.style.setProperty('font-size', '0', 'important');
 					msg.style.setProperty('line-height', '0', 'important');
+					
+					console.log('        - Display ПОСЛЕ:', window.getComputedStyle(msg).display);
+					console.log('        - Visibility ПОСЛЕ:', window.getComputedStyle(msg).visibility);
 				});
 				
 				if (!firstErrorField) {
@@ -5423,19 +5487,27 @@ function initCheckoutErrorHighlighting() {
 
 		// Также подсвечиваем поля с классом woocommerce-invalid-required-field (только если это input/select/textarea)
 		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field, input.woocommerce-invalid, select.woocommerce-invalid, textarea.woocommerce-invalid');
-		console.log('Найдено invalidFields:', invalidFields.length);
-		invalidFields.forEach(function(field) {
-			console.log('Применяем стили к invalidField:', field);
+		console.log('\n🔍 Найдено invalidFields (с классами woocommerce-invalid):', invalidFields.length);
+		invalidFields.forEach(function(field, index) {
+			console.log(`\n  🎯 Обрабатываем invalidField #${index + 1}:`, field);
+			console.log('    - Type:', field.type);
+			console.log('    - ID:', field.id);
+			console.log('    - Classes:', field.className);
+			console.log('    - Border ДО:', window.getComputedStyle(field).border);
+			
 			// Применяем стили точно как focus, только красным - используем полное свойство border
 			field.style.setProperty('outline', 'none', 'important');
 			field.style.setProperty('border', '1px solid #ff0000', 'important');
 			field.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
-			console.log('Стили применены, border:', field.style.border);
+			
+			console.log('    - Border ПОСЛЕ:', window.getComputedStyle(field).border);
 			
 			if (!firstErrorField) {
 				firstErrorField = field;
 			}
 		});
+		
+		console.log('\n✅ ========== highlightErrorFields завершена ==========\n');
 
 		// Прокручиваем к первому полю с ошибкой
 		if (firstErrorField && !document.body.classList.contains('checkout-page__scroll-to-error')) {
