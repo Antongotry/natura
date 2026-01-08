@@ -4929,9 +4929,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		vertical-align: middle !important;
 		/* КРИТИЧНО: Убираем центрирование текста - выравниваем по левому краю */
 		text-align: left !important;
+		text-align-last: left !important;
+		/* КРИТИЧНО для iOS: Принудительное выравнивание по левому краю */
+		-webkit-text-align: left !important;
 		/* КРИТИЧНО: Предотвращаем обрезание букв */
 		overflow: visible !important;
 		text-overflow: clip !important;
+		/* КРИТИЧНО: Убираем любые стили, которые могут центрировать */
+		justify-content: flex-start !important;
+		align-items: center !important;
 	}
 
 	/* КРИТИЧНО: Дополнительные ограничения для контейнеров полей на мобильных */
