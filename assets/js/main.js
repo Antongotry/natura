@@ -5379,18 +5379,24 @@ function initCheckoutErrorHighlighting() {
 
 	// Функция для подсветки полей с ошибками (использует классы WooCommerce)
 	function highlightErrorFields() {
+		console.log('highlightErrorFields вызвана');
 		// Находим все поля с классом form-row--error (WooCommerce добавляет этот класс при ошибке)
 		const errorRows = checkoutForm.querySelectorAll('.form-row--error, .woocommerce-form-row--error');
+		console.log('Найдено errorRows:', errorRows.length);
 		let firstErrorField = null;
 
 		errorRows.forEach(function(row) {
+			console.log('Обрабатываем row:', row);
 			// Находим ТОЛЬКО input, select, textarea внутри row, НЕ сам row
 			const inputs = row.querySelectorAll('input, select, textarea');
+			console.log('Найдено inputs в row:', inputs.length);
 			inputs.forEach(function(input) {
+				console.log('Применяем стили к input:', input);
 				// Применяем стили точно как focus, только красным - используем полное свойство border
 				input.style.setProperty('outline', 'none', 'important');
 				input.style.setProperty('border', '1px solid #ff0000', 'important');
 				input.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
+				console.log('Стили применены, border:', input.style.border);
 				
 				if (!firstErrorField) {
 					firstErrorField = input;
@@ -5400,11 +5406,14 @@ function initCheckoutErrorHighlighting() {
 
 		// Также подсвечиваем поля с классом woocommerce-invalid-required-field (только если это input/select/textarea)
 		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field, input.woocommerce-invalid, select.woocommerce-invalid, textarea.woocommerce-invalid');
+		console.log('Найдено invalidFields:', invalidFields.length);
 		invalidFields.forEach(function(field) {
+			console.log('Применяем стили к invalidField:', field);
 			// Применяем стили точно как focus, только красным - используем полное свойство border
 			field.style.setProperty('outline', 'none', 'important');
 			field.style.setProperty('border', '1px solid #ff0000', 'important');
 			field.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
+			console.log('Стили применены, border:', field.style.border);
 			
 			if (!firstErrorField) {
 				firstErrorField = field;
