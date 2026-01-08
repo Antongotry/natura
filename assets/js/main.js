@@ -5370,141 +5370,127 @@ if (typeof jQuery !== 'undefined') {
 	});
 }
 
-// Подсветка ошибок в checkout при попытке отправки формы
+// Подсветка ошибок в checkout - используем события WooCommerce
 function initCheckoutErrorHighlighting() {
 	const checkoutForm = document.querySelector('form.checkout');
 	if (!checkoutForm) {
 		return;
 	}
 
-	// Функция для проверки и подсветки ошибок
-	function highlightErrors() {
-		let hasErrors = false;
-		
-		// Находим все обязательные поля
-		const requiredFields = checkoutForm.querySelectorAll('input[required], select[required], textarea[required]');
-		
-		requiredFields.forEach(function(field) {
-			// Проверяем, заполнено ли поле
-			let isEmpty = false;
-			
-			// Для select проверяем, не выбран ли placeholder
-			if (field.tagName === 'SELECT') {
-				const firstOption = field.options[0];
-				if (firstOption && firstOption.value === '' && field.value === '') {
-					isEmpty = true;
-				}
-			} else {
-				isEmpty = !field.value || field.value.trim() === '';
-			}
-			
-			if (isEmpty) {
-				hasErrors = true;
-				field.classList.add('has-error');
-				field.style.setProperty('border-color', '#ff0000', 'important');
-				field.style.setProperty('border-width', '1px', 'important');
-				
-				// Прокручиваем к первому полю с ошибкой
-				if (!document.querySelector('.checkout-page__scroll-to-error')) {
-					field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-					field.focus();
-					// Добавляем маркер, чтобы не прокручивать несколько раз
-					document.body.classList.add('checkout-page__scroll-to-error');
-					setTimeout(function() {
-						document.body.classList.remove('checkout-page__scroll-to-error');
-					}, 1000);
-				}
-			} else {
-				field.classList.remove('has-error');
-				field.style.removeProperty('border-color');
-				field.style.removeProperty('border-width');
-			}
-		});
+	// Функция для подсветки полей с ошибками (использует классы WooCommerce)
+	function highlightErrorFields() {
+		// Находим все поля с классом form-row--error (WooCommerce добавляет этот класс при ошибке)
+		const errorRows = checkoutForm.querySelectorAll('.form-row--error, .woocommerce-form-row--error');
+		let firstErrorField = null;
 
-		// Также проверяем поля с классом form-row--error
-		const errorRows = checkoutForm.querySelectorAll('.form-row--error');
 		errorRows.forEach(function(row) {
-			hasErrors = true;
 			const inputs = row.querySelectorAll('input, select, textarea');
 			inputs.forEach(function(input) {
-				input.classList.add('has-error');
+				// CSS уже должен подсвечивать, но убедимся через inline стили
 				input.style.setProperty('border-color', '#ff0000', 'important');
 				input.style.setProperty('border-width', '1px', 'important');
+				
+				if (!firstErrorField) {
+					firstErrorField = input;
+				}
 			});
 		});
 
-		return hasErrors;
-	}
-
-	// Обработчик клика на кнопку отправки (до отправки формы) - с максимальным приоритетом
-	const submitButton = checkoutForm.querySelector('#place_order');
-	if (submitButton) {
-		submitButton.addEventListener('click', function(e) {
-			// Проверяем сразу, без задержки
-			const hasErrors = highlightErrors();
+		// Также подсвечиваем поля с классом woocommerce-invalid-required-field
+		const invalidFields = checkoutForm.querySelectorAll('.woocommerce-invalid-required-field, .woocommerce-invalid');
+		invalidFields.forEach(function(field) {
+			field.style.setProperty('border-color', '#ff0000', 'important');
+			field.style.setProperty('border-width', '1px', 'important');
 			
-			if (hasErrors) {
-				// Предотвращаем отправку формы
-				e.preventDefault();
-				e.stopPropagation();
-				e.stopImmediatePropagation();
-				return false;
+			if (!firstErrorField) {
+				firstErrorField = field;
 			}
-		}, true); // Используем capture phase для раннего перехвата
+		});
+
+		// Прокручиваем к первому полю с ошибкой
+		if (firstErrorField && !document.body.classList.contains('checkout-page__scroll-to-error')) {
+			setTimeout(function() {
+				firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				firstErrorField.focus();
+				document.body.classList.add('checkout-page__scroll-to-error');
+				setTimeout(function() {
+					document.body.classList.remove('checkout-page__scroll-to-error');
+				}, 2000);
+			}, 100);
+		}
 	}
 
-	// Обработчик попытки отправки формы - с максимальным приоритетом
-	checkoutForm.addEventListener('submit', function(e) {
-		const hasErrors = highlightErrors();
-		
-		if (hasErrors) {
-			// Предотвращаем отправку формы
-			e.preventDefault();
-			e.stopPropagation();
-			e.stopImmediatePropagation();
-			return false;
+	// Функция для очистки подсветки при исправлении ошибок
+	function clearErrorHighlight(field) {
+		// Проверяем, есть ли еще классы ошибок
+		const row = field.closest('.form-row, .woocommerce-form-row');
+		if (row && !row.classList.contains('form-row--error') && !row.classList.contains('woocommerce-form-row--error')) {
+			if (!field.classList.contains('woocommerce-invalid-required-field') && !field.classList.contains('woocommerce-invalid')) {
+				field.style.removeProperty('border-color');
+				field.style.removeProperty('border-width');
+			}
 		}
-	}, true); // Используем capture phase
+	}
 
 	// Используем jQuery события WooCommerce
 	if (typeof jQuery !== 'undefined') {
-		// Перехватываем событие до того, как WooCommerce обработает его
-		jQuery(document.body).on('checkout_place_order', function(e, data) {
-			const hasErrors = highlightErrors();
-			if (hasErrors) {
-				return false; // Предотвращаем отправку
-			}
-		});
-
-		// Слушаем событие валидации
+		// Слушаем событие ошибки валидации - WooCommerce вызывает это после попытки отправки
 		jQuery(document.body).on('checkout_error', function() {
-			setTimeout(highlightErrors, 50);
+			// WooCommerce добавил классы ошибок, теперь подсвечиваем
+			setTimeout(highlightErrorFields, 100);
 		});
 
-		// Отслеживаем изменения в форме
-		jQuery(checkoutForm).on('change blur', 'input[required], select[required], textarea[required]', function() {
+		// Слушаем обновление checkout (после AJAX валидации)
+		jQuery(document.body).on('updated_checkout', function() {
+			// Проверяем наличие ошибок после обновления
+			setTimeout(highlightErrorFields, 100);
+		});
+
+		// Отслеживаем изменения в полях - убираем подсветку при исправлении
+		jQuery(checkoutForm).on('change blur input', 'input, select, textarea', function() {
 			const field = this;
 			setTimeout(function() {
-				if (field.classList.contains('has-error')) {
-					let isEmpty = false;
-					if (field.tagName === 'SELECT') {
-						const firstOption = field.options[0];
-						if (firstOption && firstOption.value === '' && field.value === '') {
-							isEmpty = true;
-						}
-					} else {
-						isEmpty = !field.value || field.value.trim() === '';
-					}
-					
-					if (!isEmpty) {
-						field.classList.remove('has-error');
-						field.style.removeProperty('border-color');
-						field.style.removeProperty('border-width');
-					}
-				}
-			}, 10);
+				clearErrorHighlight(field);
+			}, 100);
 		});
 	}
+
+	// MutationObserver для отслеживания добавления классов ошибок
+	const observer = new MutationObserver(function(mutations) {
+		mutations.forEach(function(mutation) {
+			if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+				const target = mutation.target;
+				// Если добавился класс form-row--error
+				if (target.classList.contains('form-row--error') || target.classList.contains('woocommerce-form-row--error')) {
+					highlightErrorFields();
+				}
+			}
+			
+			// Отслеживаем добавление узлов (новые поля с ошибками)
+			if (mutation.addedNodes.length > 0) {
+				mutation.addedNodes.forEach(function(node) {
+					if (node.nodeType === 1) { // Element node
+						if (node.classList && (node.classList.contains('form-row--error') || node.classList.contains('woocommerce-form-row--error'))) {
+							highlightErrorFields();
+						}
+						// Проверяем вложенные элементы
+						const errorRows = node.querySelectorAll && node.querySelectorAll('.form-row--error, .woocommerce-form-row--error');
+						if (errorRows && errorRows.length > 0) {
+							highlightErrorFields();
+						}
+					}
+				});
+			}
+		});
+	});
+
+	// Наблюдаем за изменениями в форме
+	observer.observe(checkoutForm, {
+		attributes: true,
+		attributeFilter: ['class'],
+		childList: true,
+		subtree: true
+	});
 }
 
 // Инициализация при загрузке страницы

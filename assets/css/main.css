@@ -3941,45 +3941,19 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	box-shadow: 0 0 0 2px rgba(77, 189, 86, 0.1);
 }
 
-/* Красная рамка при ошибке даже в фокусе - максимальная специфичность */
-.checkout-page .woocommerce-checkout input[type="text"]:focus.has-error,
-.checkout-page .woocommerce-checkout input[type="email"]:focus.has-error,
-.checkout-page .woocommerce-checkout input[type="tel"]:focus.has-error,
-.checkout-page .woocommerce-checkout input[type="number"]:focus.has-error,
-.checkout-page .woocommerce-checkout input[type="password"]:focus.has-error,
-.checkout-page .woocommerce-checkout input[type="date"]:focus.has-error,
-.checkout-page .woocommerce-checkout textarea:focus.has-error,
-.checkout-page .woocommerce-checkout select:focus.has-error,
-.checkout-page .checkout-section input[type="text"]:focus.has-error,
-.checkout-page .checkout-section input[type="email"]:focus.has-error,
-.checkout-page .checkout-section input[type="tel"]:focus.has-error,
-.checkout-page .checkout-section input[type="number"]:focus.has-error,
-.checkout-page .checkout-section input[type="password"]:focus.has-error,
-.checkout-page .checkout-section input[type="date"]:focus.has-error,
-.checkout-page .checkout-section textarea:focus.has-error,
-.checkout-page .checkout-section select:focus.has-error,
-.checkout-page .woocommerce-checkout input[type="text"]:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout input[type="email"]:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout input[type="tel"]:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout input[type="number"]:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout input[type="password"]:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout input[type="date"]:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout textarea:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout select:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section input[type="text"]:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section input[type="email"]:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section input[type="tel"]:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section input[type="number"]:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section input[type="password"]:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section input[type="date"]:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section textarea:focus.woocommerce-invalid-required-field,
-.checkout-page .checkout-section select:focus.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout .form-row--error input:focus,
-.checkout-page .woocommerce-checkout .form-row--error select:focus,
-.checkout-page .woocommerce-checkout .form-row--error textarea:focus,
-.checkout-page .checkout-section .form-row--error input:focus,
-.checkout-page .checkout-section .form-row--error select:focus,
-.checkout-page .checkout-section .form-row--error textarea:focus {
+/* Красная рамка при ошибке даже в фокусе - переопределяет зеленую */
+.checkout-page .form-row--error input:focus,
+.checkout-page .form-row--error select:focus,
+.checkout-page .form-row--error textarea:focus,
+.checkout-page .woocommerce-form-row--error input:focus,
+.checkout-page .woocommerce-form-row--error select:focus,
+.checkout-page .woocommerce-form-row--error textarea:focus,
+.checkout-page input.woocommerce-invalid-required-field:focus,
+.checkout-page select.woocommerce-invalid-required-field:focus,
+.checkout-page textarea.woocommerce-invalid-required-field:focus,
+.checkout-page input.woocommerce-invalid:focus,
+.checkout-page select.woocommerce-invalid:focus,
+.checkout-page textarea.woocommerce-invalid:focus {
 	border-color: #ff0000 !important;
 	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1) !important;
 }
@@ -4091,42 +4065,42 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Скрываем все текстовые сообщения об ошибках */
 .checkout-page .woocommerce-error,
 .checkout-page .woocommerce-error li,
+.checkout-page .woocommerce-error-message,
 .checkout-page .woocommerce-form-row--error .woocommerce-error,
-.checkout-page .woocommerce-form-row--error .woocommerce-input-wrapper .woocommerce-error {
+.checkout-page .woocommerce-form-row--error .woocommerce-input-wrapper .woocommerce-error,
+.checkout-page .woocommerce-form-row--error .woocommerce-error-message,
+.checkout-page .form-row--error .woocommerce-error,
+.checkout-page .form-row--error .woocommerce-error-message,
+.checkout-page .form-row--error .woocommerce-input-wrapper .woocommerce-error,
+.checkout-page .form-row--error .woocommerce-input-wrapper .woocommerce-error-message,
+.checkout-page .woocommerce-billing-fields .woocommerce-error,
+.checkout-page .woocommerce-shipping-fields .woocommerce-error,
+.checkout-page .error,
+.checkout-page .error-message,
+.checkout-page p.woocommerce-error,
+.checkout-page ul.woocommerce-error,
+.checkout-page li.woocommerce-error {
 	display: none !important;
+	visibility: hidden !important;
+	height: 0 !important;
+	overflow: hidden !important;
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
-/* Красная подсветка незаполненных обязательных полей */
-.checkout-page .woocommerce-checkout input.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout select.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout textarea.woocommerce-invalid-required-field,
-.checkout-page .checkout-section input.woocommerce-invalid-required-field,
-.checkout-page .checkout-section select.woocommerce-invalid-required-field,
-.checkout-page .checkout-section textarea.woocommerce-invalid-required-field,
-.checkout-page .woocommerce-checkout input.has-error,
-.checkout-page .woocommerce-checkout select.has-error,
-.checkout-page .woocommerce-checkout textarea.has-error,
-.checkout-page .checkout-section input.has-error,
-.checkout-page .checkout-section select.has-error,
-.checkout-page .checkout-section textarea.has-error,
-.checkout-page .woocommerce-checkout .form-row--error input,
-.checkout-page .woocommerce-checkout .form-row--error select,
-.checkout-page .woocommerce-checkout .form-row--error textarea,
-.checkout-page .checkout-section .form-row--error input,
-.checkout-page .checkout-section .form-row--error select,
-.checkout-page .checkout-section .form-row--error textarea,
-.checkout-page .woocommerce-checkout input.woocommerce-invalid,
-.checkout-page .woocommerce-checkout select.woocommerce-invalid,
-.checkout-page .woocommerce-checkout textarea.woocommerce-invalid,
-.checkout-page .checkout-section input.woocommerce-invalid,
-.checkout-page .checkout-section select.woocommerce-invalid,
-.checkout-page .checkout-section textarea.woocommerce-invalid,
-.checkout-page .woocommerce-checkout input:required:invalid:not(:focus):not(:placeholder-shown),
-.checkout-page .woocommerce-checkout select:required:invalid:not(:focus),
-.checkout-page .woocommerce-checkout textarea:required:invalid:not(:focus):not(:placeholder-shown),
-.checkout-page .checkout-section input:required:invalid:not(:focus):not(:placeholder-shown),
-.checkout-page .checkout-section select:required:invalid:not(:focus),
-.checkout-page .checkout-section textarea:required:invalid:not(:focus):not(:placeholder-shown) {
+/* Красная подсветка незаполненных обязательных полей - используем классы WooCommerce */
+.checkout-page .form-row--error input,
+.checkout-page .form-row--error select,
+.checkout-page .form-row--error textarea,
+.checkout-page .woocommerce-form-row--error input,
+.checkout-page .woocommerce-form-row--error select,
+.checkout-page .woocommerce-form-row--error textarea,
+.checkout-page input.woocommerce-invalid-required-field,
+.checkout-page select.woocommerce-invalid-required-field,
+.checkout-page textarea.woocommerce-invalid-required-field,
+.checkout-page input.woocommerce-invalid,
+.checkout-page select.woocommerce-invalid,
+.checkout-page textarea.woocommerce-invalid {
 	border-color: #ff0000 !important;
 	border-width: 1px !important;
 }
