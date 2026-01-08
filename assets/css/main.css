@@ -7251,7 +7251,7 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name {
 		grid-column: 1;
 		grid-row: 1;
-		align-self: center;
+		align-self: start;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
@@ -7260,12 +7260,12 @@ li.product .product-card,
 		position: static;
 		/* Межстрочка в кошику 100% */
 		line-height: 100% !important;
-		/* Вирівнюємо ціну по центру */
+		/* Вирівнюємо ціну по уровню первой строки названия */
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		gap: 0.2em;
 		margin-left: 2vw;
-		align-self: center;
+		align-self: start;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
