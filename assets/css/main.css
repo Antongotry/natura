@@ -7723,11 +7723,17 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name {
 		/* На мобильном уменьшаем шрифт на ~2px относительно предыдущего значения */
 		font-size: 3.1vw;
-		line-height: 100% !important;
+		line-height: 1 !important;
 		/* Prevent overlap with absolutely positioned price */
 		display: block;
 		/* КРИТИЧНО: Уменьшаем padding-right, чтобы дать больше места для названия */
 		padding-right: 15vw;
+	}
+	
+	/* КРИТИЧНО: Убеждаемся, что ссылка внутри названия наследует line-height */
+	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name a {
+		line-height: inherit !important;
+		display: inline;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name::after {
