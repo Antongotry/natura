@@ -217,11 +217,22 @@ add_action( 'edit_form_after_title', 'natura_render_product_card_title_under_mai
  * Кастомизация полей чекаута - лейблы и плейсхолдеры
  */
 function natura_customize_checkout_fields($fields) {
+	// Добавляем поле "Назва закладу/компанії" (необязательное, сверху)
+	$fields['billing']['billing_company'] = array(
+		'label' => __('Назва закладу/компанії', 'natura'),
+		'placeholder' => __('Необов\'язково', 'natura'),
+		'required' => false,
+		'class' => array('form-row-wide'),
+		'type' => 'text',
+		'priority' => 5,
+	);
+	
 	// Billing fields - оставляем только 3 поля: имя, телефон, email
 	if (isset($fields['billing']['billing_first_name'])) {
 		$fields['billing']['billing_first_name']['label'] = __('Ваше ім\'я та прізвище', 'natura');
 		$fields['billing']['billing_first_name']['placeholder'] = 'Олександр Степаненко';
 		$fields['billing']['billing_first_name']['class'] = array('form-row-wide');
+		$fields['billing']['billing_first_name']['priority'] = 10;
 	}
 	
 	// Скрываем last_name, так как имя и фамилия в одном поле
@@ -233,15 +244,17 @@ function natura_customize_checkout_fields($fields) {
 	if (isset($fields['billing']['billing_phone'])) {
 		$fields['billing']['billing_phone']['label'] = __('Номер телефону', 'natura');
 		$fields['billing']['billing_phone']['placeholder'] = '+38 (093) 200 22 11';
+		$fields['billing']['billing_phone']['required'] = true;
+		$fields['billing']['billing_phone']['priority'] = 20;
 	}
 	
 	if (isset($fields['billing']['billing_email'])) {
 		$fields['billing']['billing_email']['label'] = __('Email', 'natura');
 		$fields['billing']['billing_email']['placeholder'] = 'zakaz@naturamarket.kiev.ua';
+		$fields['billing']['billing_email']['priority'] = 30;
 	}
 	
 	// Убираем все остальные billing поля
-	unset($fields['billing']['billing_company']);
 	unset($fields['billing']['billing_address_1']);
 	unset($fields['billing']['billing_address_2']);
 	unset($fields['billing']['billing_city']);
@@ -332,6 +345,15 @@ function natura_customize_checkout_fields($fields) {
 	unset($fields['shipping']['shipping_postcode']);
 	unset($fields['shipping']['shipping_state']);
 	unset($fields['shipping']['shipping_country']);
+	
+	// Сортируем billing поля по priority
+	if (isset($fields['billing'])) {
+		uasort($fields['billing'], function($a, $b) {
+			$priority_a = isset($a['priority']) ? $a['priority'] : 50;
+			$priority_b = isset($b['priority']) ? $b['priority'] : 50;
+			return $priority_a - $priority_b;
+		});
+	}
 	
 	// Сортируем shipping поля по priority
 	if (isset($fields['shipping'])) {

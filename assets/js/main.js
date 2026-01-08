@@ -5239,6 +5239,27 @@ const initCheckoutSelectPlaceholders = () => {
 		// Обробляємо зміни
 		dateInput.addEventListener('change', updateDatePlaceholder);
 		dateInput.addEventListener('input', updateDatePlaceholder);
+		
+		// Відкриваємо календар при кліку в будь-яке місце інпуту
+		dateInput.addEventListener('click', function(e) {
+			// Перевіряємо, чи є метод showPicker (сучасні браузери)
+			if (typeof dateInput.showPicker === 'function') {
+				e.preventDefault();
+				dateInput.showPicker();
+			} else {
+				// Для старих браузерів просто фокусуємо інпут
+				dateInput.focus();
+			}
+		});
+		
+		// Також відкриваємо календар при фокусі
+		dateInput.addEventListener('focus', function() {
+			if (typeof dateInput.showPicker === 'function') {
+				setTimeout(() => {
+					dateInput.showPicker();
+				}, 100);
+			}
+		});
 	}
 };
 
@@ -5263,6 +5284,24 @@ if (typeof jQuery !== 'undefined') {
 				dateInput.classList.remove('is-placeholder');
 				dateInput.classList.add('has-value');
 			}
+			
+			// Додаємо обробники для відкриття календаря
+			dateInput.addEventListener('click', function(e) {
+				if (typeof dateInput.showPicker === 'function') {
+					e.preventDefault();
+					dateInput.showPicker();
+				} else {
+					dateInput.focus();
+				}
+			});
+			
+			dateInput.addEventListener('focus', function() {
+				if (typeof dateInput.showPicker === 'function') {
+					setTimeout(() => {
+						dateInput.showPicker();
+					}, 100);
+				}
+			});
 		}
 	});
 }
