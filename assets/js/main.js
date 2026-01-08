@@ -5370,3 +5370,83 @@ if (typeof jQuery !== 'undefined') {
 	});
 }
 
+// Подсветка ошибок в checkout при попытке отправки формы
+function initCheckoutErrorHighlighting() {
+	const checkoutForm = document.querySelector('form.checkout');
+	if (!checkoutForm) {
+		return;
+	}
+
+	// Обработчик попытки отправки формы
+	checkoutForm.addEventListener('submit', function(e) {
+		// Небольшая задержка, чтобы WooCommerce успел добавить классы ошибок
+		setTimeout(function() {
+			// Находим все обязательные поля
+			const requiredFields = checkoutForm.querySelectorAll('input[required], select[required], textarea[required]');
+			
+			requiredFields.forEach(function(field) {
+				// Проверяем, заполнено ли поле
+				const isEmpty = !field.value || field.value.trim() === '';
+				
+				// Для select проверяем, не выбран ли placeholder
+				if (field.tagName === 'SELECT') {
+					const firstOption = field.options[0];
+					if (firstOption && firstOption.value === '' && field.value === '') {
+						field.classList.add('woocommerce-invalid-required-field');
+						field.classList.add('has-error');
+					} else if (field.value) {
+						field.classList.remove('woocommerce-invalid-required-field');
+						field.classList.remove('has-error');
+					}
+				} else if (isEmpty) {
+					// Для input и textarea
+					field.classList.add('woocommerce-invalid-required-field');
+					field.classList.add('has-error');
+				} else {
+					field.classList.remove('woocommerce-invalid-required-field');
+					field.classList.remove('has-error');
+				}
+			});
+
+			// Также проверяем поля с классом form-row--error
+			const errorRows = checkoutForm.querySelectorAll('.form-row--error');
+			errorRows.forEach(function(row) {
+				const inputs = row.querySelectorAll('input, select, textarea');
+				inputs.forEach(function(input) {
+					input.classList.add('woocommerce-invalid-required-field');
+					input.classList.add('has-error');
+				});
+			});
+		}, 100);
+	});
+
+	// Также используем jQuery события WooCommerce, если доступны
+	if (typeof jQuery !== 'undefined') {
+		jQuery(document.body).on('checkout_place_order', function() {
+			setTimeout(function() {
+				const requiredFields = checkoutForm.querySelectorAll('input[required], select[required], textarea[required]');
+				requiredFields.forEach(function(field) {
+					const isEmpty = !field.value || field.value.trim() === '';
+					if (field.tagName === 'SELECT') {
+						const firstOption = field.options[0];
+						if (firstOption && firstOption.value === '' && field.value === '') {
+							field.classList.add('woocommerce-invalid-required-field');
+							field.classList.add('has-error');
+						}
+					} else if (isEmpty) {
+						field.classList.add('woocommerce-invalid-required-field');
+						field.classList.add('has-error');
+					}
+				});
+			}, 100);
+		});
+	}
+}
+
+// Инициализация при загрузке страницы
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initCheckoutErrorHighlighting);
+} else {
+	initCheckoutErrorHighlighting();
+}
+
