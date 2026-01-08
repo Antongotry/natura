@@ -7241,17 +7241,17 @@ li.product .product-card,
 		gap: 0.5vw !important;
 		row-gap: 0.5vw !important;
 		/* Выравниваем элементы по центру вертикально относительно фото */
-		justify-content: center !important;
 		display: grid !important;
 		grid-template-columns: 1fr auto;
 		grid-template-rows: auto auto;
-		align-items: start;
+		align-items: center;
+		align-content: center;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__name {
 		grid-column: 1;
 		grid-row: 1;
-		align-self: start;
+		align-self: center;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
@@ -7260,18 +7260,18 @@ li.product .product-card,
 		position: static;
 		/* Межстрочка в кошику 100% */
 		line-height: 100% !important;
-		/* Вирівнюємо ціну по верхнему краю */
+		/* Вирівнюємо ціну по центру */
 		display: flex;
 		align-items: center;
 		gap: 0.2em;
 		margin-left: 2vw;
-		align-self: start;
+		align-self: center;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__controls-row {
 		grid-column: 1 / -1;
 		grid-row: 2;
-		align-self: start;
+		align-self: center;
 	}
 
 	/* Вирівнювання символу гривні на мобільному */
