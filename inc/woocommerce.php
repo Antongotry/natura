@@ -220,7 +220,6 @@ function natura_customize_checkout_fields($fields) {
 	// Добавляем поле "Назва закладу/компанії" (необязательное, сверху)
 	$fields['billing']['billing_company'] = array(
 		'label' => __('Назва закладу/компанії', 'natura'),
-		'placeholder' => __('Необов\'язково', 'natura'),
 		'required' => false,
 		'class' => array('form-row-wide'),
 		'type' => 'text',
