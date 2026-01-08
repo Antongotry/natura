@@ -450,3 +450,288 @@ function natura_redirect_wp_login() {
 	}
 }
 
+/**
+ * Google OAuth 2.0 Integration
+ */
+
+/**
+ * Получить Google Client ID (из wp-config.php или опций)
+ */
+function natura_get_google_client_id() {
+	if (defined('NATURA_GOOGLE_CLIENT_ID')) {
+		return NATURA_GOOGLE_CLIENT_ID;
+	}
+	return get_option('natura_google_client_id', '');
+}
+
+/**
+ * Получить Google Client Secret (из wp-config.php или опций)
+ */
+function natura_get_google_client_secret() {
+	if (defined('NATURA_GOOGLE_CLIENT_SECRET')) {
+		return NATURA_GOOGLE_CLIENT_SECRET;
+	}
+	return get_option('natura_google_client_secret', '');
+}
+
+/**
+ * AJAX: Получить Google OAuth URL для авторизации
+ */
+add_action('wp_ajax_nopriv_natura_google_oauth_url', 'natura_ajax_google_oauth_url');
+add_action('wp_ajax_natura_google_oauth_url', 'natura_ajax_google_oauth_url');
+function natura_ajax_google_oauth_url() {
+	$client_id = natura_get_google_client_id();
+	
+	if (empty($client_id)) {
+		wp_send_json_error(['message' => 'Google OAuth не настроен. Обратитесь к администратору.']);
+		return;
+	}
+	
+	// Генерируем state для защиты от CSRF
+	$state = wp_generate_password(32, false);
+	set_transient('natura_google_oauth_state_' . $state, time(), 600); // 10 минут
+	
+	// Определяем тип действия (login или register)
+	$action = isset($_POST['action_type']) ? sanitize_text_field($_POST['action_type']) : 'login';
+	set_transient('natura_google_oauth_action_' . $state, $action, 600);
+	
+	// Формируем URL для авторизации
+	$redirect_uri = admin_url('admin-ajax.php?action=natura_google_oauth_callback');
+	$scope = 'openid email profile';
+	
+	$auth_url = add_query_arg([
+		'client_id' => $client_id,
+		'redirect_uri' => urlencode($redirect_uri),
+		'response_type' => 'code',
+		'scope' => urlencode($scope),
+		'state' => $state,
+		'access_type' => 'offline',
+		'prompt' => 'consent',
+	], 'https://accounts.google.com/o/oauth2/v2/auth');
+	
+	wp_send_json_success([
+		'auth_url' => $auth_url,
+		'state' => $state,
+	]);
+}
+
+/**
+ * AJAX: Callback от Google OAuth
+ */
+add_action('wp_ajax_nopriv_natura_google_oauth_callback', 'natura_ajax_google_oauth_callback');
+add_action('wp_ajax_natura_google_oauth_callback', 'natura_ajax_google_oauth_callback');
+function natura_ajax_google_oauth_callback() {
+	$code = isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '';
+	$state = isset($_GET['state']) ? sanitize_text_field($_GET['state']) : '';
+	$error = isset($_GET['error']) ? sanitize_text_field($_GET['error']) : '';
+	
+	// Проверка на ошибку от Google
+	if (!empty($error)) {
+		$error_message = isset($_GET['error_description']) ? sanitize_text_field($_GET['error_description']) : 'Ошибка авторизации через Google';
+		wp_redirect(add_query_arg('google_error', urlencode($error_message), natura_get_auth_url()));
+		exit;
+	}
+	
+	// Проверка state (защита от CSRF)
+	if (empty($state) || !get_transient('natura_google_oauth_state_' . $state)) {
+		wp_redirect(add_query_arg('google_error', urlencode('Неверный запрос. Попробуйте снова.'), natura_get_auth_url()));
+		exit;
+	}
+	
+	// Получаем тип действия
+	$action_type = get_transient('natura_google_oauth_action_' . $state);
+	delete_transient('natura_google_oauth_state_' . $state);
+	delete_transient('natura_google_oauth_action_' . $state);
+	
+	$client_id = natura_get_google_client_id();
+	$client_secret = natura_get_google_client_secret();
+	
+	if (empty($client_id) || empty($client_secret)) {
+		wp_redirect(add_query_arg('google_error', urlencode('Google OAuth не настроен.'), natura_get_auth_url()));
+		exit;
+	}
+	
+	// Обмениваем код на access token
+	$token_url = 'https://oauth2.googleapis.com/token';
+	$redirect_uri = admin_url('admin-ajax.php?action=natura_google_oauth_callback');
+	
+	$response = wp_remote_post($token_url, [
+		'body' => [
+			'code' => $code,
+			'client_id' => $client_id,
+			'client_secret' => $client_secret,
+			'redirect_uri' => $redirect_uri,
+			'grant_type' => 'authorization_code',
+		],
+	]);
+	
+	if (is_wp_error($response)) {
+		wp_redirect(add_query_arg('google_error', urlencode('Ошибка при получении токена.'), natura_get_auth_url()));
+		exit;
+	}
+	
+	$body = json_decode(wp_remote_retrieve_body($response), true);
+	
+	if (empty($body['access_token'])) {
+		wp_redirect(add_query_arg('google_error', urlencode('Не удалось получить токен доступа.'), natura_get_auth_url()));
+		exit;
+	}
+	
+	$access_token = $body['access_token'];
+	
+	// Получаем информацию о пользователе
+	$user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo';
+	$user_response = wp_remote_get($user_info_url, [
+		'headers' => [
+			'Authorization' => 'Bearer ' . $access_token,
+		],
+	]);
+	
+	if (is_wp_error($user_response)) {
+		wp_redirect(add_query_arg('google_error', urlencode('Ошибка при получении данных пользователя.'), natura_get_auth_url()));
+		exit;
+	}
+	
+	$user_data = json_decode(wp_remote_retrieve_body($user_response), true);
+	
+	if (empty($user_data['email'])) {
+		wp_redirect(add_query_arg('google_error', urlencode('Не удалось получить email от Google.'), natura_get_auth_url()));
+		exit;
+	}
+	
+	$email = sanitize_email($user_data['email']);
+	$first_name = isset($user_data['given_name']) ? sanitize_text_field($user_data['given_name']) : '';
+	$last_name = isset($user_data['family_name']) ? sanitize_text_field($user_data['family_name']) : '';
+	$google_id = isset($user_data['id']) ? sanitize_text_field($user_data['id']) : '';
+	$avatar_url = isset($user_data['picture']) ? esc_url_raw($user_data['picture']) : '';
+	
+	// Проверяем, существует ли пользователь с таким email
+	$user = get_user_by('email', $email);
+	
+	if ($user) {
+		// Пользователь существует - логиним
+		// Обновляем Google ID для связи
+		if ($google_id) {
+			update_user_meta($user->ID, 'natura_google_id', $google_id);
+		}
+		if ($avatar_url) {
+			update_user_meta($user->ID, 'natura_google_avatar', $avatar_url);
+		}
+		
+		wp_set_current_user($user->ID);
+		wp_set_auth_cookie($user->ID, true);
+		
+		wp_redirect(natura_get_account_url());
+		exit;
+	} else {
+		// Пользователь не существует
+		if ($action_type === 'register') {
+			// Регистрируем нового пользователя
+			$username = $email; // Используем email как username
+			$password = wp_generate_password(20, true, true); // Генерируем случайный пароль
+			
+			$user_id = wp_create_user($username, $password, $email);
+			
+			if (is_wp_error($user_id)) {
+				wp_redirect(add_query_arg('google_error', urlencode('Ошибка при создании аккаунта.'), natura_get_auth_url('register')));
+				exit;
+			}
+			
+			// Устанавливаем роль customer для WooCommerce
+			$new_user = new WP_User($user_id);
+			$new_user->set_role('customer');
+			
+			// Сохраняем дополнительные данные
+			if ($first_name) {
+				update_user_meta($user_id, 'first_name', $first_name);
+			}
+			if ($last_name) {
+				update_user_meta($user_id, 'last_name', $last_name);
+			}
+			if ($google_id) {
+				update_user_meta($user_id, 'natura_google_id', $google_id);
+			}
+			if ($avatar_url) {
+				update_user_meta($user_id, 'natura_google_avatar', $avatar_url);
+			}
+			
+			// Логиним пользователя
+			wp_set_current_user($user_id);
+			wp_set_auth_cookie($user_id, true);
+			
+			wp_redirect(natura_get_account_url());
+			exit;
+		} else {
+			// Пытаемся войти, но пользователя нет - предлагаем зарегистрироваться
+			wp_redirect(add_query_arg('google_error', urlencode('Аккаунт с таким email не найден. Пожалуйста, зарегистрируйтесь.'), natura_get_auth_url('register')));
+			exit;
+		}
+	}
+}
+
+/**
+ * Добавить настройки Google OAuth в админку (опционально)
+ */
+add_action('admin_init', 'natura_google_oauth_settings');
+function natura_google_oauth_settings() {
+	// Регистрируем настройки только если не определены константы
+	if (!defined('NATURA_GOOGLE_CLIENT_ID')) {
+		register_setting('natura_settings', 'natura_google_client_id');
+		register_setting('natura_settings', 'natura_google_client_secret');
+	}
+}
+
+/**
+ * Добавить страницу настроек в админку (опционально)
+ */
+add_action('admin_menu', 'natura_google_oauth_admin_menu');
+function natura_google_oauth_admin_menu() {
+	if (!defined('NATURA_GOOGLE_CLIENT_ID')) {
+		add_options_page(
+			'Настройки Google OAuth',
+			'Google OAuth',
+			'manage_options',
+			'natura-google-oauth',
+			'natura_google_oauth_settings_page'
+		);
+	}
+}
+
+function natura_google_oauth_settings_page() {
+	if (!current_user_can('manage_options')) {
+		return;
+	}
+	
+	if (isset($_POST['submit'])) {
+		check_admin_referer('natura_google_oauth_settings');
+		update_option('natura_google_client_id', sanitize_text_field($_POST['natura_google_client_id']));
+		update_option('natura_google_client_secret', sanitize_text_field($_POST['natura_google_client_secret']));
+		echo '<div class="notice notice-success"><p>Настройки сохранены!</p></div>';
+	}
+	
+	$client_id = get_option('natura_google_client_id', '');
+	$client_secret = get_option('natura_google_client_secret', '');
+	?>
+	<div class="wrap">
+		<h1>Настройки Google OAuth</h1>
+		<form method="post" action="">
+			<?php wp_nonce_field('natura_google_oauth_settings'); ?>
+			<table class="form-table">
+				<tr>
+					<th scope="row"><label for="natura_google_client_id">Client ID</label></th>
+					<td><input type="text" id="natura_google_client_id" name="natura_google_client_id" value="<?php echo esc_attr($client_id); ?>" class="regular-text" /></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="natura_google_client_secret">Client Secret</label></th>
+					<td><input type="password" id="natura_google_client_secret" name="natura_google_client_secret" value="<?php echo esc_attr($client_secret); ?>" class="regular-text" /></td>
+				</tr>
+			</table>
+			<p class="submit">
+				<input type="submit" name="submit" id="submit" class="button button-primary" value="Сохранить изменения">
+			</p>
+		</form>
+		<p><strong>Примечание:</strong> Для большей безопасности рекомендуется добавить эти значения в <code>wp-config.php</code> как константы <code>NATURA_GOOGLE_CLIENT_ID</code> и <code>NATURA_GOOGLE_CLIENT_SECRET</code>.</p>
+	</div>
+	<?php
+}
+

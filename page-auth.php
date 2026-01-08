@@ -14,6 +14,9 @@ if (isset($_GET['tab'])) {
 		$active_tab = 'lost-password';
 	}
 }
+
+// Обработка ошибок Google OAuth
+$google_error = isset($_GET['google_error']) ? sanitize_text_field(urldecode($_GET['google_error'])) : '';
 ?>
 
 <main class="auth-page">
@@ -33,6 +36,11 @@ if (isset($_GET['tab'])) {
 
 			<!-- Форма входу -->
 			<form class="auth-page__form <?php echo $active_tab === 'login' ? 'auth-page__form--active' : ''; ?>" id="login-form" data-form="login">
+				<?php if ($google_error && $active_tab === 'login'): ?>
+					<div class="auth-page__error auth-page__error--visible" data-error><?php echo esc_html($google_error); ?></div>
+				<?php else: ?>
+					<div class="auth-page__error" data-error></div>
+				<?php endif; ?>
 				<div class="auth-page__field">
 					<label class="auth-page__label" for="login-email">Email *</label>
 					<input type="email" class="auth-page__input" id="login-email" name="email" required autocomplete="email">
@@ -41,13 +49,12 @@ if (isset($_GET['tab'])) {
 					<label class="auth-page__label" for="login-password">Пароль *</label>
 					<input type="password" class="auth-page__input" id="login-password" name="password" required autocomplete="current-password">
 				</div>
-				<div class="auth-page__error" data-error></div>
 				<div class="auth-page__buttons">
 					<button type="submit" class="auth-page__submit">
 						<span class="auth-page__submit-text">Увійти</span>
 						<span class="auth-page__submit-loader" style="display: none;"></span>
 					</button>
-					<button type="button" class="auth-page__google" disabled>
+					<button type="button" class="auth-page__google" data-google-action="login">
 						<img src="<?php echo esc_url(get_theme_file_uri('assets/img/auth/google-icon.svg')); ?>" alt="Google" class="auth-page__google-icon">
 						<span>Вхід через Google</span>
 					</button>
@@ -58,6 +65,11 @@ if (isset($_GET['tab'])) {
 
 			<!-- Форма реєстрації -->
 			<form class="auth-page__form <?php echo $active_tab === 'register' ? 'auth-page__form--active' : ''; ?>" id="register-form" data-form="register">
+				<?php if ($google_error && $active_tab === 'register'): ?>
+					<div class="auth-page__error auth-page__error--visible" data-error><?php echo esc_html($google_error); ?></div>
+				<?php else: ?>
+					<div class="auth-page__error" data-error></div>
+				<?php endif; ?>
 				<div class="auth-page__field">
 					<label class="auth-page__label" for="register-email">Email *</label>
 					<input type="email" class="auth-page__input" id="register-email" name="email" required autocomplete="email">
@@ -66,13 +78,12 @@ if (isset($_GET['tab'])) {
 					<label class="auth-page__label" for="register-password">Пароль *</label>
 					<input type="password" class="auth-page__input" id="register-password" name="password" required autocomplete="new-password">
 				</div>
-				<div class="auth-page__error" data-error></div>
 				<div class="auth-page__buttons">
 					<button type="submit" class="auth-page__submit">
 						<span class="auth-page__submit-text">Зареєструватись</span>
 						<span class="auth-page__submit-loader" style="display: none;"></span>
 					</button>
-					<button type="button" class="auth-page__google" disabled>
+					<button type="button" class="auth-page__google" data-google-action="register">
 						<img src="<?php echo esc_url(get_theme_file_uri('assets/img/auth/google-icon.svg')); ?>" alt="Google" class="auth-page__google-icon">
 						<span>Зареєструватись через Google</span>
 					</button>

@@ -236,6 +236,106 @@
 			isSubmittingPassword = false;
 		}
 	}, 1000);
+
+	// Обработка кнопок Google OAuth
+	const googleButtons = document.querySelectorAll('.auth-page__google[data-google-action]');
+	
+	googleButtons.forEach(button => {
+		button.addEventListener('click', async (e) => {
+			e.preventDefault();
+			
+			const actionType = button.getAttribute('data-google-action'); // 'login' или 'register'
+			
+			if (!actionType) {
+				console.error('Google button: action type not specified');
+				return;
+			}
+			
+			// Проверяем, что naturaAuth определен
+			if (typeof naturaAuth === 'undefined') {
+				console.error('naturaAuth is not defined');
+				alert('Помилка конфігурації. Оновіть сторінку.');
+				return;
+			}
+			
+			// Отключаем кнопку
+			button.disabled = true;
+			const originalText = button.querySelector('span').textContent;
+			button.querySelector('span').textContent = 'Завантаження...';
+			
+			try {
+				// Получаем URL для авторизации через Google
+				const params = new URLSearchParams();
+				params.append('action', 'natura_google_oauth_url');
+				params.append('action_type', actionType);
+				
+				const response = await fetch(naturaAuth.ajaxUrl, {
+					method: 'POST',
+					body: params,
+					credentials: 'same-origin',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+				});
+				
+				const data = await response.json();
+				
+				if (data.success && data.data.auth_url) {
+					// Открываем popup для авторизации через Google
+					const width = 500;
+					const height = 600;
+					const left = (screen.width - width) / 2;
+					const top = (screen.height - height) / 2;
+					
+					const popup = window.open(
+						data.data.auth_url,
+						'Google OAuth',
+						`width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no`
+					);
+					
+					// Слушаем сообщения от popup (если используется postMessage)
+					// Или просто ждем редиректа (так как callback делает редирект)
+					
+					// Проверяем, закрыт ли popup (пользователь может закрыть его вручную)
+					const checkPopup = setInterval(() => {
+						if (popup.closed) {
+							clearInterval(checkPopup);
+							// Восстанавливаем кнопку
+							button.disabled = false;
+							button.querySelector('span').textContent = originalText;
+						}
+					}, 500);
+					
+					// Также слушаем focus на основном окне (когда popup делает редирект)
+					window.addEventListener('focus', function checkRedirect() {
+						// Если popup закрыт, возможно произошел редирект
+						if (popup.closed) {
+							window.removeEventListener('focus', checkRedirect);
+							// Проверяем, не произошел ли редирект на страницу с ошибкой
+							const urlParams = new URLSearchParams(window.location.search);
+							if (urlParams.has('google_error')) {
+								const errorDiv = document.querySelector('[data-error]');
+								if (errorDiv) {
+									errorDiv.textContent = decodeURIComponent(urlParams.get('google_error'));
+									errorDiv.classList.add('auth-page__error--visible');
+								}
+							}
+						}
+					});
+					
+				} else {
+					throw new Error(data.data?.message || 'Помилка при отриманні URL авторизації');
+				}
+			} catch (error) {
+				console.error('Google OAuth error:', error);
+				alert('Помилка при авторизації через Google. Спробуйте пізніше.');
+				// Восстанавливаем кнопку
+				button.disabled = false;
+				button.querySelector('span').textContent = originalText;
+			}
+		});
+	});
 })();
 
 
