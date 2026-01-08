@@ -4870,8 +4870,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		height: 13.333vw !important;
 		min-height: 13.333vw !important;
 		max-height: 13.333vw !important;
-		line-height: 1.5 !important;
+		/* КРИТИЧНО: Исправляем выравнивание текста по высоте и предотвращаем обрезание букв */
+		line-height: 13.333vw !important;
 		vertical-align: middle !important;
+		display: flex !important;
+		align-items: center !important;
+		text-align: left !important;
+		/* КРИТИЧНО: Предотвращаем обрезание букв */
+		overflow: visible !important;
+		text-overflow: clip !important;
 	}
 
 	/* КРИТИЧНО: Textarea должна иметь большую высоту */
@@ -4899,9 +4906,6 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		max-width: 100% !important;
 		flex-shrink: 1 !important;
 		box-sizing: border-box !important;
-		/* КРИТИЧНО: Дополнительные ограничения для предотвращения выхода за границы */
-		overflow: hidden !important;
-		text-overflow: ellipsis !important;
 		/* КРИТИЧНО: Убираем любые margin/padding, которые могут вызывать выход за границы */
 		margin-left: 0 !important;
 		margin-right: 0 !important;
@@ -4921,8 +4925,16 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		height: 13.333vw !important;
 		min-height: 13.333vw !important;
 		max-height: 13.333vw !important;
-		line-height: 1.5 !important;
+		/* КРИТИЧНО: Исправляем выравнивание текста по высоте и предотвращаем обрезание букв */
+		line-height: 13.333vw !important;
 		vertical-align: middle !important;
+		display: flex !important;
+		align-items: center !important;
+		/* КРИТИЧНО: Убираем центрирование текста - выравниваем по левому краю */
+		text-align: left !important;
+		/* КРИТИЧНО: Предотвращаем обрезание букв */
+		overflow: visible !important;
+		text-overflow: clip !important;
 	}
 
 	/* КРИТИЧНО: Дополнительные ограничения для контейнеров полей на мобильных */
@@ -4986,6 +4998,26 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page .checkout-section input[type="tel"]::placeholder,
 	.checkout-page .checkout-section textarea::placeholder {
 		font-size: 4vw;
+	}
+	
+	/* КРИТИЧНО для iOS: Placeholder для input[type="date"] */
+	.checkout-page .woocommerce-checkout input[type="date"].is-placeholder,
+	.checkout-page .checkout-section input[type="date"].is-placeholder,
+	.checkout-page input[type="date"].is-placeholder,
+	.checkout-page #shipping_delivery_date.is-placeholder {
+		color: #3030304D !important;
+		opacity: 1 !important;
+		/* КРИТИЧНО: Делаем placeholder видимым на iOS */
+		-webkit-text-fill-color: #3030304D !important;
+	}
+	
+	/* КРИТИЧНО для iOS: Стили для выбранной даты */
+	.checkout-page .woocommerce-checkout input[type="date"].has-value,
+	.checkout-page .checkout-section input[type="date"].has-value,
+	.checkout-page input[type="date"].has-value,
+	.checkout-page #shipping_delivery_date.has-value {
+		color: #303030 !important;
+		-webkit-text-fill-color: #303030 !important;
 	}
 
 	.checkout-page .woocommerce-checkout textarea,
