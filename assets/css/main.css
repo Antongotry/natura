@@ -5171,7 +5171,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.checkout-order-review__item-name {
 		font-size: 12px;
-		line-height: 100%;
+		line-height: 1;
 	}
 
 	.checkout-order-review__item-price {
