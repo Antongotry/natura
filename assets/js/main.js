@@ -5306,3 +5306,60 @@ if (typeof jQuery !== 'undefined') {
 	});
 }
 
+// Раскрытие/скрытие товаров в заказах кабинета
+function initAccountOrdersExpand() {
+	const moreButtons = document.querySelectorAll('.account-orders__more');
+	
+	moreButtons.forEach(function(button) {
+		// Убираем дублирование обработчиков
+		if (button.dataset.listenerAdded) {
+			return;
+		}
+		button.dataset.listenerAdded = 'true';
+		
+		button.addEventListener('click', function() {
+			const orderId = button.dataset.orderId;
+			const productsContainer = button.closest('.account-orders__products');
+			
+			if (productsContainer) {
+				const isExpanded = productsContainer.classList.contains('expanded');
+				
+				if (isExpanded) {
+					// Скрываем
+					productsContainer.classList.remove('expanded');
+					const hiddenProducts = productsContainer.querySelectorAll('.account-orders__product--hidden');
+					const totalHidden = hiddenProducts.length;
+					
+					// Обновляем текст с правильным склонением
+					const getPlural = function(count) {
+						const mod10 = count % 10;
+						const mod100 = count % 100;
+						
+						if (mod10 == 1 && mod100 != 11) {
+							return 'товар';
+						} else if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) {
+							return 'товари';
+						} else {
+							return 'товарів';
+						}
+					};
+					
+					const plural = getPlural(totalHidden);
+					button.textContent = 'Ще ' + totalHidden + ' ' + plural;
+				} else {
+					// Показываем
+					productsContainer.classList.add('expanded');
+					button.textContent = 'Сховати';
+				}
+			}
+		});
+	});
+}
+
+// Инициализация при загрузке страницы
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initAccountOrdersExpand);
+} else {
+	initAccountOrdersExpand();
+}
+

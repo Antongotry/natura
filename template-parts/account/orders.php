@@ -45,18 +45,15 @@ $customer_orders = wc_get_orders([
 
 						<tr class="account-orders__row">
 							<td class="account-orders__cell account-orders__cell--products">
-								<div class="account-orders__products">
+								<div class="account-orders__products" data-order-id="<?php echo esc_attr( $order->get_id() ); ?>">
 									<?php
 									$items      = $order->get_items( 'line_item' );
 									$max_items  = 3;
 									$shown      = 0;
 									$total_items = is_countable( $items ) ? count( $items ) : 0;
+									$order_id_attr = 'order-' . $order->get_id();
 
 									foreach ( $items as $item_id => $item ) :
-										if ( $shown >= $max_items ) {
-											break;
-										}
-
 										$product    = $item->get_product();
 										$product_id = $product && method_exists( $product, 'get_id' ) ? (int) $product->get_id() : 0;
 
@@ -82,9 +79,13 @@ $customer_orders = wc_get_orders([
 										$line_total_html = method_exists( $order, 'get_formatted_line_subtotal' )
 											? $order->get_formatted_line_subtotal( $item )
 											: ( function_exists( 'wc_price' ) ? wc_price( (float) $item->get_total() ) : '' );
+										
+										// Скрываем товары после первых 3
+										$is_hidden = $shown >= $max_items;
+										$hidden_class = $is_hidden ? 'account-orders__product--hidden' : '';
 										?>
 
-										<div class="account-orders__product">
+										<div class="account-orders__product <?php echo esc_attr( $hidden_class ); ?>" data-item-index="<?php echo esc_attr( $shown ); ?>">
 											<div class="account-orders__product-thumb">
 												<?php echo wp_kses_post( $thumb_html ); ?>
 											</div>
@@ -105,11 +106,24 @@ $customer_orders = wc_get_orders([
 
 									$remaining = $total_items - $shown;
 									if ( $remaining > 0 ) :
+										// Функция для правильного склонения
+										$get_plural = function( $count ) {
+											$mod10 = $count % 10;
+											$mod100 = $count % 100;
+											
+											if ( $mod10 == 1 && $mod100 != 11 ) {
+												return 'товар';
+											} elseif ( in_array( $mod10, [2, 3, 4] ) && ! in_array( $mod100, [12, 13, 14] ) ) {
+												return 'товари';
+											} else {
+												return 'товарів';
+											}
+										};
 										?>
-										<div class="account-orders__more">
+										<div class="account-orders__more" data-order-id="<?php echo esc_attr( $order->get_id() ); ?>" style="cursor: pointer;">
 											<?php
-											/* translators: %d: remaining items count */
-											echo esc_html( sprintf( 'Ще %d товар(ів)', $remaining ) );
+											$plural = $get_plural( $remaining );
+											echo esc_html( sprintf( 'Ще %d %s', $remaining, $plural ) );
 											?>
 										</div>
 									<?php endif; ?>

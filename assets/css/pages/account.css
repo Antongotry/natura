@@ -417,6 +417,14 @@
 	color: #303030;
 }
 
+.account-orders__product--hidden {
+	display: none;
+}
+
+.account-orders__products.expanded .account-orders__product--hidden {
+	display: flex;
+}
+
 .account-orders__more {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
@@ -424,6 +432,11 @@
 	line-height: 110%;
 	letter-spacing: -0.02em;
 	color: rgba(48, 48, 48, 0.4);
+	transition: color 0.2s ease;
+}
+
+.account-orders__more:hover {
+	color: #303030;
 }
 
 .account-orders__order-link {
@@ -1099,6 +1112,14 @@
 		margin-top: 0;
 		color: #303030;
 		font-weight: 400;
+	}
+
+	.account-orders__product--hidden {
+		display: none;
+	}
+
+	.account-orders__products.expanded .account-orders__product--hidden {
+		display: flex;
 	}
 
 	.account-orders__more {
