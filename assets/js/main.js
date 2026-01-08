@@ -5225,6 +5225,12 @@ const initCheckoutSelectPlaceholders = () => {
 	if (dateInput) {
 		const wrapper = dateInput.closest('.woocommerce-input-wrapper');
 		
+		// КРИТИЧНО для iOS: Принудительно устанавливаем text-align через inline styles
+		const setTextAlign = () => {
+			dateInput.style.setProperty('text-align', 'left', 'important');
+			dateInput.style.setProperty('text-align-last', 'left', 'important');
+		};
+		
 		const updateDatePlaceholder = () => {
 			if (!dateInput.value || dateInput.value === '') {
 				dateInput.classList.add('is-placeholder');
@@ -5241,14 +5247,21 @@ const initCheckoutSelectPlaceholders = () => {
 					wrapper.classList.remove('has-date-placeholder');
 				}
 			}
+			// КРИТИЧНО: Всегда устанавливаем text-align
+			setTextAlign();
 		};
 		
 		// Перевіряємо початковий стан
 		updateDatePlaceholder();
+		setTextAlign();
 		
 		// Обробляємо зміни
 		dateInput.addEventListener('change', updateDatePlaceholder);
 		dateInput.addEventListener('input', updateDatePlaceholder);
+		
+		// КРИТИЧНО для iOS: Устанавливаем text-align при фокусе и клике
+		dateInput.addEventListener('focus', setTextAlign);
+		dateInput.addEventListener('click', setTextAlign);
 		
 		// Відкриваємо календар при кліку в будь-яке місце інпуту
 		dateInput.addEventListener('click', function(e) {
