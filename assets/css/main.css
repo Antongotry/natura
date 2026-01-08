@@ -3941,6 +3941,33 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	box-shadow: 0 0 0 2px rgba(77, 189, 86, 0.1);
 }
 
+/* Красная рамка при ошибке даже в фокусе */
+.checkout-page .woocommerce-checkout input[type="text"]:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout input[type="email"]:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout input[type="tel"]:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout input[type="number"]:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout input[type="password"]:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout input[type="date"]:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout textarea:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout select:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section input[type="text"]:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section input[type="email"]:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section input[type="tel"]:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section input[type="number"]:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section input[type="password"]:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section input[type="date"]:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section textarea:focus.woocommerce-invalid-required-field,
+.checkout-page .checkout-section select:focus.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout .form-row--error input:focus,
+.checkout-page .woocommerce-checkout .form-row--error select:focus,
+.checkout-page .woocommerce-checkout .form-row--error textarea:focus,
+.checkout-page .checkout-section .form-row--error input:focus,
+.checkout-page .checkout-section .form-row--error select:focus,
+.checkout-page .checkout-section .form-row--error textarea:focus {
+	border-color: #ff0000 !important;
+	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1) !important;
+}
+
 .checkout-page .woocommerce-checkout textarea,
 .checkout-page .checkout-section textarea {
 	resize: vertical;
