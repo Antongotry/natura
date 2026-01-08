@@ -5462,8 +5462,17 @@ function initCheckoutErrorHighlighting() {
 		});
 
 		// Также подсвечиваем поля с классом woocommerce-invalid-required-field (только если это input/select/textarea)
-		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field, input.woocommerce-invalid, select.woocommerce-invalid, textarea.woocommerce-invalid');
+		// НО только обязательные поля (не order_comments и другие необязательные)
+		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field');
 		invalidFields.forEach(function(field) {
+			// Пропускаем необязательные поля
+			if (!field.hasAttribute('required') && 
+			    field.getAttribute('aria-required') !== 'true' &&
+			    field.id !== 'order_comments' &&
+			    field.name !== 'order_comments') {
+				return;
+			}
+			
 			// Применяем стили точно как focus, только красным - используем полное свойство border
 			field.style.setProperty('outline', 'none', 'important');
 			field.style.setProperty('border', '1px solid #ff0000', 'important');
