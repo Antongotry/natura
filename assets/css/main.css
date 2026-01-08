@@ -7238,7 +7238,8 @@ li.product .product-card,
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__content {
 		position: relative;
 		/* КРИТИЧНО: Уменьшаем отступ между названием, ценой, калькулятором и удалением */
-		gap: 1vw !important;
+		gap: 0.5vw !important;
+		row-gap: 0.5vw !important;
 		/* Выравниваем элементы по центру вертикально относительно фото */
 		justify-content: center !important;
 		display: grid !important;
