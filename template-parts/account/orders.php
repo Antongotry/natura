@@ -104,7 +104,8 @@ $customer_orders = wc_get_orders([
 										$shown++;
 									endforeach;
 
-									$remaining = $total_items - $shown;
+									// Правильно вычисляем оставшиеся товары
+									$remaining = $total_items > $max_items ? ( $total_items - $max_items ) : 0;
 									if ( $remaining > 0 ) :
 										// Функция для правильного склонения
 										$get_plural = function( $count ) {
