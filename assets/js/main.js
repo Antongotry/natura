@@ -5245,7 +5245,7 @@ const initCheckoutSelectPlaceholders = () => {
 				// Прибираємо клас з wrapper
 				if (wrapper) {
 					wrapper.classList.remove('has-date-placeholder');
-				}
+			}
 			}
 			// КРИТИЧНО: Всегда устанавливаем text-align
 			setTextAlign();
@@ -5652,12 +5652,133 @@ function initCheckoutErrorHighlighting() {
 	// Также проверяем при клике на кнопку отправки
 	const submitButton = checkoutForm.querySelector('button[type="submit"], input[type="submit"], #place_order');
 	if (submitButton) {
-		submitButton.addEventListener('click', function() {
+		submitButton.addEventListener('click', function(e) {
+			// Валидация обязательных полей перед отправкой
+			const requiredFields = checkoutForm.querySelectorAll('input[required], select[required], textarea[required]');
+			let hasEmptyFields = false;
+			
+			requiredFields.forEach(function(field) {
+				// Пропускаем order_comments (необязательное)
+				if (field.id === 'order_comments' || field.name === 'order_comments') {
+					return;
+				}
+				
+				const value = field.value.trim();
+				if (!value) {
+					hasEmptyFields = true;
+					// Добавляем класс ошибки
+					field.classList.add('woocommerce-invalid-required-field');
+					const row = field.closest('.form-row, .woocommerce-form-row');
+					if (row) {
+						row.classList.add('woocommerce-invalid-required-field');
+					}
+				}
+			});
+			
+			// Проверяем обязательные shipping поля
+			const shippingCity = checkoutForm.querySelector('#shipping_city');
+			const shippingAddress1 = checkoutForm.querySelector('#shipping_address_1');
+			const shippingAddress2 = checkoutForm.querySelector('#shipping_address_2');
+			const shippingDeliveryDate = checkoutForm.querySelector('#shipping_delivery_date');
+			const shippingDeliveryTime = checkoutForm.querySelector('#shipping_delivery_time');
+			const shippingPackaging = checkoutForm.querySelector('#shipping_packaging');
+			
+			if (shippingCity && !shippingCity.value.trim()) {
+				hasEmptyFields = true;
+				shippingCity.classList.add('woocommerce-invalid-required-field');
+			}
+			if (shippingAddress1 && !shippingAddress1.value.trim()) {
+				hasEmptyFields = true;
+				shippingAddress1.classList.add('woocommerce-invalid-required-field');
+			}
+			if (shippingAddress2 && !shippingAddress2.value.trim()) {
+				hasEmptyFields = true;
+				shippingAddress2.classList.add('woocommerce-invalid-required-field');
+			}
+			if (shippingDeliveryDate && !shippingDeliveryDate.value.trim()) {
+				hasEmptyFields = true;
+				shippingDeliveryDate.classList.add('woocommerce-invalid-required-field');
+			}
+			if (shippingDeliveryTime && !shippingDeliveryTime.value.trim()) {
+				hasEmptyFields = true;
+				shippingDeliveryTime.classList.add('woocommerce-invalid-required-field');
+			}
+			if (shippingPackaging && !shippingPackaging.value.trim()) {
+				hasEmptyFields = true;
+				shippingPackaging.classList.add('woocommerce-invalid-required-field');
+			}
+			
+			if (hasEmptyFields) {
+				e.preventDefault();
+				e.stopPropagation();
+				highlightErrorFields();
+				return false;
+			}
+			
 			setTimeout(function() {
 				highlightErrorFields();
 				setTimeout(highlightErrorFields, 300);
 				setTimeout(highlightErrorFields, 600);
 			}, 100);
+		});
+	}
+	
+	// Обработка кнопки "Застосувати" промокода - используем AJAX вместо submit формы
+	const couponButton = checkoutForm.querySelector('#apply_coupon_button, button[name="apply_coupon"], .checkout-order-review__coupon-button');
+	if (couponButton) {
+		couponButton.addEventListener('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			const couponInput = checkoutForm.querySelector('#coupon_code, input[name="coupon_code"]');
+			if (!couponInput || !couponInput.value.trim()) {
+				alert('Будь ласка, введіть промокод');
+				return false;
+			}
+			
+			// Используем WooCommerce AJAX для применения промокода
+			if (typeof jQuery !== 'undefined' && jQuery.fn.wc_checkout) {
+				const couponCode = couponInput.value.trim();
+				jQuery('body').trigger('update_checkout', {
+					update_shipping_method: false
+				});
+				
+				// Применяем промокод через WooCommerce
+				jQuery.ajax({
+					type: 'POST',
+					url: wc_checkout_params.ajax_url.replace('%%endpoint%%', 'apply_coupon'),
+					data: {
+						security: wc_checkout_params.apply_coupon_nonce,
+						coupon_code: couponCode
+					},
+					success: function(response) {
+						if (response.success) {
+							// Обновляем checkout
+							jQuery('body').trigger('update_checkout');
+						} else {
+							alert(response.data && response.data.message ? response.data.message : 'Помилка при застосуванні промокоду');
+						}
+					},
+					error: function() {
+						alert('Помилка при застосуванні промокоду');
+					}
+				});
+			} else {
+				// Fallback: используем стандартный способ WooCommerce
+				const form = checkoutForm;
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'apply_coupon';
+				input.value = '1';
+				form.appendChild(input);
+				
+				// Отправляем форму через AJAX
+				if (typeof jQuery !== 'undefined') {
+					jQuery('body').trigger('update_checkout');
+				}
+			}
+			
+			return false;
 		});
 	}
 }

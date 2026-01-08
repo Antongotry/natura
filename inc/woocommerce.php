@@ -286,6 +286,14 @@ function natura_customize_checkout_fields($fields) {
 		'priority' => 25,
 	);
 	
+	// Убеждаемся, что все shipping поля обязательные
+	if (isset($fields['shipping']['shipping_city'])) {
+		$fields['shipping']['shipping_city']['required'] = true;
+	}
+	if (isset($fields['shipping']['shipping_address_1'])) {
+		$fields['shipping']['shipping_address_1']['required'] = true;
+	}
+	
 	// День доставки
 	$fields['shipping']['shipping_delivery_date'] = array(
 		'label' => __('День доставки', 'natura'),
@@ -384,6 +392,37 @@ function natura_save_custom_checkout_fields($order_id) {
 	}
 }
 add_action('woocommerce_checkout_update_order_meta', 'natura_save_custom_checkout_fields');
+
+/**
+ * Валидация обязательных полей чекаута перед отправкой заказа
+ */
+add_action('woocommerce_checkout_process', 'natura_validate_checkout_required_fields');
+function natura_validate_checkout_required_fields() {
+	// Проверяем обязательные shipping поля
+	if (empty($_POST['shipping_city'])) {
+		wc_add_notice(__('Місто / Населений пункт є обов\'язковим полем.', 'natura'), 'error');
+	}
+	
+	if (empty($_POST['shipping_address_1'])) {
+		wc_add_notice(__('Адреса є обов\'язковим полем.', 'natura'), 'error');
+	}
+	
+	if (empty($_POST['shipping_address_2'])) {
+		wc_add_notice(__('Під\'їзд / Поверх / Квартира є обов\'язковим полем.', 'natura'), 'error');
+	}
+	
+	if (empty($_POST['shipping_delivery_date'])) {
+		wc_add_notice(__('День доставки є обов\'язковим полем.', 'natura'), 'error');
+	}
+	
+	if (empty($_POST['shipping_delivery_time'])) {
+		wc_add_notice(__('Час доставки є обов\'язковим полем.', 'natura'), 'error');
+	}
+	
+	if (empty($_POST['shipping_packaging'])) {
+		wc_add_notice(__('Вид упакування є обов\'язковим полем.', 'natura'), 'error');
+	}
+}
 
 /**
  * Убираем способы оплаты из правой колонки (review-order)

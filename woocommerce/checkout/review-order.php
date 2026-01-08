@@ -77,7 +77,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</label>
 			<div class="checkout-order-review__coupon-input-wrapper">
 				<input type="text" name="coupon_code" class="checkout-order-review__coupon-input" id="coupon_code" value="" placeholder="<?php esc_attr_e( 'Введіть промокод', 'woocommerce' ); ?>" />
-				<button type="submit" class="checkout-order-review__coupon-button" name="apply_coupon" value="<?php esc_attr_e( 'Застосувати', 'woocommerce' ); ?>">
+				<button type="button" class="checkout-order-review__coupon-button" name="apply_coupon" value="<?php esc_attr_e( 'Застосувати', 'woocommerce' ); ?>" id="apply_coupon_button">
 					<?php esc_html_e( 'Застосувати', 'woocommerce' ); ?>
 				</button>
 			</div>
