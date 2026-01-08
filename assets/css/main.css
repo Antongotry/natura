@@ -4474,7 +4474,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	gap: 0.26vw;
+	gap: 0.629vw;
 	height: 3.594vw;
 }
 
