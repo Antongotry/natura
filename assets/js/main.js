@@ -5287,12 +5287,22 @@ if (typeof jQuery !== 'undefined') {
 		// Також обробляємо поле дати після AJAX оновлень
 		const dateInput = document.querySelector('#shipping_delivery_date');
 		if (dateInput) {
+			const wrapper = dateInput.closest('.woocommerce-input-wrapper');
+			
 			if (!dateInput.value || dateInput.value === '') {
 				dateInput.classList.add('is-placeholder');
 				dateInput.classList.remove('has-value');
+				// Додаємо клас до wrapper для відображення placeholder на iOS
+				if (wrapper) {
+					wrapper.classList.add('has-date-placeholder');
+				}
 			} else {
 				dateInput.classList.remove('is-placeholder');
 				dateInput.classList.add('has-value');
+				// Прибираємо клас з wrapper
+				if (wrapper) {
+					wrapper.classList.remove('has-date-placeholder');
+				}
 			}
 			
 			// Додаємо обробники для відкриття календаря
