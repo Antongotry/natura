@@ -7237,8 +7237,8 @@ li.product .product-card,
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__content {
 		position: relative;
-		/* КРИТИЧНО: Уменьшаем отступ между названием и калькулятором */
-		gap: 2vw !important;
+		/* КРИТИЧНО: Уменьшаем отступ между названием, ценой, калькулятором и удалением */
+		gap: 1vw !important;
 	}
 
 	.mini-cart-sidebar .woocommerce-mini-cart-item .mini-cart-item__price {
