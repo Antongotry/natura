@@ -5379,6 +5379,15 @@ function initCheckoutErrorHighlighting() {
 
 	// Функция для подсветки полей с ошибками (использует классы WooCommerce)
 	function highlightErrorFields() {
+		// СНАЧАЛА: Убираем красную обводку с order_comments (необязательное поле)
+		const orderCommentsField = checkoutForm.querySelector('#order_comments, input[name="order_comments"], textarea[name="order_comments"]');
+		if (orderCommentsField) {
+			orderCommentsField.style.removeProperty('outline');
+			orderCommentsField.style.removeProperty('border');
+			orderCommentsField.style.removeProperty('border-color');
+			orderCommentsField.style.removeProperty('box-shadow');
+		}
+		
 		// Находим все поля с классом form-row--error (WooCommerce добавляет этот класс при ошибке)
 		const errorRows = checkoutForm.querySelectorAll('.form-row--error, .woocommerce-form-row--error');
 		
@@ -5414,12 +5423,14 @@ function initCheckoutErrorHighlighting() {
 			}
 			
 			inputs.forEach(function(input) {
-				// Пропускаем необязательные поля (order_comments и другие без required)
+				// ВАЖНО: Пропускаем order_comments в любом случае (необязательное поле)
+				if (input.id === 'order_comments' || input.name === 'order_comments') {
+					return; // Пропускаем поле комментария
+				}
+				
+				// Пропускаем необязательные поля (без required)
 				if (!input.hasAttribute('required') && 
-				    !input.hasAttribute('aria-required') && 
-				    input.getAttribute('aria-required') !== 'true' &&
-				    input.id !== 'order_comments' &&
-				    input.name !== 'order_comments') {
+				    input.getAttribute('aria-required') !== 'true') {
 					// Проверяем, есть ли класс woocommerce-invalid-required-field (только для обязательных)
 					if (!row.classList.contains('woocommerce-invalid-required-field')) {
 						return; // Пропускаем необязательные поля
@@ -5465,11 +5476,14 @@ function initCheckoutErrorHighlighting() {
 		// НО только обязательные поля (не order_comments и другие необязательные)
 		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field');
 		invalidFields.forEach(function(field) {
+			// ВАЖНО: Пропускаем order_comments в любом случае (необязательное поле)
+			if (field.id === 'order_comments' || field.name === 'order_comments') {
+				return; // Пропускаем поле комментария
+			}
+			
 			// Пропускаем необязательные поля
 			if (!field.hasAttribute('required') && 
-			    field.getAttribute('aria-required') !== 'true' &&
-			    field.id !== 'order_comments' &&
-			    field.name !== 'order_comments') {
+			    field.getAttribute('aria-required') !== 'true') {
 				return;
 			}
 			
