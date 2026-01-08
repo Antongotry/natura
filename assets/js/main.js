@@ -5723,7 +5723,7 @@ function initCheckoutErrorHighlighting() {
 		});
 	}
 	
-	// Обработка кнопки "Застосувати" промокода - используем AJAX вместо submit формы
+	// Обработка кнопки "Застосувати" промокода - используем WooCommerce механизм
 	const couponButton = checkoutForm.querySelector('#apply_coupon_button, button[name="apply_coupon"], .checkout-order-review__coupon-button');
 	if (couponButton) {
 		couponButton.addEventListener('click', function(e) {
@@ -5736,46 +5736,30 @@ function initCheckoutErrorHighlighting() {
 				return false;
 			}
 			
-			// Используем WooCommerce AJAX для применения промокода
-			if (typeof jQuery !== 'undefined' && jQuery.fn.wc_checkout) {
+			// Используем WooCommerce механизм для применения промокода
+			if (typeof jQuery !== 'undefined') {
 				const couponCode = couponInput.value.trim();
-				jQuery('body').trigger('update_checkout', {
-					update_shipping_method: false
-				});
 				
-				// Применяем промокод через WooCommerce
-				jQuery.ajax({
-					type: 'POST',
-					url: wc_checkout_params.ajax_url.replace('%%endpoint%%', 'apply_coupon'),
-					data: {
-						security: wc_checkout_params.apply_coupon_nonce,
-						coupon_code: couponCode
-					},
-					success: function(response) {
-						if (response.success) {
-							// Обновляем checkout
-							jQuery('body').trigger('update_checkout');
-						} else {
-							alert(response.data && response.data.message ? response.data.message : 'Помилка при застосуванні промокоду');
-						}
-					},
-					error: function() {
-						alert('Помилка при застосуванні промокоду');
-					}
-				});
-			} else {
-				// Fallback: используем стандартный способ WooCommerce
-				const form = checkoutForm;
-				const input = document.createElement('input');
-				input.type = 'hidden';
-				input.name = 'apply_coupon';
-				input.value = '1';
-				form.appendChild(input);
-				
-				// Отправляем форму через AJAX
-				if (typeof jQuery !== 'undefined') {
-					jQuery('body').trigger('update_checkout');
+				// Создаем скрытое поле для промокода
+				let hiddenInput = checkoutForm.querySelector('input[name="apply_coupon"]');
+				if (!hiddenInput) {
+					hiddenInput = document.createElement('input');
+					hiddenInput.type = 'hidden';
+					hiddenInput.name = 'apply_coupon';
+					checkoutForm.appendChild(hiddenInput);
 				}
+				hiddenInput.value = '1';
+				
+				// Обновляем checkout через WooCommerce (это применит промокод и обновит страницу без редиректа)
+				jQuery('body').trigger('update_checkout');
+				
+				// Очищаем поле после применения
+				setTimeout(function() {
+					couponInput.value = '';
+					if (hiddenInput) {
+						hiddenInput.remove();
+					}
+				}, 1000);
 			}
 			
 			return false;
