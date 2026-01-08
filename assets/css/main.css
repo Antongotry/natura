@@ -4083,15 +4083,24 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .woocommerce-input-wrapper .woocommerce-error,
 .checkout-page .woocommerce-input-wrapper .woocommerce-error-message,
 .checkout-page .woocommerce-form-row--error .woocommerce-input-wrapper > .woocommerce-error,
-.checkout-page .form-row--error .woocommerce-input-wrapper > .woocommerce-error {
-	display: none !important;
-	visibility: hidden !important;
+.checkout-page .form-row--error .woocommerce-input-wrapper > .woocommerce-error,
+/* Скрываем текстовые сообщения, которые могут быть прямо в .form-row (не в input-wrapper) */
+.checkout-page .form-row--error > .woocommerce-error,
+.checkout-page .form-row--error > .woocommerce-error-message,
+.checkout-page .woocommerce-form-row--error > .woocommerce-error,
+.checkout-page .woocommerce-form-row--error > .woocommerce-error-message,
+/* Скрываем любые текстовые узлы с текстом об ошибках внутри .form-row */
+.checkout-page .form-row--error:not(:has(input)):not(:has(select)):not(:has(textarea)),
+.checkout-page .form-row--error *:not(input):not(select):not(textarea):not(label) {
+	color: transparent !important;
+	font-size: 0 !important;
+	line-height: 0 !important;
 	height: 0 !important;
 	overflow: hidden !important;
 	margin: 0 !important;
 	padding: 0 !important;
-	font-size: 0 !important;
-	line-height: 0 !important;
+	display: none !important;
+	visibility: hidden !important;
 }
 
 /* Красная подсветка незаполненных обязательных полей - используем классы WooCommerce, точно как focus */
@@ -4112,9 +4121,14 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1) !important;
 }
 
+/* Убираем все стили с самого .form-row--error блока, рамка только на инпутах */
 .checkout-page .woocommerce-checkout .form-row--error,
-.checkout-page .checkout-section .form-row--error {
+.checkout-page .checkout-section .form-row--error,
+.checkout-page .woocommerce-form-row--error {
 	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+	background: transparent !important;
 }
 
 /* Checkout Form Rows */

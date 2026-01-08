@@ -5384,11 +5384,13 @@ function initCheckoutErrorHighlighting() {
 		let firstErrorField = null;
 
 		errorRows.forEach(function(row) {
+			// Находим ТОЛЬКО input, select, textarea внутри row, НЕ сам row
 			const inputs = row.querySelectorAll('input, select, textarea');
 			inputs.forEach(function(input) {
-				// CSS уже должен подсвечивать, но убедимся через inline стили
+				// Применяем стили точно как focus, только красным
+				input.style.setProperty('outline', 'none', 'important');
 				input.style.setProperty('border-color', '#ff0000', 'important');
-				input.style.setProperty('border-width', '1px', 'important');
+				input.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
 				
 				if (!firstErrorField) {
 					firstErrorField = input;
@@ -5396,11 +5398,13 @@ function initCheckoutErrorHighlighting() {
 			});
 		});
 
-		// Также подсвечиваем поля с классом woocommerce-invalid-required-field
-		const invalidFields = checkoutForm.querySelectorAll('.woocommerce-invalid-required-field, .woocommerce-invalid');
+		// Также подсвечиваем поля с классом woocommerce-invalid-required-field (только если это input/select/textarea)
+		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field, input.woocommerce-invalid, select.woocommerce-invalid, textarea.woocommerce-invalid');
 		invalidFields.forEach(function(field) {
+			// Применяем стили точно как focus, только красным
+			field.style.setProperty('outline', 'none', 'important');
 			field.style.setProperty('border-color', '#ff0000', 'important');
-			field.style.setProperty('border-width', '1px', 'important');
+			field.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
 			
 			if (!firstErrorField) {
 				firstErrorField = field;
@@ -5426,8 +5430,9 @@ function initCheckoutErrorHighlighting() {
 		const row = field.closest('.form-row, .woocommerce-form-row');
 		if (row && !row.classList.contains('form-row--error') && !row.classList.contains('woocommerce-form-row--error')) {
 			if (!field.classList.contains('woocommerce-invalid-required-field') && !field.classList.contains('woocommerce-invalid')) {
+				field.style.removeProperty('outline');
 				field.style.removeProperty('border-color');
-				field.style.removeProperty('border-width');
+				field.style.removeProperty('box-shadow');
 			}
 		}
 	}
