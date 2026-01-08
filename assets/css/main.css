@@ -3963,7 +3963,13 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .woocommerce-checkout .form-row--error textarea:focus,
 .checkout-page .checkout-section .form-row--error input:focus,
 .checkout-page .checkout-section .form-row--error select:focus,
-.checkout-page .checkout-section .form-row--error textarea:focus {
+.checkout-page .checkout-section .form-row--error textarea:focus,
+.checkout-page .woocommerce-checkout input:required:invalid:focus,
+.checkout-page .woocommerce-checkout select:required:invalid:focus,
+.checkout-page .woocommerce-checkout textarea:required:invalid:focus,
+.checkout-page .checkout-section input:required:invalid:focus,
+.checkout-page .checkout-section select:required:invalid:focus,
+.checkout-page .checkout-section textarea:required:invalid:focus {
 	border-color: #ff0000 !important;
 	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1) !important;
 }
@@ -4099,12 +4105,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .checkout-section input.woocommerce-invalid,
 .checkout-page .checkout-section select.woocommerce-invalid,
 .checkout-page .checkout-section textarea.woocommerce-invalid,
-.checkout-page .woocommerce-checkout input:invalid:not(:focus):not(:placeholder-shown),
-.checkout-page .woocommerce-checkout select:invalid:not(:focus),
-.checkout-page .woocommerce-checkout textarea:invalid:not(:focus):not(:placeholder-shown),
-.checkout-page .checkout-section input:invalid:not(:focus):not(:placeholder-shown),
-.checkout-page .checkout-section select:invalid:not(:focus),
-.checkout-page .checkout-section textarea:invalid:not(:focus):not(:placeholder-shown) {
+.checkout-page .woocommerce-checkout input:required:invalid:not(:focus):not(:placeholder-shown),
+.checkout-page .woocommerce-checkout select:required:invalid:not(:focus),
+.checkout-page .woocommerce-checkout textarea:required:invalid:not(:focus):not(:placeholder-shown),
+.checkout-page .checkout-section input:required:invalid:not(:focus):not(:placeholder-shown),
+.checkout-page .checkout-section select:required:invalid:not(:focus),
+.checkout-page .checkout-section textarea:required:invalid:not(:focus):not(:placeholder-shown) {
 	border-color: #ff0000 !important;
 	border-width: 1px !important;
 }
