@@ -5302,6 +5302,12 @@ if (typeof jQuery !== 'undefined') {
 		if (dateInput) {
 			const wrapper = dateInput.closest('.woocommerce-input-wrapper');
 			
+			// КРИТИЧНО для iOS: Принудительно устанавливаем text-align через inline styles
+			const setTextAlign = () => {
+				dateInput.style.setProperty('text-align', 'left', 'important');
+				dateInput.style.setProperty('text-align-last', 'left', 'important');
+			};
+			
 			if (!dateInput.value || dateInput.value === '') {
 				dateInput.classList.add('is-placeholder');
 				dateInput.classList.remove('has-value');
@@ -5318,8 +5324,12 @@ if (typeof jQuery !== 'undefined') {
 				}
 			}
 			
+			// КРИТИЧНО: Всегда устанавливаем text-align
+			setTextAlign();
+			
 			// Додаємо обробники для відкриття календаря
 			dateInput.addEventListener('click', function(e) {
+				setTextAlign();
 				if (typeof dateInput.showPicker === 'function') {
 					e.preventDefault();
 					dateInput.showPicker();
@@ -5329,6 +5339,7 @@ if (typeof jQuery !== 'undefined') {
 			});
 			
 			dateInput.addEventListener('focus', function() {
+				setTextAlign();
 				if (typeof dateInput.showPicker === 'function') {
 					setTimeout(() => {
 						dateInput.showPicker();
