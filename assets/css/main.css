@@ -4104,26 +4104,38 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	visibility: hidden !important;
 }
 
-/* Дополнительно скрываем текст прямо в .form-row--error (текстовые узлы) */
-.checkout-page .form-row--error,
-.checkout-page .woocommerce-form-row--error {
+/* АГРЕССИВНО скрываем ВСЕ текстовые сообщения внутри .form-row--error */
+.checkout-page .form-row--error::after,
+.checkout-page .woocommerce-form-row--error::after {
+	display: none !important;
+}
+
+/* Скрываем все дочерние элементы кроме input, select, textarea, label и .woocommerce-input-wrapper */
+.checkout-page .form-row--error > *:not(input):not(select):not(textarea):not(label):not(.woocommerce-input-wrapper),
+.checkout-page .woocommerce-form-row--error > *:not(input):not(select):not(textarea):not(label):not(.woocommerce-input-wrapper) {
+	display: none !important;
+	visibility: hidden !important;
+	height: 0 !important;
+	overflow: hidden !important;
+	margin: 0 !important;
+	padding: 0 !important;
 	font-size: 0 !important;
 	line-height: 0 !important;
 	color: transparent !important;
 }
 
-/* Но оставляем видимыми только input, select, textarea и label */
-.checkout-page .form-row--error input,
-.checkout-page .form-row--error select,
-.checkout-page .form-row--error textarea,
-.checkout-page .form-row--error label,
-.checkout-page .woocommerce-form-row--error input,
-.checkout-page .woocommerce-form-row--error select,
-.checkout-page .woocommerce-form-row--error textarea,
-.checkout-page .woocommerce-form-row--error label {
-	font-size: inherit !important;
-	line-height: inherit !important;
-	color: inherit !important;
+/* Скрываем текст внутри .woocommerce-input-wrapper, кроме самого инпута */
+.checkout-page .form-row--error .woocommerce-input-wrapper > *:not(input):not(select):not(textarea),
+.checkout-page .woocommerce-form-row--error .woocommerce-input-wrapper > *:not(input):not(select):not(textarea) {
+	display: none !important;
+	visibility: hidden !important;
+	height: 0 !important;
+	overflow: hidden !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	font-size: 0 !important;
+	line-height: 0 !important;
+	color: transparent !important;
 }
 
 /* Красная подсветка незаполненных обязательных полей - ТОЧНО как focus, только красным */

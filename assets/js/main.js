@@ -5505,6 +5505,23 @@ function initCheckoutErrorHighlighting() {
 		childList: true,
 		subtree: true
 	});
+
+	// Дополнительно: проверяем ошибки при загрузке страницы и периодически
+	setTimeout(highlightErrorFields, 500);
+	setTimeout(highlightErrorFields, 1000);
+	
+	// Также проверяем при клике на кнопку отправки
+	const submitButton = checkoutForm.querySelector('button[type="submit"], input[type="submit"], #place_order');
+	if (submitButton) {
+		submitButton.addEventListener('click', function() {
+			console.log('Кнопка отправки нажата');
+			setTimeout(function() {
+				highlightErrorFields();
+				setTimeout(highlightErrorFields, 300);
+				setTimeout(highlightErrorFields, 600);
+			}, 100);
+		});
+	}
 }
 
 // Инициализация при загрузке страницы
