@@ -5046,6 +5046,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		-webkit-text-fill-color: #303030 !important;
 		/* КРИТИЧНО: Убираем центрирование - выравниваем по левому краю */
 		text-align: left !important;
+		text-align-last: left !important;
+		/* КРИТИЧНО для iOS: Принудительное выравнивание по левому краю */
+		-webkit-text-align: left !important;
+		/* КРИТИЧНО: Убираем любые стили, которые могут центрировать */
+		justify-content: flex-start !important;
+		align-items: center !important;
 	}
 
 	.checkout-page .woocommerce-checkout textarea,
