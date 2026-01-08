@@ -4045,6 +4045,36 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	color: #30303099;
 }
 
+/* Скрываем все текстовые сообщения об ошибках */
+.checkout-page .woocommerce-error,
+.checkout-page .woocommerce-error li,
+.checkout-page .woocommerce-form-row--error .woocommerce-error,
+.checkout-page .woocommerce-form-row--error .woocommerce-input-wrapper .woocommerce-error {
+	display: none !important;
+}
+
+/* Красная подсветка незаполненных обязательных полей */
+.checkout-page .woocommerce-checkout input.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout select.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout textarea.woocommerce-invalid-required-field,
+.checkout-page .checkout-section input.woocommerce-invalid-required-field,
+.checkout-page .checkout-section select.woocommerce-invalid-required-field,
+.checkout-page .checkout-section textarea.woocommerce-invalid-required-field,
+.checkout-page .woocommerce-checkout .form-row--error input,
+.checkout-page .woocommerce-checkout .form-row--error select,
+.checkout-page .woocommerce-checkout .form-row--error textarea,
+.checkout-page .checkout-section .form-row--error input,
+.checkout-page .checkout-section .form-row--error select,
+.checkout-page .checkout-section .form-row--error textarea {
+	border-color: #ff0000 !important;
+	border-width: 1px !important;
+}
+
+.checkout-page .woocommerce-checkout .form-row--error,
+.checkout-page .checkout-section .form-row--error {
+	border: none !important;
+}
+
 /* Checkout Form Rows */
 .checkout-page .woocommerce-checkout .form-row,
 .checkout-page .checkout-section .form-row {
