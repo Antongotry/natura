@@ -5450,14 +5450,24 @@ function initCheckoutErrorHighlighting() {
 	if (typeof jQuery !== 'undefined') {
 		// Слушаем событие ошибки валидации - WooCommerce вызывает это после попытки отправки
 		jQuery(document.body).on('checkout_error', function() {
+			console.log('checkout_error событие получено');
 			// WooCommerce добавил классы ошибок, теперь подсвечиваем
-			setTimeout(highlightErrorFields, 100);
+			setTimeout(function() {
+				highlightErrorFields();
+				// Повторно через 200ms на случай, если классы добавились позже
+				setTimeout(highlightErrorFields, 200);
+			}, 100);
 		});
 
 		// Слушаем обновление checkout (после AJAX валидации)
 		jQuery(document.body).on('updated_checkout', function() {
+			console.log('updated_checkout событие получено');
 			// Проверяем наличие ошибок после обновления
-			setTimeout(highlightErrorFields, 100);
+			setTimeout(function() {
+				highlightErrorFields();
+				// Повторно через 200ms на случай, если классы добавились позже
+				setTimeout(highlightErrorFields, 200);
+			}, 100);
 		});
 
 		// Отслеживаем изменения в полях - убираем подсветку при исправлении
