@@ -5014,9 +5014,9 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 	
 	/* КРИТИЧНО для iOS: Псевдоэлемент для отображения placeholder "дд.мм.рррр" на wrapper */
-	.checkout-page #shipping_delivery_date_field .woocommerce-input-wrapper:has(input[type="date"].is-placeholder)::before,
-	.checkout-page p#shipping_delivery_date_field .woocommerce-input-wrapper:has(input[type="date"].is-placeholder)::before,
-	.checkout-page .woocommerce-input-wrapper:has(#shipping_delivery_date.is-placeholder)::before {
+	.checkout-page #shipping_delivery_date_field .woocommerce-input-wrapper.has-date-placeholder::before,
+	.checkout-page p#shipping_delivery_date_field .woocommerce-input-wrapper.has-date-placeholder::before,
+	.checkout-page .woocommerce-input-wrapper.has-date-placeholder::before {
 		content: 'дд.мм.рррр' !important;
 		position: absolute !important;
 		left: 4vw !important;
