@@ -5512,11 +5512,21 @@ function initCheckoutErrorHighlighting() {
 
 	// Функция для очистки подсветки при исправлении ошибок
 	function clearErrorHighlight(field) {
+		// ВАЖНО: Всегда очищаем стили для order_comments (необязательное поле)
+		if (field.id === 'order_comments' || field.name === 'order_comments') {
+			field.style.removeProperty('outline');
+			field.style.removeProperty('border');
+			field.style.removeProperty('border-color');
+			field.style.removeProperty('box-shadow');
+			return;
+		}
+		
 		// Проверяем, есть ли еще классы ошибок
 		const row = field.closest('.form-row, .woocommerce-form-row');
 		if (row && !row.classList.contains('form-row--error') && !row.classList.contains('woocommerce-form-row--error')) {
 			if (!field.classList.contains('woocommerce-invalid-required-field') && !field.classList.contains('woocommerce-invalid')) {
 				field.style.removeProperty('outline');
+				field.style.removeProperty('border');
 				field.style.removeProperty('border-color');
 				field.style.removeProperty('box-shadow');
 			}
