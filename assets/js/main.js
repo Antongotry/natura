@@ -5387,9 +5387,9 @@ function initCheckoutErrorHighlighting() {
 			// Находим ТОЛЬКО input, select, textarea внутри row, НЕ сам row
 			const inputs = row.querySelectorAll('input, select, textarea');
 			inputs.forEach(function(input) {
-				// Применяем стили точно как focus, только красным
+				// Применяем стили точно как focus, только красным - используем полное свойство border
 				input.style.setProperty('outline', 'none', 'important');
-				input.style.setProperty('border-color', '#ff0000', 'important');
+				input.style.setProperty('border', '1px solid #ff0000', 'important');
 				input.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
 				
 				if (!firstErrorField) {
@@ -5401,9 +5401,9 @@ function initCheckoutErrorHighlighting() {
 		// Также подсвечиваем поля с классом woocommerce-invalid-required-field (только если это input/select/textarea)
 		const invalidFields = checkoutForm.querySelectorAll('input.woocommerce-invalid-required-field, select.woocommerce-invalid-required-field, textarea.woocommerce-invalid-required-field, input.woocommerce-invalid, select.woocommerce-invalid, textarea.woocommerce-invalid');
 		invalidFields.forEach(function(field) {
-			// Применяем стили точно как focus, только красным
+			// Применяем стили точно как focus, только красным - используем полное свойство border
 			field.style.setProperty('outline', 'none', 'important');
-			field.style.setProperty('border-color', '#ff0000', 'important');
+			field.style.setProperty('border', '1px solid #ff0000', 'important');
 			field.style.setProperty('box-shadow', '0 0 0 2px rgba(255, 0, 0, 0.1)', 'important');
 			
 			if (!firstErrorField) {

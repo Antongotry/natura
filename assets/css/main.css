@@ -4104,6 +4104,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 /* Красная подсветка незаполненных обязательных полей - ТОЧНО как focus, только красным */
+/* Красная подсветка ошибок - ТОЧНО как focus, только красным, с полным border */
 .checkout-page .woocommerce-checkout .form-row--error input[type="text"],
 .checkout-page .woocommerce-checkout .form-row--error input[type="email"],
 .checkout-page .woocommerce-checkout .form-row--error input[type="tel"],
@@ -4161,7 +4162,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .checkout-section textarea.woocommerce-invalid,
 .checkout-page .checkout-section select.woocommerce-invalid {
 	outline: none !important;
-	border-color: #ff0000 !important;
+	border: 1px solid #ff0000 !important;
 	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1) !important;
 }
 
