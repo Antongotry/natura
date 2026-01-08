@@ -4873,6 +4873,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		/* КРИТИЧНО: Исправляем выравнивание текста по высоте и предотвращаем обрезание букв */
 		line-height: 13.333vw !important;
 		vertical-align: middle !important;
+		/* КРИТИЧНО: Убираем центрирование - выравниваем по левому краю */
 		text-align: left !important;
 		/* КРИТИЧНО: Предотвращаем обрезание букв */
 		overflow: visible !important;
