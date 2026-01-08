@@ -4065,7 +4065,19 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 .checkout-page .woocommerce-checkout .form-row--error textarea,
 .checkout-page .checkout-section .form-row--error input,
 .checkout-page .checkout-section .form-row--error select,
-.checkout-page .checkout-section .form-row--error textarea {
+.checkout-page .checkout-section .form-row--error textarea,
+.checkout-page .woocommerce-checkout input.woocommerce-invalid,
+.checkout-page .woocommerce-checkout select.woocommerce-invalid,
+.checkout-page .woocommerce-checkout textarea.woocommerce-invalid,
+.checkout-page .checkout-section input.woocommerce-invalid,
+.checkout-page .checkout-section select.woocommerce-invalid,
+.checkout-page .checkout-section textarea.woocommerce-invalid,
+.checkout-page .woocommerce-checkout input:invalid:not(:focus):not(:placeholder-shown),
+.checkout-page .woocommerce-checkout select:invalid:not(:focus),
+.checkout-page .woocommerce-checkout textarea:invalid:not(:focus):not(:placeholder-shown),
+.checkout-page .checkout-section input:invalid:not(:focus):not(:placeholder-shown),
+.checkout-page .checkout-section select:invalid:not(:focus),
+.checkout-page .checkout-section textarea:invalid:not(:focus):not(:placeholder-shown) {
 	border-color: #ff0000 !important;
 	border-width: 1px !important;
 }
