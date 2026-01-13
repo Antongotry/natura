@@ -8405,7 +8405,7 @@ li.product .product-card,
 		background-color: #4DBD56 !important;
 		color: #ffffff !important;
 		border-radius: 0.8vw;
-		text-transform: uppercase !important; /* Заглавные буквы */
+		text-transform: none !important; /* Без преобразования текста */
 		display: inline-block;
 		box-sizing: border-box;
 		position: static;
