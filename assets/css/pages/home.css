@@ -6377,3 +6377,14 @@
 	}
 }
 
+
+/* Уменьшаем отступ между блоком sales и блоком товаров */
+.sales-related-products {
+	margin-top: 2.083vw !important; /* 40px / 1920 = 2.083vw */
+}
+
+@media (max-width: 1024px) {
+	.sales-related-products {
+		margin-top: 5.333vw !important; /* ~20px на мобильных */
+	}
+}
