@@ -52,7 +52,7 @@ get_header();
 							</div>
 							<div class="hero__feature-text">
 								<h3 class="hero__feature-title">Замовлення на сайті 24/7</h3>
-								<p class="hero__feature-desc">завжди на зв'язку для вас, працюємо з понеділка по суботу</p>
+								<p class="hero__feature-desc">завжди на зв'язку для вас,<br>працюємо з понеділка по суботу</p>
 							</div>
 						</li>
 					</ul>
