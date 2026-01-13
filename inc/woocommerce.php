@@ -167,6 +167,32 @@ function natura_add_product_unit_field() {
 add_action('woocommerce_product_options_general_product_data', 'natura_add_product_unit_field');
 
 /**
+ * Добавляем чекбокс "Показать на странице акций" в секцию цены товара
+ */
+function natura_add_sales_page_checkbox() {
+	global $post;
+	
+	$show_on_sales = get_post_meta( $post->ID, '_show_on_sales_page', true );
+	$checked = ( 'yes' === $show_on_sales ) ? 'yes' : 'no';
+	
+	echo '<div class="options_group show_if_simple show_if_external show_if_variable">';
+	
+	woocommerce_wp_checkbox(
+		array(
+			'id'          => '_show_on_sales_page',
+			'label'       => __('Показать на странице акций', 'natura'),
+			'value'       => $checked,
+			'cbvalue'     => 'yes',
+			'desc_tip'    => true,
+			'description' => __('Отметьте этот товар, чтобы он отображался в разделе "Акційні пропозиції" на странице акций', 'natura'),
+		)
+	);
+	
+	echo '</div>';
+}
+add_action('woocommerce_product_options_pricing', 'natura_add_sales_page_checkbox');
+
+/**
  * Сохраняем кастомные поля товара
  */
 function natura_save_product_unit_field($post_id) {
@@ -187,6 +213,13 @@ function natura_save_product_unit_field($post_id) {
 		} else {
 			update_post_meta( $post_id, '_product_card_title', $card_title );
 		}
+	}
+
+	// Показать на странице акций
+	if ( isset( $_POST['_show_on_sales_page'] ) ) {
+		update_post_meta( $post_id, '_show_on_sales_page', 'yes' );
+	} else {
+		delete_post_meta( $post_id, '_show_on_sales_page' );
 	}
 }
 add_action('woocommerce_process_product_meta', 'natura_save_product_unit_field');

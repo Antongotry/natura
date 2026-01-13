@@ -311,13 +311,50 @@ add_action( 'wp_ajax_natura_search_products_admin', 'natura_search_products_admi
 
 /**
  * Get sales page featured products
+ * Теперь собирает товары двумя способами:
+ * 1. Товары с метаполем _show_on_sales_page = 'yes' (новый способ - через чекбокс в админке товара)
+ * 2. Товары из старого способа через опцию 'natura_sales_products' (для обратной совместимости)
  *
  * @return array Array of product IDs
  */
 function natura_get_sales_products() {
-	$product_ids = get_option( 'natura_sales_products', array() );
-	if ( ! is_array( $product_ids ) ) {
-		return array();
+	$product_ids = array();
+	
+	// Новый способ: товары с метаполем _show_on_sales_page
+	$products_with_meta = get_posts( array(
+		'post_type'      => 'product',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'meta_query'     => array(
+			array(
+				'key'   => '_show_on_sales_page',
+				'value' => 'yes',
+				'compare' => '=',
+			),
+		),
+	) );
+	
+	if ( ! empty( $products_with_meta ) ) {
+		$product_ids = array_merge( $product_ids, $products_with_meta );
 	}
-	return array_filter( array_map( 'intval', $product_ids ) );
+	
+	// Старый способ: товары из опции (для обратной совместимости)
+	$saved_products = get_option( 'natura_sales_products', array() );
+	if ( is_array( $saved_products ) && ! empty( $saved_products ) ) {
+		$product_ids = array_merge( $product_ids, $saved_products );
+	}
+	
+	// Убираем дубликаты и проверяем, что товары существуют и опубликованы
+	$product_ids = array_unique( array_map( 'intval', $product_ids ) );
+	$valid_product_ids = array();
+	
+	foreach ( $product_ids as $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( $product && $product->is_visible() ) {
+			$valid_product_ids[] = $product_id;
+		}
+	}
+	
+	return $valid_product_ids;
 }
