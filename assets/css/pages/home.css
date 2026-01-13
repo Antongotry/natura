@@ -5937,7 +5937,7 @@
 	.sales {
 		margin-top: 0;
 		padding-top: 21.333vw;
-		padding-bottom: 10.667vw;
+		padding-bottom: 0; /* Убираем padding-bottom, отступ контролируется через margin-top у товаров */
 	}
 
 	.sales__inner {
