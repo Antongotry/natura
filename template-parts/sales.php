@@ -88,47 +88,44 @@ if (! defined('ABSPATH')) {
 	</div>
 </section>
 
-
 <?php
 // Featured products section
-if ( function_exists( 'natura_get_sales_products' ) && class_exists( 'WooCommerce' ) ) {
-	$sales_product_ids = natura_get_sales_products();
+$sales_product_ids = natura_get_sales_products();
 
-	if ( ! empty( $sales_product_ids ) ) {
-		$products = array();
-		foreach ( $sales_product_ids as $product_id ) {
-			$product = wc_get_product( $product_id );
-			if ( $product && $product->is_visible() ) {
-				$products[] = $product;
-			}
+if ( ! empty( $sales_product_ids ) && class_exists( 'WooCommerce' ) ) {
+	$products = array();
+	foreach ( $sales_product_ids as $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( $product && $product->is_visible() ) {
+			$products[] = $product;
 		}
+	}
 
-		if ( ! empty( $products ) ) {
-			$carousel_id = 'sales-products-carousel-' . wp_unique_id();
-			?>
-			<section class="related products single-product__related-section">
-				<div class="container">
-					<h2 class="single-product__related-heading">Схожі товари</h2>
-					<div
-						id="<?php echo esc_attr( $carousel_id ); ?>"
-						class="swiper single-product__related-swiper"
-						data-swiper
-					>
-						<ul class="products columns-4 swiper-wrapper single-product__related-wrapper">
-							<?php foreach ( $products as $product ) : ?>
-								<?php
-								$post_object = get_post( $product->get_id() );
-								setup_postdata( $GLOBALS['post'] = $post_object ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, Squiz.PHP.DisallowMultipleAssignments.Found
-								?>
-								<?php wc_get_template_part( 'content', 'product' ); ?>
-							<?php endforeach; ?>
-						</ul>
-					</div>
+	if ( ! empty( $products ) ) {
+		$carousel_id = 'sales-products-carousel-' . wp_unique_id();
+		?>
+		<section class="related products single-product__related-section sales-related-products">
+			<div class="container">
+				<h2 class="single-product__related-heading">Акційні пропозиції</h2>
+				<div
+					id="<?php echo esc_attr( $carousel_id ); ?>"
+					class="swiper single-product__related-swiper"
+					data-swiper
+				>
+					<ul class="products columns-4 swiper-wrapper single-product__related-wrapper">
+						<?php foreach ( $products as $product ) : ?>
+							<?php
+							$post_object = get_post( $product->get_id() );
+							setup_postdata( $GLOBALS['post'] = $post_object ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, Squiz.PHP.DisallowMultipleAssignments.Found
+							?>
+							<?php wc_get_template_part( 'content', 'product' ); ?>
+						<?php endforeach; ?>
+					</ul>
 				</div>
-			</section>
-			<?php
-			wp_reset_postdata();
-		}
+			</div>
+		</section>
+		<?php
+		wp_reset_postdata();
 	}
 }
 ?>
