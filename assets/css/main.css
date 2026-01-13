@@ -6660,9 +6660,8 @@ li.product .product-card,
 	text-decoration: none;
 	font-weight: 600;
 	color: #303030;
-	vertical-align: middle;
-	display: inline-block;
-	line-height: 1;
+	display: inline;
+	vertical-align: baseline;
 }
 
 /* Цена со скидкой - старая цена (зачеркнутая, серая) */
@@ -6672,9 +6671,8 @@ li.product .product-card,
 	color: #999999;
 	text-decoration: line-through;
 	margin-right: 0.35em;
-	vertical-align: middle;
-	display: inline-block;
-	line-height: 1;
+	display: inline;
+	vertical-align: baseline;
 }
 
 /* Выравнивание внутренних элементов цен */
@@ -6682,9 +6680,8 @@ li.product .product-card,
 .product-card__price-wrapper .price ins bdi,
 .product-card__price-wrapper .price del .woocommerce-Price-amount,
 .product-card__price-wrapper .price del bdi {
-	vertical-align: middle;
-	line-height: 1;
-	display: inline-block;
+	vertical-align: baseline;
+	line-height: inherit;
 }
 
 /* Prevent accidental scrollbars on price (some themes/plugins set overflow) */
