@@ -25,7 +25,7 @@ $customer_orders = wc_get_orders([
 						<path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</button>
-				<h3 class="account-orders__success-popup-title">Дякуємо за ваше замовлення</h3>
+				<h3 class="account-orders__success-popup-title">Дякуємо, що обираєте нас</h3>
 				<p class="account-orders__success-popup-text">Ваше замовлення буде доставлене завтра протягом дня.</p>
 			</div>
 		</div>
