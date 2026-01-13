@@ -6922,7 +6922,7 @@ li.product .product-card,
 .product-card__badge-wrapper .onsale {
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-weight: 600;
-	font-size: 0.833vw;
+	font-size: 0.729vw; /* Уменьшен с 0.833vw */
 	line-height: 100%;
 	letter-spacing: -0.03em;
 	padding: 0.625vw 1.042vw;
@@ -8185,7 +8185,7 @@ li.product .product-card,
 	.product-card__badge-wrapper .onsale {
 		font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
 		font-weight: 600;
-		font-size: 3.2vw;
+		font-size: 2.8vw; /* Уменьшен с 3.2vw */
 		line-height: 100%;
 		letter-spacing: -0.03em;
 		padding: 2.133vw 2.933vw;
