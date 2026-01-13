@@ -8419,6 +8419,8 @@ li.product .product-card,
 		text-decoration: none;
 		font-weight: 600;
 		color: #303030;
+		vertical-align: baseline;
+		display: inline;
 	}
 
 	/* Цена со скидкой - старая цена (зачеркнутая, серая) - мобильная */
@@ -8428,6 +8430,8 @@ li.product .product-card,
 		color: #999999;
 		text-decoration: line-through;
 		margin-right: 0.35em;
+		vertical-align: baseline;
+		display: inline;
 		vertical-align: middle;
 		color: #303030;
 		margin: 0;
