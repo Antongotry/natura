@@ -612,6 +612,46 @@ add_action( 'wp_ajax_natura_update_cart_item_quantity', 'natura_update_cart_item
 add_action( 'wp_ajax_nopriv_natura_update_cart_item_quantity', 'natura_update_cart_item_quantity_ajax' );
 
 /**
+ * AJAX: Очистка корзины
+ */
+function natura_clear_cart_ajax() {
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		wp_send_json_error(
+			array( 'message' => 'WooCommerce not available' ),
+			500
+		);
+	}
+
+	// Убеждаемся, что корзина загружена
+	if ( function_exists( 'wc_load_cart' ) ) {
+		wc_load_cart();
+	}
+
+	if ( ! WC()->cart ) {
+		wp_send_json_error(
+			array( 'message' => 'Cart not available' ),
+			500
+		);
+	}
+
+	// Очищаем корзину
+	WC()->cart->empty_cart( true );
+	WC()->cart->calculate_totals();
+
+	// Возвращаем стандартные WooCommerce fragments
+	if ( class_exists( 'WC_AJAX' ) ) {
+		WC_AJAX::get_refreshed_fragments();
+	}
+
+	wp_send_json_error(
+		array( 'message' => 'Fragments not available' ),
+		500
+	);
+}
+add_action( 'wp_ajax_natura_clear_cart', 'natura_clear_cart_ajax' );
+add_action( 'wp_ajax_nopriv_natura_clear_cart', 'natura_clear_cart_ajax' );
+
+/**
  * После успешного оформления заказа (страница order-received) — редирект в кабинет на "Мої замовлення"
  */
 add_action( 'template_redirect', 'natura_redirect_order_received_to_account_orders', 20 );
