@@ -5972,10 +5972,14 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 
 	.single-product__related-section .container,
-	.related.products .container {
+	.related.products .container,
+	.sales-related-products .container {
 		overflow-x: hidden !important;
-		width: 100% !important;
-		max-width: 100% !important;
+		width: var(--container-width-mobile) !important;
+		max-width: var(--container-width-mobile) !important;
+		margin-left: auto !important;
+		margin-right: auto !important;
+		padding: 0 !important;
 	}
 
 	.single-product__summary form.cart .quantity-wrapper {
