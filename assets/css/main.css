@@ -8431,8 +8431,9 @@ li.product .product-card,
 		text-decoration: none;
 		font-weight: 600;
 		color: #303030;
-		vertical-align: baseline;
-		display: inline;
+		vertical-align: middle;
+		display: inline-block;
+		line-height: 1;
 	}
 
 	/* Цена со скидкой - старая цена (зачеркнутая, серая) - мобильная */
@@ -8442,8 +8443,20 @@ li.product .product-card,
 		color: #999999;
 		text-decoration: line-through;
 		margin-right: 0.35em;
-		vertical-align: baseline;
-		display: inline;
+		vertical-align: middle;
+		display: inline-block;
+		line-height: 1;
+	}
+
+	/* Выравнивание внутренних элементов цен - мобильная */
+	.product-card__price-wrapper .price ins .woocommerce-Price-amount,
+	.product-card__price-wrapper .price ins bdi,
+	.product-card__price-wrapper .price del .woocommerce-Price-amount,
+	.product-card__price-wrapper .price del bdi {
+		vertical-align: middle;
+		line-height: 1;
+		display: inline-block;
+	}
 		vertical-align: middle;
 		color: #303030;
 		margin: 0;
