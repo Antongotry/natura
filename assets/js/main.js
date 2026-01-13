@@ -3423,9 +3423,11 @@ const CartManager = {
 					const input = quantityWrapper.querySelector('input.qty, input[type="number"], .product-card__quantity-input');
 					if (input) {
 						const step = naturaParseNumber(input.getAttribute('step')) || 1;
-						const formattedQuantity = naturaFormatQuantity(quantity, step);
-						input.value = formattedQuantity;
-						input.setAttribute('value', formattedQuantity);
+					const formattedQuantity = naturaFormatQuantity(quantity, step);
+					// Используем точку как десятичный разделитель для input type="number"
+					const formattedWithDot = formattedQuantity.replace(',', '.');
+					input.value = formattedWithDot;
+					input.setAttribute('value', formattedWithDot);
 					}
 					if (addToCartButton) {
 						addToCartButton.style.display = 'none';
@@ -3500,9 +3502,11 @@ const CartManager = {
 			const input = qtyWrapper.querySelector('input.qty, input[type="number"]');
 			if (input) {
 				const step = naturaParseNumber(input.getAttribute('step')) || 1;
-				const formattedQuantity = naturaFormatQuantity(quantity, step);
-				input.value = formattedQuantity;
-				input.setAttribute('value', formattedQuantity);
+					const formattedQuantity = naturaFormatQuantity(quantity, step);
+					// Используем точку как десятичный разделитель для input type="number"
+					const formattedWithDot = formattedQuantity.replace(',', '.');
+					input.value = formattedWithDot;
+					input.setAttribute('value', formattedWithDot);
 			}
 
 			const cartItemKey = this.getCartItemKey(productId);
@@ -3576,9 +3580,11 @@ const CartManager = {
 						const currentValue = naturaParseNumber(input.value);
 						if (!Number.isFinite(currentValue) || Math.abs(currentValue - quantity) > 1e-6) {
 							const step = naturaParseNumber(input.getAttribute('step')) || 1;
-							const formattedQuantity = naturaFormatQuantity(quantity, step);
-							input.value = formattedQuantity;
-							input.setAttribute('value', formattedQuantity);
+					const formattedQuantity = naturaFormatQuantity(quantity, step);
+					// Используем точку как десятичный разделитель для input type="number"
+					const formattedWithDot = formattedQuantity.replace(',', '.');
+					input.value = formattedWithDot;
+					input.setAttribute('value', formattedWithDot);
 						}
 					}
 					if (addToCartButton) {
@@ -3639,9 +3645,11 @@ const CartManager = {
 					const currentValue = naturaParseNumber(input.value);
 					if (!Number.isFinite(currentValue) || Math.abs(currentValue - quantity) > 1e-6) {
 						const step = naturaParseNumber(input.getAttribute('step')) || 1;
-						const formattedQuantity = naturaFormatQuantity(quantity, step);
-						input.value = formattedQuantity;
-						input.setAttribute('value', formattedQuantity);
+					const formattedQuantity = naturaFormatQuantity(quantity, step);
+					// Используем точку как десятичный разделитель для input type="number"
+					const formattedWithDot = formattedQuantity.replace(',', '.');
+					input.value = formattedWithDot;
+					input.setAttribute('value', formattedWithDot);
 					}
 				}
 
@@ -3699,9 +3707,11 @@ const initQuantityButtons = () => {
 		newVal = naturaRoundToStep(newVal, step);
 		
 		// Обновляем значение в input
-		const formattedQuantity = naturaFormatQuantity(newVal, step);
-		input.value = formattedQuantity;
-		input.setAttribute('value', formattedQuantity);
+					const formattedQuantity = naturaFormatQuantity(newVal, step);
+					// Используем точку как десятичный разделитель для input type="number"
+					const formattedWithDot = formattedQuantity.replace(',', '.');
+					input.value = formattedWithDot;
+					input.setAttribute('value', formattedWithDot);
 		
 		// Обновляем корзину через менеджер:
 		// - в каталоге (product-card__quantity-wrapper) всегда
@@ -3760,9 +3770,12 @@ const initQuantityButtons = () => {
 		}
 		
 		// Форматируем только если поле не в фокусе или значение невалидное
+		// Убеждаемся, что используем точку как десятичный разделитель (стандарт для input type="number")
 		if (!Number.isFinite(currentParsed) || Math.abs(currentParsed - value) > 0.0001) {
-			input.value = formattedQuantity;
-			input.setAttribute('value', formattedQuantity);
+			// Используем точку, даже если локаль использует запятую
+			// Это важно для правильной работы input type="number"
+			input.value = formattedQuantity.replace(',', '.');
+			input.setAttribute('value', formattedQuantity.replace(',', '.'));
 		}
 		
 		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
@@ -3802,8 +3815,10 @@ const initQuantityButtons = () => {
 		
 		value = naturaRoundToStep(value, step);
 		const formattedQuantity = naturaFormatQuantity(value, step);
-		input.value = formattedQuantity;
-		input.setAttribute('value', formattedQuantity);
+		// Используем точку как десятичный разделитель для input type="number"
+		const formattedWithDot = formattedQuantity.replace(',', '.');
+		input.value = formattedWithDot;
+		input.setAttribute('value', formattedWithDot);
 	}, true);
 	
 	// Обработчик для события change (после завершения ввода) - форматирование
