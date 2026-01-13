@@ -61,7 +61,8 @@ defined( 'ABSPATH' ) || exit;
 					<div class="thankyou-page__card thankyou-page__soft-account">
 						<h2 class="thankyou-page__subtitle"><?php esc_html_e( 'Створіть кабінет', 'natura' ); ?></h2>
 						<p class="thankyou-page__text thankyou-page__text--muted">
-							<?php esc_html_e( 'Бажаєте слідкувати за замовленням без зайвих клопотів?', 'natura' ); ?>
+							<?php esc_html_e( 'Бажаєте слідкувати за замовленням', 'natura' ); ?><br>
+							<?php esc_html_e( 'без зайвих клопотів?', 'natura' ); ?>
 						</p>
 						<p class="thankyou-page__text thankyou-page__text--muted">
 							<?php esc_html_e( 'Заповніть поле «Пароль»,', 'natura' ); ?><br>
