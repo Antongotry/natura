@@ -739,7 +739,7 @@ function natura_sort_products_by_priority_categories( $query ) {
 		return;
 	}
 
-	// Получаем ID товаров из приоритетных категорий
+	// Получаем ID товаров из приоритетных категорий (овочі + фрукти)
 	$priority_product_ids = get_posts( array(
 		'post_type'      => 'product',
 		'posts_per_page' => -1,
@@ -758,6 +758,9 @@ function natura_sort_products_by_priority_categories( $query ) {
 		return;
 	}
 
+	// Перемешиваем ID товаров из овощей и фруктов для случайного порядка
+	shuffle( $priority_product_ids );
+
 	// Добавляем фильтр для изменения порядка через posts_clauses
 	add_filter( 'posts_clauses', function( $clauses, $wp_query ) use ( $priority_product_ids ) {
 		global $wpdb;
@@ -765,7 +768,7 @@ function natura_sort_products_by_priority_categories( $query ) {
 		if ( ! empty( $priority_product_ids ) ) {
 			$priority_ids_str = implode( ',', array_map( 'intval', $priority_product_ids ) );
 			
-			// Добавляем сортировку: сначала товары из приоритетных категорий
+			// Добавляем сортировку: сначала товары из приоритетных категорий (овочі + фрукти вперемешку)
 			// FIELD возвращает 0 если ID не найден, поэтому DESC ставит приоритетные первыми
 			$clauses['orderby'] = "FIELD({$wpdb->posts}.ID, {$priority_ids_str}) DESC, {$wpdb->posts}.menu_order ASC";
 		}
