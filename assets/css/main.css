@@ -5545,25 +5545,32 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 }
 
 /* Бейдж "Акція" на странице товара - стили как на карточках */
-.single-product__image-wrapper .onsale {
-	position: absolute;
-	top: 0.833vw;
-	right: 0.833vw;
-	z-index: 10;
-	display: block;
+.single-product__image-wrapper .onsale,
+.single-product__image-wrapper .woocommerce-product-gallery .onsale,
+.single-product__image-wrapper span.onsale,
+.single-product__content .onsale,
+.single-product .single-product__image-wrapper .onsale,
+.woocommerce .single-product__image-wrapper .onsale {
+	position: absolute !important;
+	top: 0.833vw !important;
+	right: 0.833vw !important;
+	z-index: 10 !important;
+	display: block !important;
 	background-color: #4DBD56 !important;
 	color: #ffffff !important;
-	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
-	font-weight: 600;
-	font-style: normal;
-	font-size: 0.729vw;
-	line-height: 100%;
-	letter-spacing: -0.03em;
-	padding: 0.625vw 1.042vw;
-	margin: 0;
-	border-radius: 999px;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+	font-weight: 600 !important;
+	font-style: normal !important;
+	font-size: 0.729vw !important;
+	line-height: 100% !important;
+	letter-spacing: -0.03em !important;
+	padding: 0.625vw 1.042vw !important;
+	margin: 0 !important;
+	border-radius: 999px !important;
 	text-transform: capitalize !important;
-	box-sizing: border-box;
+	box-sizing: border-box !important;
+	border: none !important;
+	text-decoration: none !important;
 }
 
 .single-product__image-wrapper .woocommerce-product-gallery {
@@ -5749,7 +5756,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	}
 	
 	/* Бейдж "Акція" на странице товара - мобильная версия */
-	.single-product__image-wrapper .onsale {
+	.single-product__image-wrapper .onsale,
+	.single-product__image-wrapper .woocommerce-product-gallery .onsale,
+	.single-product__image-wrapper span.onsale,
+	.single-product__content .onsale,
+	.single-product .single-product__image-wrapper .onsale,
+	.woocommerce .single-product__image-wrapper .onsale {
 		position: absolute !important;
 		top: 2.133vw !important;
 		right: 2.133vw !important;
@@ -5768,6 +5780,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		border-radius: 999px !important;
 		text-transform: capitalize !important;
 		box-sizing: border-box !important;
+		border: none !important;
+		text-decoration: none !important;
 	}
 
 	.single-product__image-wrapper .woocommerce-product-gallery__image img,
@@ -8764,6 +8778,51 @@ a.ajax_add_to_cart:focus,
 	box-shadow: none !important;
 	text-shadow: none !important;
 	filter: none !important;
+}
+
+/* Переопределение бейджа "Акція" на странице товара - максимальная специфичность */
+body.woocommerce .single-product__image-wrapper .onsale,
+body.woocommerce .single-product__image-wrapper .woocommerce-product-gallery .onsale,
+body.woocommerce .single-product__image-wrapper span.onsale,
+body.woocommerce .single-product__content .onsale,
+body.woocommerce .single-product .single-product__image-wrapper .onsale,
+.woocommerce .single-product__image-wrapper .onsale,
+.single-product__image-wrapper .woocommerce-product-gallery .onsale {
+	position: absolute !important;
+	top: 0.833vw !important;
+	right: 0.833vw !important;
+	z-index: 10 !important;
+	display: block !important;
+	background-color: #4DBD56 !important;
+	color: #ffffff !important;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+	font-weight: 600 !important;
+	font-style: normal !important;
+	font-size: 0.729vw !important;
+	line-height: 100% !important;
+	letter-spacing: -0.03em !important;
+	padding: 0.625vw 1.042vw !important;
+	margin: 0 !important;
+	border-radius: 999px !important;
+	text-transform: capitalize !important;
+	box-sizing: border-box !important;
+	border: none !important;
+	text-decoration: none !important;
+}
+
+@media (max-width: 1025px) {
+	body.woocommerce .single-product__image-wrapper .onsale,
+	body.woocommerce .single-product__image-wrapper .woocommerce-product-gallery .onsale,
+	body.woocommerce .single-product__image-wrapper span.onsale,
+	body.woocommerce .single-product__content .onsale,
+	body.woocommerce .single-product .single-product__image-wrapper .onsale,
+	.woocommerce .single-product__image-wrapper .onsale,
+	.single-product__image-wrapper .woocommerce-product-gallery .onsale {
+		top: 2.133vw !important;
+		right: 2.133vw !important;
+		font-size: 2.8vw !important;
+		padding: 2.133vw 2.933vw !important;
+	}
 }
 
 
