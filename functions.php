@@ -12,6 +12,7 @@ require_once get_template_directory() . '/inc/category-cover.php';
 if (class_exists('WooCommerce')) {
 	require_once get_template_directory() . '/inc/woocommerce.php';
 	require_once get_template_directory() . '/inc/pagination.php';
+	require_once get_template_directory() . '/inc/sales-products.php';
 }
 
 require_once get_template_directory() . '/inc/auth.php';
