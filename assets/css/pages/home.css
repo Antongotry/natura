@@ -5813,7 +5813,7 @@
 .sales {
 	margin-top: 0;
 	padding-top: 11.458vw;
-	padding-bottom: 5vw;
+	padding-bottom: 0; /* Убираем padding-bottom, отступ контролируется через margin-top у товаров */
 	overflow-x: hidden;
 }
 
