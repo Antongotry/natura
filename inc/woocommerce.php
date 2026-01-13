@@ -97,12 +97,115 @@ function natura_override_checkout_review_order_template( $template, $template_na
 add_filter( 'woocommerce_locate_template', 'natura_override_checkout_review_order_template', 10, 3 );
 
 /**
- * Изменяем текст бейджа "Sale" на "Акція" и добавляем обертку для правильного стилизования
+ * Вычисляем процент скидки для товара
+ */
+function natura_calculate_sale_percentage( $product ) {
+	if ( ! $product || ! $product->is_on_sale() ) {
+		return 0;
+	}
+
+	$regular_price = $product->get_regular_price();
+	$sale_price = $product->get_sale_price();
+
+	if ( empty( $regular_price ) || empty( $sale_price ) ) {
+		return 0;
+	}
+
+	$regular_price = (float) $regular_price;
+	$sale_price = (float) $sale_price;
+
+	if ( $regular_price <= 0 ) {
+		return 0;
+	}
+
+	$percentage = ( ( $regular_price - $sale_price ) / $regular_price ) * 100;
+	return round( $percentage );
+}
+
+/**
+ * Изменяем текст бейджа "Sale" на процент скидки (например, -10%, -20%)
  */
 function natura_change_sale_badge_text( $text, $post, $product ) {
+	if ( ! $product ) {
+		$product = wc_get_product( $post );
+	}
+
+	if ( ! $product || ! $product->is_on_sale() ) {
+		return $text;
+	}
+
+	$percentage = natura_calculate_sale_percentage( $product );
+	
+	if ( $percentage > 0 ) {
+		return '<span class="onsale">-' . esc_html( $percentage ) . '%</span>';
+	}
+
 	return '<span class="onsale">Акція</span>';
 }
 add_filter( 'woocommerce_sale_flash', 'natura_change_sale_badge_text', 10, 3 );
+
+/**
+ * Округляем цену товара без копеек (до целого числа) при получении цены
+ */
+function natura_round_price_without_cents( $price, $product = null ) {
+	if ( empty( $price ) || ! is_numeric( $price ) ) {
+		return $price;
+	}
+
+	// Округляем до целого числа
+	$rounded_price = round( (float) $price );
+	
+	return $rounded_price;
+}
+add_filter( 'woocommerce_product_get_price', 'natura_round_price_without_cents', 10, 2 );
+add_filter( 'woocommerce_product_get_sale_price', 'natura_round_price_without_cents', 10, 2 );
+add_filter( 'woocommerce_product_get_regular_price', 'natura_round_price_without_cents', 10, 2 );
+add_filter( 'woocommerce_variation_prices_price', 'natura_round_price_without_cents', 10, 2 );
+add_filter( 'woocommerce_variation_prices_sale_price', 'natura_round_price_without_cents', 10, 2 );
+add_filter( 'woocommerce_variation_prices_regular_price', 'natura_round_price_without_cents', 10, 2 );
+
+/**
+ * Округляем отображаемую цену без копеек (форматирование)
+ */
+function natura_round_formatted_price( $formatted_price, $price, $args ) {
+	if ( empty( $price ) || ! is_numeric( $price ) ) {
+		return $formatted_price;
+	}
+
+	// Округляем до целого числа
+	$rounded_price = round( (float) $price );
+	
+	// Форматируем заново с округленной ценой
+	$decimals = isset( $args['decimals'] ) ? $args['decimals'] : 0;
+	$formatted = number_format( $rounded_price, $decimals, $args['decimal_separator'], $args['thousand_separator'] );
+	
+	// Добавляем символ валюты
+	if ( isset( $args['currency'] ) ) {
+		$currency_symbol = get_woocommerce_currency_symbol( $args['currency'] );
+		if ( 'left' === $args['price_format'] ) {
+			return $currency_symbol . $formatted;
+		} else {
+			return $formatted . ' ' . $currency_symbol;
+		}
+	}
+	
+	return $formatted;
+}
+add_filter( 'woocommerce_price_format', 'natura_round_formatted_price', 10, 3 );
+
+/**
+ * Округляем цену при расчете скидки (чтобы цена со скидкой была без копеек)
+ */
+function natura_round_sale_price_calculation( $price, $product ) {
+	if ( empty( $price ) || ! is_numeric( $price ) ) {
+		return $price;
+	}
+
+	return round( (float) $price );
+}
+add_filter( 'woocommerce_product_variation_get_price', 'natura_round_sale_price_calculation', 10, 2 );
+add_filter( 'woocommerce_product_variation_get_sale_price', 'natura_round_sale_price_calculation', 10, 2 );
+add_filter( 'woocommerce_product_variation_get_regular_price', 'natura_round_sale_price_calculation', 10, 2 );
 
 /**
  * Обертка для бейджа "Акція" на странице товара
