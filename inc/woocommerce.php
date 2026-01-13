@@ -97,6 +97,14 @@ function natura_override_checkout_review_order_template( $template, $template_na
 add_filter( 'woocommerce_locate_template', 'natura_override_checkout_review_order_template', 10, 3 );
 
 /**
+ * Изменяем текст бейджа "Sale" на "Акція"
+ */
+function natura_change_sale_badge_text( $text, $post, $product ) {
+	return 'Акція';
+}
+add_filter( 'woocommerce_sale_flash', 'natura_change_sale_badge_text', 10, 3 );
+
+/**
  * Убираем категорию и вкладки на странице товара
  */
 function natura_remove_product_meta_and_tabs() {
