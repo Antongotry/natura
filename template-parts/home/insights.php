@@ -83,7 +83,7 @@ if (! defined('ABSPATH')) {
 			'icon'        => 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/icon-20.svg',
 			'value'       => '20',
 			'suffix'      => '',
-			'text'        => '<span class="insights-list__bold">власних авто з холодильним</span><br><span class="insights-list__bold">обладнанням.</span> Доставляємо швидко, якісні продукти до ваших дверей',
+			'text'        => '<span class="insights-list__bold">власних авто з холодильним</span><br><span class="insights-list__bold">обладнанням.</span> Доставляємо швидко,<br>якісні продукти до ваших дверей',
 			'preview'     => 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/20-image_result.webp',
 		],
 	];
