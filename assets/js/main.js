@@ -2372,7 +2372,7 @@ const updateCartCountGlobal = debounce(() => {
 			currentRequest = jQuery.ajax({
 				url: ajaxUrl,
 				type: 'POST',
-				data: { action: 'natura_clear_cart',
+				data: {
 					action: 'natura_product_search',
 					query: query,
 					nonce: nonce
@@ -3314,7 +3314,7 @@ const CartManager = {
 					type: 'POST',
 					url: naturaCart.ajax_url,
 					dataType: 'json',
-					data: { action: 'natura_clear_cart',
+					data: {
 						action: 'natura_update_cart_item_quantity',
 						nonce: naturaCart.nonce,
 						cart_item_key: cartItemKey,
@@ -5912,3 +5912,96 @@ if (document.readyState === 'loading') {
 	initCheckoutErrorHighlighting();
 }
 
+/**
+ * Очистка корзины при закрытии сайта и через время неактивности
+ */
+(function() {
+	if (typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
+		return;
+	}
+
+	// Время неактивности в миллисекундах (10 минут)
+	const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 минут
+	
+	let inactivityTimer;
+	let lastActivityTime = Date.now();
+
+	// Функция очистки корзины
+	function clearCart() {
+		if (typeof jQuery === 'undefined' || typeof wc_add_to_cart_params === 'undefined') {
+			return;
+		}
+
+		// Очищаем корзину через AJAX
+		const ajaxUrl = (typeof wc_add_to_cart_params.ajax_url !== 'undefined') 
+			? wc_add_to_cart_params.ajax_url 
+			: '/wp-admin/admin-ajax.php';
+
+		jQuery.ajax({
+			type: 'POST',
+			url: ajaxUrl,
+			data: {
+				action: 'natura_clear_cart',
+				_wpnonce: wc_add_to_cart_params.wc_cart_nonce || ''
+			},
+			success: function(response) {
+				// Обновляем фрагменты корзины
+				if (response && response.fragments) {
+					jQuery.each(response.fragments, function(key, value) {
+						jQuery(key).replaceWith(value);
+					});
+				} else if (typeof WC !== 'undefined' && WC.cart_fragments) {
+					jQuery(document.body).trigger('wc_fragment_refresh');
+				}
+			}
+		});
+	}
+
+	// Обновление времени последней активности
+	function updateActivityTime() {
+		lastActivityTime = Date.now();
+		// Сбрасываем таймер
+		clearTimeout(inactivityTimer);
+		// Устанавливаем новый таймер
+		inactivityTimer = setTimeout(function() {
+			clearCart();
+		}, INACTIVITY_TIMEOUT);
+	}
+
+	// Отслеживание активности пользователя
+	const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+	activityEvents.forEach(function(event) {
+		document.addEventListener(event, updateActivityTime, true);
+	});
+
+	// Очистка корзины при закрытии вкладки/браузера
+	window.addEventListener('beforeunload', function() {
+		// Используем navigator.sendBeacon для надежной отправки запроса
+		if (navigator.sendBeacon && typeof wc_add_to_cart_params !== 'undefined') {
+			const ajaxUrl = (typeof wc_add_to_cart_params.ajax_url !== 'undefined') 
+				? wc_add_to_cart_params.ajax_url 
+				: '/wp-admin/admin-ajax.php';
+			const formData = new FormData();
+			formData.append('action', 'natura_clear_cart');
+			if (wc_add_to_cart_params.wc_cart_nonce) {
+				formData.append('_wpnonce', wc_add_to_cart_params.wc_cart_nonce);
+			}
+			navigator.sendBeacon(ajaxUrl, formData);
+		} else {
+			// Fallback для старых браузеров - синхронный запрос
+			if (typeof wc_add_to_cart_params !== 'undefined') {
+				const xhr = new XMLHttpRequest();
+				const ajaxUrl = (typeof wc_add_to_cart_params.ajax_url !== 'undefined') 
+					? wc_add_to_cart_params.ajax_url 
+					: '/wp-admin/admin-ajax.php';
+				xhr.open('POST', ajaxUrl, false); // false = синхронный запрос
+				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+				const data = 'action=natura_clear_cart' + (wc_add_to_cart_params.wc_cart_nonce ? '&_wpnonce=' + encodeURIComponent(wc_add_to_cart_params.wc_cart_nonce) : '');
+				xhr.send(data);
+			}
+		}
+	});
+
+	// Инициализация таймера при загрузке
+	updateActivityTime();
+})();
