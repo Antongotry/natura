@@ -4717,8 +4717,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.checkout-page.thankyou-page,
 	.thankyou-page.checkout-page {
 		/* Header is fixed; add top offset so content doesn't go under it */
-		/* Отступ сверху = отступ до футера (10.667vw) + высота хедера (5.333vw * 2 = 10.666vw) + 5% + 8vw */
-		padding-top: calc((10.667vw + 10.666vw) * 1.05 + 8vw) !important;
+		/* Отступ сверху = отступ до футера (10.667vw) + высота хедера (5.333vw * 2 = 10.666vw) + 5% + 8vw - 4vw */
+		padding-top: calc((10.667vw + 10.666vw) * 1.05 + 8vw - 4vw) !important;
 		margin-top: 0 !important;
 	}
 
