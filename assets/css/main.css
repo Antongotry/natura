@@ -5541,6 +5541,29 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+	position: relative;
+}
+
+/* Бейдж "Акція" на странице товара - стили как на карточках */
+.single-product__image-wrapper .onsale {
+	position: absolute;
+	top: 0.833vw;
+	right: 0.833vw;
+	z-index: 10;
+	display: block;
+	background-color: #4DBD56 !important;
+	color: #ffffff !important;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-style: normal;
+	font-size: 0.729vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	padding: 0.625vw 1.042vw;
+	margin: 0;
+	border-radius: 999px;
+	text-transform: capitalize !important;
+	box-sizing: border-box;
 }
 
 .single-product__image-wrapper .woocommerce-product-gallery {
@@ -5725,6 +5748,28 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		aspect-ratio: 1 !important;
 	}
 	
+	/* Бейдж "Акція" на странице товара - мобильная версия */
+	.single-product__image-wrapper .onsale {
+		position: absolute !important;
+		top: 2.133vw !important;
+		right: 2.133vw !important;
+		z-index: 10 !important;
+		display: block !important;
+		background-color: #4DBD56 !important;
+		color: #ffffff !important;
+		font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+		font-weight: 600 !important;
+		font-style: normal !important;
+		font-size: 2.8vw !important;
+		line-height: 100% !important;
+		letter-spacing: -0.03em !important;
+		padding: 2.133vw 2.933vw !important;
+		margin: 0 !important;
+		border-radius: 999px !important;
+		text-transform: capitalize !important;
+		box-sizing: border-box !important;
+	}
+
 	.single-product__image-wrapper .woocommerce-product-gallery__image img,
 	.single-product__image-wrapper img.wp-post-image {
 		width: 100% !important;
@@ -5810,6 +5855,30 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		align-self: flex-start !important;
 		margin: 0 !important;
 		padding: 0 !important;
+		display: flex !important;
+		align-items: baseline !important;
+		gap: 0.35em !important;
+		white-space: nowrap !important;
+	}
+
+	/* Цена со скидкой - новая цена (жирная, темная) на мобильных */
+	.single-product__title-price-wrapper .price ins {
+		text-decoration: none !important;
+		font-weight: 600 !important;
+		color: #303030 !important;
+		display: inline !important;
+		vertical-align: baseline !important;
+	}
+
+	/* Цена со скидкой - старая цена (зачеркнутая, серая) на мобильных */
+	.single-product__title-price-wrapper .price del {
+		opacity: 1 !important;
+		font-weight: 400 !important;
+		color: #999999 !important;
+		text-decoration: line-through !important;
+		margin-right: 0.35em !important;
+		display: inline !important;
+		vertical-align: baseline !important;
 	}
 
 	.single-product__summary .woocommerce-product-details__short-description {
@@ -6103,6 +6172,39 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	padding: 0;
 	flex-shrink: 0;
 	align-self: flex-start;
+	display: flex;
+	align-items: baseline;
+	gap: 0.35em;
+	white-space: nowrap;
+}
+
+/* Цена со скидкой - новая цена (жирная, темная) */
+.single-product__title-price-wrapper .price ins {
+	text-decoration: none;
+	font-weight: 600;
+	color: #303030;
+	display: inline;
+	vertical-align: baseline;
+}
+
+/* Цена со скидкой - старая цена (зачеркнутая, серая) */
+.single-product__title-price-wrapper .price del {
+	opacity: 1;
+	font-weight: 400;
+	color: #999999;
+	text-decoration: line-through;
+	margin-right: 0.35em;
+	display: inline;
+	vertical-align: baseline;
+}
+
+/* Выравнивание внутренних элементов цен */
+.single-product__title-price-wrapper .price ins .woocommerce-Price-amount,
+.single-product__title-price-wrapper .price ins bdi,
+.single-product__title-price-wrapper .price del .woocommerce-Price-amount,
+.single-product__title-price-wrapper .price del bdi {
+	vertical-align: baseline;
+	line-height: inherit;
 }
 
 /* Product Short Description */
