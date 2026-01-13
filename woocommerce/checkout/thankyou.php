@@ -38,6 +38,9 @@ defined( 'ABSPATH' ) || exit;
 						);
 						?>
 					</p>
+					<p class="thankyou-page__text">
+						<?php esc_html_e( 'Дякуємо за ваше замовлення. Ваше замовлення буде доставлене завтра протягом дня.', 'natura' ); ?>
+					</p>
 					<?php if ( ! empty( $email ) ) : ?>
 						<p class="thankyou-page__text thankyou-page__text--muted">
 							<?php
@@ -111,6 +114,8 @@ defined( 'ABSPATH' ) || exit;
 		<?php endif; ?>
 	</div>
 </main>
+
+
 
 
 
