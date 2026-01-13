@@ -6917,6 +6917,29 @@ li.product .product-card,
 	right: 0.833vw;
 	z-index: 10;
 	display: block;
+	background-color: #4DBD56 !important;
+	color: #ffffff !important;
+	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-weight: 600;
+	font-size: 0.729vw;
+	line-height: 100%;
+	letter-spacing: -0.03em;
+	padding: 0.625vw 1.042vw;
+	margin: 0;
+	border-radius: 0.26vw;
+	text-transform: uppercase !important;
+	box-sizing: border-box;
+}
+
+.product-card__badge-wrapper * {
+	background-color: transparent !important;
+	color: inherit !important;
+	font-size: inherit !important;
+	font-weight: inherit !important;
+	text-transform: inherit !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
 }
 
 .product-card__badge-wrapper .onsale {
