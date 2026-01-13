@@ -58,7 +58,7 @@ get_header();
 						</li>
 					</ul>
 					<div class="hero__cta">
-						<p class="hero__cta-text">Свіжі, якісні поставки для ресторанів, готелів, кавʼярень та приватних клієнтів. Від екзотичних фруктів до локальної органіки — усе, що потрібно для ідеального меню чи щоденного раціону,
+						<p class="hero__cta-text">Свіжі, якісні продукти для ресторанів, готелів, кавʼярень та приватних клієнтів. Від екзотичних фруктів до локальної органіки — усе, що потрібно для ідеального меню чи щоденного раціону,
 ви знайдете у нашому каталозі</p>
 						<?php 
 						$catalog_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : (function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : home_url('/catalog'));
