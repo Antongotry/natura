@@ -6922,13 +6922,13 @@ li.product .product-card,
 	font-family: 'Inter Tight', sans-serif;
 	font-weight: 500;
 	font-style: normal;
-	font-size: 0.469vw; /* 9px / 1920 = 0.469vw */
+	font-size: 0.833vw; /* 16px / 1920 = 0.833vw */
 	line-height: 100%;
 	letter-spacing: -0.03em; /* -3% */
 	vertical-align: middle;
 	padding: 0.625vw 1.042vw;
 	margin: 0;
-	border-radius: 0.417vw; /* Увеличен border-radius для закругления */
+	border-radius: 999px; /* Максимальное скругление */
 	text-transform: capitalize !important;
 	box-sizing: border-box;
 }
@@ -8220,7 +8220,7 @@ li.product .product-card,
 		letter-spacing: -0.03em; /* -3% */
 		vertical-align: middle;
 		padding: 2.133vw 2.933vw;
-		border-radius: 1.067vw; /* Увеличен border-radius для закругления */
+		border-radius: 999px; /* Максимальное скругление */
 		text-transform: capitalize !important;
 		box-sizing: border-box;
 	}
