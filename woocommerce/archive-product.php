@@ -81,6 +81,25 @@ if ( ! function_exists( 'natura_render_product_cat_items' ) ) {
 			return false;
 		}
 
+		// Кастомная сортировка: овощи и фрукты первыми
+		usort( $terms, function( $a, $b ) {
+			$priority_categories = array( 'овочі', 'овощи', 'фрукти', 'фрукты', 'овочі та фрукти', 'овощи и фрукты' );
+			
+			$a_name_lower = function_exists( 'mb_strtolower' ) ? mb_strtolower( $a->name ) : strtolower( $a->name );
+			$b_name_lower = function_exists( 'mb_strtolower' ) ? mb_strtolower( $b->name ) : strtolower( $b->name );
+			
+			$a_priority = in_array( $a_name_lower, $priority_categories, true ) ? 0 : 1;
+			$b_priority = in_array( $b_name_lower, $priority_categories, true ) ? 0 : 1;
+			
+			// Если одна категория приоритетная, а другая нет - приоритетная идет первой
+			if ( $a_priority !== $b_priority ) {
+				return $a_priority - $b_priority;
+			}
+			
+			// Если обе приоритетные или обе нет - сортируем по menu_order
+			return $a->term_order - $b->term_order;
+		} );
+
 		$printed = false;
 
 		foreach ( $terms as $term ) {
