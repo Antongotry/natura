@@ -270,7 +270,7 @@ function natura_add_product_unit_field() {
 add_action('woocommerce_product_options_general_product_data', 'natura_add_product_unit_field');
 
 /**
- * Добавляем чекбокс "Показать на странице акций" в секцию цены товара
+ * Добавляем поле процента скидки и чекбокс "Показать на странице акций" в секцию цены товара
  */
 function natura_add_sales_page_checkbox() {
 	global $post;
@@ -278,7 +278,28 @@ function natura_add_sales_page_checkbox() {
 	$show_on_sales = get_post_meta( $post->ID, '_show_on_sales_page', true );
 	$checked = ( 'yes' === $show_on_sales ) ? 'yes' : 'no';
 	
+	$sale_percentage = get_post_meta( $post->ID, '_sale_percentage', true );
+	
 	echo '<div class="options_group show_if_simple show_if_external show_if_variable">';
+	
+	// Поле для процента скидки
+	woocommerce_wp_text_input(
+		array(
+			'id'          => '_sale_percentage',
+			'label'       => __('Знижка у відсотках (%)', 'natura'),
+			'placeholder' => __('Наприклад: 10 для 10%', 'natura'),
+			'value'       => $sale_percentage ? esc_attr( $sale_percentage ) : '',
+			'type'        => 'number',
+			'custom_attributes' => array(
+				'step' => '1',
+				'min'  => '0',
+				'max'  => '100',
+			),
+			'desc_tip'    => true,
+			'description' => __('Введіть відсоток знижки (0-100). Ціна зі знижкою буде розрахована автоматично. Якщо вказано відсоток, поле "Ціна зі знижкою" буде заповнено автоматично.', 'natura'),
+			'wrapper_class' => 'form-field _sale_percentage_field',
+		)
+	);
 	
 	woocommerce_wp_checkbox(
 		array(
@@ -292,6 +313,48 @@ function natura_add_sales_page_checkbox() {
 	);
 	
 	echo '</div>';
+	?>
+	<script type="text/javascript">
+	jQuery(document).ready(function($) {
+		var $regularPrice = $('#_regular_price');
+		var $salePrice = $('#_sale_price');
+		var $salePercentage = $('#_sale_percentage');
+		
+		// Функция для вычисления цены со скидкой
+		function calculateSalePrice() {
+			var regularPrice = parseFloat($regularPrice.val());
+			var percentage = parseFloat($salePercentage.val());
+			
+			if (regularPrice && percentage && percentage > 0 && percentage <= 100) {
+				var salePrice = regularPrice * (1 - percentage / 100);
+				// Округляем до целого числа
+				salePrice = Math.round(salePrice);
+				$salePrice.val(salePrice);
+			}
+		}
+		
+		// Вычисляем цену при изменении процента или обычной цены
+		$salePercentage.on('input change', function() {
+			if ($(this).val()) {
+				calculateSalePrice();
+			}
+		});
+		
+		$regularPrice.on('input change', function() {
+			if ($salePercentage.val()) {
+				calculateSalePrice();
+			}
+		});
+		
+		// Если пользователь вручную изменил цену со скидкой, очищаем процент
+		$salePrice.on('input', function() {
+			if ($(this).val() && $salePercentage.val()) {
+				// Можно оставить процент или очистить - оставляем для удобства
+			}
+		});
+	});
+	</script>
+	<?php
 }
 add_action('woocommerce_product_options_pricing', 'natura_add_sales_page_checkbox');
 
@@ -323,6 +386,35 @@ function natura_save_product_unit_field($post_id) {
 		update_post_meta( $post_id, '_show_on_sales_page', 'yes' );
 	} else {
 		delete_post_meta( $post_id, '_show_on_sales_page' );
+	}
+
+	// Сохраняем процент скидки
+	if ( isset( $_POST['_sale_percentage'] ) ) {
+		$sale_percentage = sanitize_text_field( wp_unslash( $_POST['_sale_percentage'] ) );
+		$sale_percentage = absint( $sale_percentage );
+		
+		if ( $sale_percentage > 0 && $sale_percentage <= 100 ) {
+			update_post_meta( $post_id, '_sale_percentage', $sale_percentage );
+			
+			// Если указан процент и есть обычная цена, вычисляем цену со скидкой
+			if ( isset( $_POST['_regular_price'] ) && ! empty( $_POST['_regular_price'] ) ) {
+				$regular_price = (float) sanitize_text_field( wp_unslash( $_POST['_regular_price'] ) );
+				if ( $regular_price > 0 ) {
+					$sale_price = $regular_price * ( 1 - $sale_percentage / 100 );
+					$sale_price = round( $sale_price ); // Округляем до целого
+					
+					// Обновляем цену со скидкой только если она не была задана вручную
+					// или если процент был изменен
+					if ( ! isset( $_POST['_sale_price'] ) || empty( $_POST['_sale_price'] ) ) {
+						update_post_meta( $post_id, '_sale_price', $sale_price );
+					}
+				}
+			}
+		} else {
+			delete_post_meta( $post_id, '_sale_percentage' );
+		}
+	} else {
+		delete_post_meta( $post_id, '_sale_percentage' );
 	}
 }
 add_action('woocommerce_process_product_meta', 'natura_save_product_unit_field');
