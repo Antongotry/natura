@@ -165,22 +165,12 @@ add_filter( 'woocommerce_variation_prices_sale_price', 'natura_round_price_witho
 add_filter( 'woocommerce_variation_prices_regular_price', 'natura_round_price_without_cents', 10, 2 );
 
 /**
- * Округляем отображаемую цену без копеек (форматирование)
+ * Устанавливаем количество знаков после запятой в 0 для всех цен
  */
-function natura_round_formatted_price( $price, $args = array() ) {
-	if ( empty( $price ) || ! is_numeric( $price ) ) {
-		return $price;
-	}
-
-	// Округляем до целого числа
-	$rounded_price = round( (float) $price );
-	
-	// Используем стандартную функцию WooCommerce для форматирования с 0 знаками после запятой
-	$args['decimals'] = 0;
-	
-	return wc_price( $rounded_price, $args );
+function natura_set_price_decimals( $decimals ) {
+	return 0;
 }
-add_filter( 'formatted_woocommerce_price', 'natura_round_formatted_price', 10, 2 );
+add_filter( 'woocommerce_price_decimals', 'natura_set_price_decimals', 10, 1 );
 
 /**
  * Округляем цену при расчете скидки (чтобы цена со скидкой была без копеек)
