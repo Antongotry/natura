@@ -706,6 +706,71 @@ function natura_force_new_order_status_processing( $status, $order_id ) {
 	return $normalized ?: $status;
 }
 
+/**
+ * Сортировка товаров на главной странице каталога: сначала овощи и фрукты
+ */
+add_action( 'woocommerce_product_query', 'natura_sort_products_by_priority_categories' );
+function natura_sort_products_by_priority_categories( $query ) {
+	// Применяем только на главной странице каталога (shop), не на страницах категорий
+	if ( is_product_category() || is_product_tag() || ! is_shop() ) {
+		return;
+	}
+
+	// Получаем ID категорий "Овочі" и "Фрукти"
+	$priority_categories = array();
+	$category_names = array( 'овочі', 'овощи', 'фрукти', 'фрукты' );
+	
+	foreach ( $category_names as $name ) {
+		$term = get_term_by( 'name', $name, 'product_cat' );
+		if ( $term && ! is_wp_error( $term ) ) {
+			$priority_categories[] = $term->term_id;
+		}
+		// Также проверяем по slug
+		$term_slug = get_term_by( 'slug', sanitize_title( $name ), 'product_cat' );
+		if ( $term_slug && ! is_wp_error( $term_slug ) && ! in_array( $term_slug->term_id, $priority_categories, true ) ) {
+			$priority_categories[] = $term_slug->term_id;
+		}
+	}
+
+	if ( empty( $priority_categories ) ) {
+		return;
+	}
+
+	// Получаем ID товаров из приоритетных категорий
+	$priority_product_ids = get_posts( array(
+		'post_type'      => 'product',
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'tax_query'      => array(
+			array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => $priority_categories,
+				'operator' => 'IN',
+			),
+		),
+	) );
+	
+	if ( empty( $priority_product_ids ) ) {
+		return;
+	}
+
+	// Добавляем фильтр для изменения порядка через posts_clauses
+	add_filter( 'posts_clauses', function( $clauses, $wp_query ) use ( $priority_product_ids ) {
+		global $wpdb;
+		
+		if ( ! empty( $priority_product_ids ) ) {
+			$priority_ids_str = implode( ',', array_map( 'intval', $priority_product_ids ) );
+			
+			// Добавляем сортировку: сначала товары из приоритетных категорий
+			// FIELD возвращает 0 если ID не найден, поэтому DESC ставит приоритетные первыми
+			$clauses['orderby'] = "FIELD({$wpdb->posts}.ID, {$priority_ids_str}) DESC, {$wpdb->posts}.menu_order ASC";
+		}
+		
+		return $clauses;
+	}, 10, 2 );
+}
+
 
 
 
