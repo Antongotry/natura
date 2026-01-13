@@ -4403,9 +4403,13 @@ const initMiniCart = () => {
 			const $form = jQuery(this);
 			const $button = $form.find('button[type="submit"]');
 			const productId = $button.val() || $form.find('input[name="add-to-cart"]').val();
-			const quantity = $form.find('input[name="quantity"]').val() || 1;
+			const $quantityInput = $form.find('input[name="quantity"]');
+			const quantityRaw = $quantityInput.val() || '1';
+			// Парсим количество с учетом дробных значений (0.1 для кг)
+			const quantity = naturaParseNumber(quantityRaw);
+			const finalQuantity = Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
 			
-			console.log('[initMiniCart] Перехвачена форма, productId:', productId, 'quantity:', quantity);
+			console.log('[initMiniCart] Перехвачена форма, productId:', productId, 'quantity:', finalQuantity);
 			
 			if (!productId) {
 				console.log('[initMiniCart] ProductId не найден, отправка формы обычным способом');
@@ -4419,7 +4423,7 @@ const initMiniCart = () => {
 			if (typeof wc_add_to_cart_params !== 'undefined') {
 				wcAjax('add_to_cart', {
 					product_id: productId,
-					quantity: quantity,
+					quantity: finalQuantity,
 				}, {
 					success: function(response) {
 						console.log('[initMiniCart] AJAX успех:', response);

@@ -495,6 +495,37 @@ function natura_quantity_input_args_for_kg( $args, $product ) {
 add_filter( 'woocommerce_quantity_input_args', 'natura_quantity_input_args_for_kg', 10, 2 );
 
 /**
+ * Разрешаем минимальное количество 0.1 для товаров в кг при добавлении в корзину
+ */
+function natura_validate_add_to_cart_quantity( $quantity, $product_id ) {
+	$product = wc_get_product( $product_id );
+	if ( ! $product ) {
+		return $quantity;
+	}
+
+	$unit = get_post_meta( $product_id, '_product_unit', true );
+	if ( empty( $unit ) ) {
+		$unit = get_option( 'woocommerce_weight_unit', 'kg' );
+	}
+
+	if ( natura_is_kg_unit( $unit ) ) {
+		// Для товаров в кг разрешаем минимальное количество 0.1
+		$min_qty = 0.1;
+		if ( $quantity < $min_qty ) {
+			$quantity = $min_qty;
+		}
+		// Округляем до 1 знака после запятой
+		$quantity = round( (float) $quantity, 1 );
+	} else {
+		// Для остальных товаров минимальное количество 1
+		$quantity = max( 1, absint( $quantity ) );
+	}
+
+	return $quantity;
+}
+add_filter( 'woocommerce_add_to_cart_quantity', 'natura_validate_add_to_cart_quantity', 10, 2 );
+
+/**
  * AJAX: Обновление количества товара в корзине (по cart_item_key) + возврат fragments
  */
 function natura_update_cart_item_quantity_ajax() {
