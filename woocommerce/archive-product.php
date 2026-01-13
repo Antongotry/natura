@@ -96,8 +96,10 @@ if ( ! function_exists( 'natura_render_product_cat_items' ) ) {
 				return $a_priority - $b_priority;
 			}
 			
-			// Если обе приоритетные или обе нет - сортируем по menu_order
-			return $a->term_order - $b->term_order;
+			// Если обе приоритетные или обе нет - сортируем по menu_order (term_order)
+			$a_order = isset( $a->term_order ) ? (int) $a->term_order : 0;
+			$b_order = isset( $b->term_order ) ? (int) $b->term_order : 0;
+			return $a_order - $b_order;
 		} );
 
 		$printed = false;
