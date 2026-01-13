@@ -3638,7 +3638,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	background-color: #ffffff;
 	border-radius: 0.26vw;
 	border: 1px solid rgba(48, 48, 48, 0.1);
-	padding: 0 2.083vw 2.083vw 2.083vw;
+	padding: 2.083vw;
 	box-sizing: border-box;
 }
 
@@ -4726,7 +4726,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.thankyou-page__card {
 		border-radius: 2.667vw;
-		padding: 0 5.333vw 5.333vw 5.333vw;
+		padding: 5.333vw;
 	}
 
 	.thankyou-page__card + .thankyou-page__card {
