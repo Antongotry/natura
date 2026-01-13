@@ -6930,7 +6930,7 @@ li.product .product-card,
 	background-color: #4DBD56;
 	color: #ffffff;
 	border-radius: 0.26vw;
-	text-transform: none;
+	text-transform: uppercase; /* Заглавные буквы */
 	display: inline-block;
 	box-sizing: border-box;
 	position: static;
@@ -8193,7 +8193,7 @@ li.product .product-card,
 		background-color: #4DBD56;
 		color: #ffffff;
 		border-radius: 0.8vw;
-		text-transform: none;
+		text-transform: uppercase; /* Заглавные буквы */
 		display: inline-block;
 		box-sizing: border-box;
 		position: static;
