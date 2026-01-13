@@ -180,11 +180,11 @@ function natura_add_sales_page_checkbox() {
 	woocommerce_wp_checkbox(
 		array(
 			'id'          => '_show_on_sales_page',
-			'label'       => __('Показать на странице акций', 'natura'),
+			'label'       => __('Показати на сторінці акцій', 'natura'),
 			'value'       => $checked,
 			'cbvalue'     => 'yes',
 			'desc_tip'    => true,
-			'description' => __('Отметьте этот товар, чтобы он отображался в разделе "Акційні пропозиції" на странице акций', 'natura'),
+			'description' => __('Відмітьте цей товар, щоб він відображався в розділі "Акційні пропозиції" на сторінці акцій', 'natura'),
 		)
 	);
 	
