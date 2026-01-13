@@ -8228,8 +8228,13 @@ li.product .product-card,
 	.product-card__badge-wrapper * {
 		background-color: transparent !important;
 		color: inherit !important;
+		font-family: inherit !important;
 		font-size: inherit !important;
 		font-weight: inherit !important;
+		font-style: inherit !important;
+		line-height: inherit !important;
+		letter-spacing: inherit !important;
+		vertical-align: inherit !important;
 		text-transform: inherit !important;
 		padding: 0 !important;
 		margin: 0 !important;
