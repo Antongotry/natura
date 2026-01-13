@@ -167,31 +167,20 @@ add_filter( 'woocommerce_variation_prices_regular_price', 'natura_round_price_wi
 /**
  * Округляем отображаемую цену без копеек (форматирование)
  */
-function natura_round_formatted_price( $formatted_price, $price, $args ) {
+function natura_round_formatted_price( $price, $args = array() ) {
 	if ( empty( $price ) || ! is_numeric( $price ) ) {
-		return $formatted_price;
+		return $price;
 	}
 
 	// Округляем до целого числа
 	$rounded_price = round( (float) $price );
 	
-	// Форматируем заново с округленной ценой
-	$decimals = isset( $args['decimals'] ) ? $args['decimals'] : 0;
-	$formatted = number_format( $rounded_price, $decimals, $args['decimal_separator'], $args['thousand_separator'] );
+	// Используем стандартную функцию WooCommerce для форматирования с 0 знаками после запятой
+	$args['decimals'] = 0;
 	
-	// Добавляем символ валюты
-	if ( isset( $args['currency'] ) ) {
-		$currency_symbol = get_woocommerce_currency_symbol( $args['currency'] );
-		if ( 'left' === $args['price_format'] ) {
-			return $currency_symbol . $formatted;
-		} else {
-			return $formatted . ' ' . $currency_symbol;
-		}
-	}
-	
-	return $formatted;
+	return wc_price( $rounded_price, $args );
 }
-add_filter( 'woocommerce_price_format', 'natura_round_formatted_price', 10, 3 );
+add_filter( 'formatted_woocommerce_price', 'natura_round_formatted_price', 10, 2 );
 
 /**
  * Округляем цену при расчете скидки (чтобы цена со скидкой была без копеек)
