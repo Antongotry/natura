@@ -97,12 +97,33 @@ function natura_override_checkout_review_order_template( $template, $template_na
 add_filter( 'woocommerce_locate_template', 'natura_override_checkout_review_order_template', 10, 3 );
 
 /**
- * Изменяем текст бейджа "Sale" на "Акція"
+ * Изменяем текст бейджа "Sale" на "Акція" и добавляем обертку для правильного стилизования
  */
 function natura_change_sale_badge_text( $text, $post, $product ) {
-	return 'Акція';
+	return '<span class="onsale">Акція</span>';
 }
 add_filter( 'woocommerce_sale_flash', 'natura_change_sale_badge_text', 10, 3 );
+
+/**
+ * Обертка для бейджа "Акція" на странице товара
+ */
+function natura_wrap_single_product_sale_badge() {
+	global $product;
+	if ( $product && $product->is_on_sale() ) {
+		echo '<div class="single-product__sale-badge-wrapper">';
+		woocommerce_show_product_sale_flash();
+		echo '</div>';
+	}
+}
+
+/**
+ * Убираем стандартный вывод бейджа и заменяем на наш с оберткой
+ */
+function natura_replace_single_product_sale_badge() {
+	remove_action( 'woocommerce_before_single_product_summary', 'woocommerce_show_product_sale_flash', 10 );
+	add_action( 'woocommerce_before_single_product_summary', 'natura_wrap_single_product_sale_badge', 10 );
+}
+add_action( 'wp', 'natura_replace_single_product_sale_badge' );
 
 /**
  * Убираем категорию и вкладки на странице товара
