@@ -4715,7 +4715,8 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	/* Thank you page (order received) – mobile */
 	.thankyou-page {
 		/* Header is fixed; add top offset so content doesn't go under it */
-		padding-top: 21.333vw;
+		padding-top: 25vw !important;
+		margin-top: 0 !important;
 	}
 
 	/* Отступ сверху для первого блока на мобильных, чтобы не обрезался хедером */
