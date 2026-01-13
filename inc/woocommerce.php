@@ -637,6 +637,9 @@ function natura_redirect_order_received_to_account_orders() {
 		$orders_url = home_url( '/' );
 	}
 
+	// Добавляем параметр для показа попапа
+	$orders_url = add_query_arg( 'order_placed', '1', $orders_url );
+
 	wp_safe_redirect( $orders_url );
 	exit;
 }

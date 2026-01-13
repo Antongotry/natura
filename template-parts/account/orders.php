@@ -13,6 +13,23 @@ $customer_orders = wc_get_orders([
 ?>
 
 <div class="account-orders">
+	<?php
+	// Показываем мини-попап если заказ только что был оформлен
+	$order_placed = isset( $_GET['order_placed'] ) && $_GET['order_placed'] === '1';
+	if ( $order_placed ) :
+		?>
+		<div class="account-orders__success-popup" data-order-success-popup>
+			<div class="account-orders__success-popup-content">
+				<button class="account-orders__success-popup-close" data-order-success-popup-close aria-label="Закрити">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+					</svg>
+				</button>
+				<h3 class="account-orders__success-popup-title">Дякуємо за ваше замовлення</h3>
+				<p class="account-orders__success-popup-text">Ваше замовлення буде доставлене завтра протягом дня.</p>
+			</div>
+		</div>
+	<?php endif; ?>
 	<?php if (empty($customer_orders)) : ?>
 		<div class="account-orders__empty">
 			<div class="account-orders__empty-icon">📦</div>

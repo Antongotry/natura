@@ -255,6 +255,80 @@
 	margin-bottom: 16px;
 }
 
+/* Success Popup */
+.account-orders__success-popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.account-orders__success-popup[data-order-success-popup] {
+	opacity: 1;
+	visibility: visible;
+}
+
+.account-orders__success-popup-content {
+	background: #ffffff;
+	border-radius: 0.521vw;
+	padding: 2.083vw;
+	max-width: 31.25vw;
+	width: 100%;
+	position: relative;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.account-orders__success-popup-close {
+	position: absolute;
+	top: 1.042vw;
+	right: 1.042vw;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.521vw;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: rgba(48, 48, 48, 0.6);
+	transition: color 0.2s ease;
+}
+
+.account-orders__success-popup-close:hover {
+	color: rgba(48, 48, 48, 1);
+}
+
+.account-orders__success-popup-close svg {
+	width: 1.25vw;
+	height: 1.25vw;
+}
+
+.account-orders__success-popup-title {
+	font-family: 'Inter Tight', sans-serif;
+	font-size: 1.563vw;
+	font-weight: 600;
+	color: #303030;
+	margin: 0 0 0.833vw 0;
+	padding-right: 2.604vw;
+}
+
+.account-orders__success-popup-text {
+	font-family: 'Inter Tight', sans-serif;
+	font-size: 0.938vw;
+	font-weight: 400;
+	color: rgba(48, 48, 48, 0.8);
+	line-height: 1.5;
+	margin: 0;
+}
+
 .account-orders__table {
 	width: 100%;
 	border-collapse: collapse;
@@ -1226,6 +1300,34 @@
 	.account-orders__empty .account-form__submit {
 		font-size: 4.267vw;
 		padding: 4.267vw 8.533vw;
+	}
+
+	/* Success Popup Mobile */
+	.account-orders__success-popup-content {
+		max-width: 85vw;
+		padding: 5.333vw;
+		border-radius: 2.667vw;
+	}
+
+	.account-orders__success-popup-close {
+		top: 2.667vw;
+		right: 2.667vw;
+		padding: 1.333vw;
+	}
+
+	.account-orders__success-popup-close svg {
+		width: 5.333vw;
+		height: 5.333vw;
+	}
+
+	.account-orders__success-popup-title {
+		font-size: 4.8vw;
+		margin-bottom: 2.667vw;
+		padding-right: 8vw;
+	}
+
+	.account-orders__success-popup-text {
+		font-size: 3.733vw;
 	}
 
 	.woocommerce-orders-table {

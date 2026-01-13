@@ -5503,6 +5503,55 @@ if (typeof jQuery !== 'undefined') {
 	});
 }
 
+// Инициализация попапа успешного заказа
+function initOrderSuccessPopup() {
+	const popup = document.querySelector('[data-order-success-popup]');
+	if (!popup) return;
+	
+	const closeBtn = popup.querySelector('[data-order-success-popup-close]');
+	
+	// Закрытие по кнопке
+	if (closeBtn) {
+		closeBtn.addEventListener('click', function() {
+			popup.style.opacity = '0';
+			popup.style.visibility = 'hidden';
+			// Убираем параметр из URL
+			const url = new URL(window.location);
+			url.searchParams.delete('order_placed');
+			window.history.replaceState({}, '', url);
+		});
+	}
+	
+	// Закрытие по клику на фон
+	popup.addEventListener('click', function(e) {
+		if (e.target === popup) {
+			popup.style.opacity = '0';
+			popup.style.visibility = 'hidden';
+			const url = new URL(window.location);
+			url.searchParams.delete('order_placed');
+			window.history.replaceState({}, '', url);
+		}
+	});
+	
+	// Автоматическое закрытие через 5 секунд
+	setTimeout(function() {
+		if (popup) {
+			popup.style.opacity = '0';
+			popup.style.visibility = 'hidden';
+			const url = new URL(window.location);
+			url.searchParams.delete('order_placed');
+			window.history.replaceState({}, '', url);
+		}
+	}, 5000);
+}
+
+// Инициализация попапа
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initOrderSuccessPopup);
+} else {
+	initOrderSuccessPopup();
+}
+
 // Подсветка ошибок в checkout - используем события WooCommerce
 function initCheckoutErrorHighlighting() {
 	const checkoutForm = document.querySelector('form.checkout');
