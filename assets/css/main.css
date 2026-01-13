@@ -8219,7 +8219,7 @@ li.product .product-card,
 		line-height: 100%;
 		letter-spacing: -0.03em; /* -3% */
 		vertical-align: middle;
-		padding: 2.133vw 2.933vw;
+		padding: 0.8vw 1.333vw; /* 3px сверху/снизу, 5px по бокам (3px/375px = 0.8vw, 5px/375px = 1.333vw) */
 		border-radius: 999px; /* Максимальное скругление */
 		text-transform: capitalize !important;
 		box-sizing: border-box;
