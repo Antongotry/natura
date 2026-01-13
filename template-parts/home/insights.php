@@ -74,7 +74,7 @@ if (! defined('ABSPATH')) {
 		],
 		[
 			'icon'        => 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/icon-300.svg',
-			'value'       => '300',
+			'value'       => '1000',
 			'suffix'      => '',
 			'text'        => '<span class="insights-list__bold">м² сучасного складу.</span> Продукти<br>зберігаються у правильних умовах,<br>щоб зберегти їхню користь і смак',
 			'preview'     => 'https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/300-image_result.webp',
