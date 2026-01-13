@@ -8428,9 +8428,8 @@ li.product .product-card,
 		text-decoration: none;
 		font-weight: 600;
 		color: #303030;
-		vertical-align: middle;
-		display: inline-block;
-		line-height: 1;
+		display: inline;
+		vertical-align: baseline;
 	}
 
 	/* Цена со скидкой - старая цена (зачеркнутая, серая) - мобильная */
@@ -8440,9 +8439,8 @@ li.product .product-card,
 		color: #999999;
 		text-decoration: line-through;
 		margin-right: 0.35em;
-		vertical-align: middle;
-		display: inline-block;
-		line-height: 1;
+		display: inline;
+		vertical-align: baseline;
 	}
 
 	/* Выравнивание внутренних элементов цен - мобильная */
@@ -8452,10 +8450,6 @@ li.product .product-card,
 	.product-card__price-wrapper .price del bdi {
 		vertical-align: baseline;
 		line-height: inherit;
-	}
-		margin: 0;
-		padding: 0;
-		text-align: left !important;
 	}
 
 	.product-card__description {
