@@ -8450,12 +8450,9 @@ li.product .product-card,
 	.product-card__price-wrapper .price ins bdi,
 	.product-card__price-wrapper .price del .woocommerce-Price-amount,
 	.product-card__price-wrapper .price del bdi {
-		vertical-align: middle;
-		line-height: 1;
-		display: inline-block;
+		vertical-align: baseline;
+		line-height: inherit;
 	}
-		vertical-align: middle;
-		color: #303030;
 		margin: 0;
 		padding: 0;
 		text-align: left !important;
