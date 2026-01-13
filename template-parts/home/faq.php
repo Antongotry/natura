@@ -99,21 +99,6 @@ if (! defined('ABSPATH')) {
 				<div class="faq__accordion-item" data-faq-item>
 					<div class="faq__accordion-header">
 						<div class="faq__accordion-number">005.</div>
-						<h3 class="faq__accordion-title">Чи доставляєте ви<br>за межі Києва?</h3>
-						<button class="faq__accordion-toggle" type="button" aria-label="Розгорнути">
-							<img class="faq__accordion-arrow" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg" alt="">
-						</button>
-					</div>
-					<div class="faq__accordion-content">
-						<p class="faq__accordion-text">
-							Так, ми безкоштовно доставляємо<br class="faq__br-mobile"> у найближчі міста й селища.
-						</p>
-					</div>
-				</div>
-
-				<div class="faq__accordion-item" data-faq-item>
-					<div class="faq__accordion-header">
-						<div class="faq__accordion-number">006.</div>
 						<h3 class="faq__accordion-title">Чи можна робити регулярні замовлення для бізнесу?</h3>
 						<button class="faq__accordion-toggle" type="button" aria-label="Розгорнути">
 							<img class="faq__accordion-arrow" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg" alt="">
@@ -128,7 +113,7 @@ if (! defined('ABSPATH')) {
 
 				<div class="faq__accordion-item" data-faq-item>
 					<div class="faq__accordion-header">
-						<div class="faq__accordion-number">007.</div>
+						<div class="faq__accordion-number">006.</div>
 						<h3 class="faq__accordion-title">Чи є у вас холодильне<br>обладнання під час доставки?</h3>
 						<button class="faq__accordion-toggle" type="button" aria-label="Розгорнути">
 							<img class="faq__accordion-arrow" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg" alt="">
@@ -143,7 +128,7 @@ if (! defined('ABSPATH')) {
 
 				<div class="faq__accordion-item" data-faq-item>
 					<div class="faq__accordion-header">
-						<div class="faq__accordion-number">008.</div>
+						<div class="faq__accordion-number">007.</div>
 						<h3 class="faq__accordion-title">Як стати клієнтом HoReCa?</h3>
 						<button class="faq__accordion-toggle" type="button" aria-label="Розгорнути">
 							<img class="faq__accordion-arrow" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/1v.svg" alt="">
