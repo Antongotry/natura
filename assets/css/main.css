@@ -4721,6 +4721,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 
 	.thankyou-page .thankyou-page__container {
 		margin-top: 0;
+		margin-bottom: 10.667vw;
 	}
 
 	/* Отступ сверху для первого блока на мобильных, чтобы не обрезался хедером */
