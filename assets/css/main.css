@@ -4719,6 +4719,10 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		margin-top: 0 !important;
 	}
 
+	.thankyou-page .thankyou-page__container {
+		margin-top: 29px;
+	}
+
 	/* Отступ сверху для первого блока на мобильных, чтобы не обрезался хедером */
 	.thankyou-page__card:first-child {
 		margin-top: 0 !important;
