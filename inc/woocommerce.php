@@ -641,11 +641,12 @@ function natura_clear_cart_ajax() {
 	// Возвращаем стандартные WooCommerce fragments
 	if ( class_exists( 'WC_AJAX' ) ) {
 		WC_AJAX::get_refreshed_fragments();
+		exit;
 	}
 
-	wp_send_json_error(
-		array( 'message' => 'Fragments not available' ),
-		500
+	// Fallback: возвращаем успешный ответ
+	wp_send_json_success(
+		array( 'message' => 'Cart cleared' )
 	);
 }
 add_action( 'wp_ajax_natura_clear_cart', 'natura_clear_cart_ajax' );
