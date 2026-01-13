@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
 						?>
 					</p>
 					<p class="thankyou-page__text">
-						<?php esc_html_e( 'Дякуємо за ваше замовлення. Ваше замовлення буде доставлене завтра протягом дня.', 'natura' ); ?>
+						<?php esc_html_e( 'Дякуємо, що обираєте Natura Market. Ваше замовлення буде доставлене завтра протягом дня.', 'natura' ); ?>
 					</p>
 					<?php if ( ! empty( $email ) ) : ?>
 						<p class="thankyou-page__text thankyou-page__text--muted">
@@ -60,7 +60,10 @@ defined( 'ABSPATH' ) || exit;
 					<div class="thankyou-page__card thankyou-page__soft-account">
 						<h2 class="thankyou-page__subtitle"><?php esc_html_e( 'Створіть кабінет', 'natura' ); ?></h2>
 						<p class="thankyou-page__text thankyou-page__text--muted">
-							<?php esc_html_e( 'Хочете відстежувати замовлення зручніше? Придумайте пароль — і ми створимо кабінет, де вже є це замовлення.', 'natura' ); ?>
+							<?php esc_html_e( 'Бажаєте слідкувати за замовленням без зайвих клопотів?', 'natura' ); ?>
+						</p>
+						<p class="thankyou-page__text thankyou-page__text--muted">
+							<?php esc_html_e( 'Заповніть поле «Пароль», і ми створимо для вас особистий кабінет.', 'natura' ); ?>
 						</p>
 
 						<form
