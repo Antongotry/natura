@@ -86,7 +86,7 @@ if (! defined('ABSPATH')) {
 									</li>
 									<li class="payment-modal__delivery-method">
 										<img class="payment-modal__delivery-icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/2.svg" alt="">
-										<span class="payment-modal__delivery-text">Готівкою при отриманні замовлення</span>
+										<span class="payment-modal__delivery-text">Оплата за розрахунковим рахунком</span>
 									</li>
 									<li class="payment-modal__delivery-method">
 										<img class="payment-modal__delivery-icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/3.svg" alt="">
