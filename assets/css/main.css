@@ -5565,7 +5565,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	right: 0 !important;
 	z-index: 10 !important;
 	display: block !important;
-	background-color: #4DBD56 !important;
+	background-color: #C91114 !important;
 	color: #ffffff !important;
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
 	font-weight: 600 !important;
@@ -5601,6 +5601,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	right: 0.833vw !important;
 	z-index: 100 !important;
 	pointer-events: none !important;
+	background-color: #C91114 !important;
 }
 
 .single-product__image-wrapper .woocommerce-product-gallery__wrapper {
@@ -5787,7 +5788,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		right: 2.133vw !important;
 		z-index: 10 !important;
 		display: block !important;
-		background-color: #4DBD56 !important;
+		background-color: #C91114 !important;
 		color: #ffffff !important;
 		font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
 		font-weight: 600 !important;
@@ -7070,7 +7071,7 @@ li.product .product-card,
 	right: 0.833vw;
 	z-index: 10;
 	display: block;
-	background-color: #4DBD56 !important;
+	background-color: #C91114 !important;
 	color: #ffffff !important;
 	font-family: 'Inter Tight', sans-serif;
 	font-weight: 500;
@@ -7110,7 +7111,7 @@ li.product .product-card,
 	letter-spacing: -0.03em;
 	padding: 0.625vw 1.042vw;
 	margin: 0;
-	background-color: #4DBD56 !important;
+	background-color: #C91114 !important;
 	color: #ffffff !important;
 	border-radius: 0.26vw;
 	text-transform: none !important; /* Без преобразования текста */
@@ -8363,7 +8364,7 @@ li.product .product-card,
 		margin: 0 !important;
 		order: 0 !important;
 		width: auto !important;
-		background-color: #4DBD56 !important;
+		background-color: #C91114 !important;
 		color: #ffffff !important;
 		font-family: 'Inter Tight', sans-serif;
 		font-weight: 500;
@@ -8822,7 +8823,7 @@ body.woocommerce .single-product .single-product__image-wrapper .onsale,
 	right: 0 !important;
 	z-index: 10 !important;
 	display: block !important;
-	background-color: #4DBD56 !important;
+	background-color: #C91114 !important;
 	color: #ffffff !important;
 	font-family: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, sans-serif !important;
 	font-weight: 600 !important;
