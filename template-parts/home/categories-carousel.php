@@ -43,7 +43,7 @@ $excluded_names = apply_filters(
 
 if (! empty($terms) && ! is_wp_error($terms)) {
 	// Показываем только категории в нужной последовательности
-	$allowed_slugs = ['bakaliya', 'gorihy-ta-nasinnya', 'ovochi', 'gryby', 'frukty-i-yagody', 'sneky', 'pryanoshhi-ta-prypravy', 'yajczya', 'zelen-travy-salaty', 'molochni-produkty'];
+	$allowed_slugs = ['ovochi', 'frukty', 'yagody', 'zelen-travy-salaty', 'gryby', 'pryanoshhi-ta-prypravy', 'bakaliya', 'molochni-produkty', 'yajczya', 'gorihy-ta-nasinnya', 'kava-ta-chaj', 'sneky'];
 	
 	$filtered_terms = array_filter(
 		$terms,
