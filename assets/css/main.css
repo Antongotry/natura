@@ -6927,8 +6927,8 @@ li.product .product-card,
 	letter-spacing: -0.03em;
 	padding: 0.625vw 1.042vw;
 	margin: 0;
-	background-color: #4DBD56;
-	color: #ffffff;
+	background-color: #4DBD56 !important;
+	color: #ffffff !important;
 	border-radius: 0.26vw;
 	text-transform: uppercase !important; /* Заглавные буквы */
 	display: inline-block;
@@ -8190,8 +8190,8 @@ li.product .product-card,
 		letter-spacing: -0.03em;
 		padding: 2.133vw 2.933vw;
 		margin: 0;
-		background-color: #4DBD56;
-		color: #ffffff;
+		background-color: #4DBD56 !important;
+		color: #ffffff !important;
 		border-radius: 0.8vw;
 		text-transform: uppercase !important; /* Заглавные буквы */
 		display: inline-block;
