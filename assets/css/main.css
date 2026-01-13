@@ -6660,6 +6660,8 @@ li.product .product-card,
 	text-decoration: none;
 	font-weight: 600;
 	color: #303030;
+	vertical-align: baseline;
+	display: inline;
 }
 
 /* Цена со скидкой - старая цена (зачеркнутая, серая) */
@@ -6669,6 +6671,8 @@ li.product .product-card,
 	color: #999999;
 	text-decoration: line-through;
 	margin-right: 0.35em;
+	vertical-align: baseline;
+	display: inline;
 }
 
 /* Prevent accidental scrollbars on price (some themes/plugins set overflow) */
@@ -8219,7 +8223,7 @@ li.product .product-card,
 		line-height: 100%;
 		letter-spacing: -0.03em; /* -3% */
 		vertical-align: middle;
-		padding: 0.8vw 1.333vw; /* 3px сверху/снизу, 5px по бокам (3px/375px = 0.8vw, 5px/375px = 1.333vw) */
+		padding: 1.067vw 1.6vw; /* Чуть больше: ~4px сверху/снизу, ~6px по бокам */
 		border-radius: 999px; /* Максимальное скругление */
 		text-transform: capitalize !important;
 		box-sizing: border-box;
