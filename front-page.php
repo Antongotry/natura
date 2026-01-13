@@ -51,9 +51,8 @@ get_header();
 								<img src="<?php echo esc_url(get_theme_file_uri('assets/img/hero/icon-3.svg')); ?>" alt="">
 							</div>
 							<div class="hero__feature-text">
-								<h3 class="hero__feature-title">Без вихідних</h3>
-								<p class="hero__feature-desc">завжди на зв'язку для вас —
-щодня і без вихідних</p>
+								<h3 class="hero__feature-title">Замовлення на сайті 24/7</h3>
+								<p class="hero__feature-desc">завжди на зв'язку для вас, працюємо з понеділка по суботу</p>
 							</div>
 						</li>
 					</ul>
