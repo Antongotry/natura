@@ -2372,7 +2372,7 @@ const updateCartCountGlobal = debounce(() => {
 			currentRequest = jQuery.ajax({
 				url: ajaxUrl,
 				type: 'POST',
-				data: {
+				data: { action: 'natura_clear_cart',
 					action: 'natura_product_search',
 					query: query,
 					nonce: nonce
@@ -3314,7 +3314,7 @@ const CartManager = {
 					type: 'POST',
 					url: naturaCart.ajax_url,
 					dataType: 'json',
-					data: {
+					data: { action: 'natura_clear_cart',
 						action: 'natura_update_cart_item_quantity',
 						nonce: naturaCart.nonce,
 						cart_item_key: cartItemKey,
