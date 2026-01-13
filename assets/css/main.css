@@ -8170,14 +8170,16 @@ li.product .product-card,
 		display: none;
 	}
 
+	/* Бейдж "Акція" вверху справа на фото (мобильная версия) */
 	.product-card__badge-wrapper {
-		margin-top: 0 !important;
-		margin-bottom: 5.333vw !important;
-		display: block;
-		order: 2 !important;
-		position: relative !important;
-		z-index: 2 !important;
-		width: 100% !important;
+		position: absolute !important;
+		top: 2.133vw !important;
+		right: 2.133vw !important;
+		z-index: 10 !important;
+		display: block !important;
+		margin: 0 !important;
+		order: 0 !important;
+		width: auto !important;
 	}
 
 	.product-card__badge-wrapper .onsale {
@@ -8186,12 +8188,11 @@ li.product .product-card,
 		font-size: 3.2vw;
 		line-height: 100%;
 		letter-spacing: -0.03em;
-		vertical-align: middle;
-		padding: 3.2vw 4.267vw;
+		padding: 2.133vw 2.933vw;
 		margin: 0;
 		background-color: #4DBD56;
 		color: #ffffff;
-		border-radius: 0;
+		border-radius: 0.8vw;
 		text-transform: none;
 		display: inline-block;
 		box-sizing: border-box;
