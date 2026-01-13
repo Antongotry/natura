@@ -70,9 +70,24 @@ const naturaFormatQuantity = (quantity, step) => {
 		return String(Math.round(rounded));
 	}
 
-	return rounded
-		.toFixed(decimals)
-		.replace(/\.?0+$/, '');
+	// Форматируем с нужным количеством знаков после запятой
+	let formatted = rounded.toFixed(decimals);
+	
+	// Убираем лишние нули в конце, но сохраняем минимум один знак после запятой для дробных значений
+	// Например: 0.1 -> "0.1", а не "0"
+	if (decimals > 0 && rounded < 1 && rounded > 0) {
+		// Для значений меньше 1 сохраняем все значащие цифры
+		formatted = formatted.replace(/\.?0+$/, '');
+		// Если после удаления нулей осталась только точка, добавляем минимум один ноль
+		if (formatted.endsWith('.')) {
+			formatted = formatted + '0';
+		}
+	} else {
+		// Для значений >= 1 убираем только лишние нули
+		formatted = formatted.replace(/\.?0+$/, '');
+	}
+	
+	return formatted;
 };
 
 /**
@@ -3712,16 +3727,43 @@ const initQuantityButtons = () => {
 		const maxParsed = maxAttr ? naturaParseNumber(maxAttr) : NaN;
 		const max = Number.isFinite(maxParsed) ? maxParsed : null;
 		const step = naturaParseNumber(input.getAttribute('step')) || 1;
-		let value = naturaParseNumber(input.value);
-		if (!Number.isFinite(value)) value = min;
 		
+		// Парсим значение, заменяя запятую на точку
+		let value = naturaParseNumber(input.value);
+		
+		// Если значение невалидное, используем минимум
+		if (!Number.isFinite(value)) {
+			value = min;
+		}
+		
+		// Проверяем границы
 		if (value < min) value = min;
 		if (max && value > max) value = max;
+		
+		// Округляем до шага
 		value = naturaRoundToStep(value, step);
 		
+		// Форматируем с сохранением нужного количества знаков после запятой
 		const formattedQuantity = naturaFormatQuantity(value, step);
-		input.value = formattedQuantity;
-		input.setAttribute('value', formattedQuantity);
+		
+		// Обновляем значение только если оно изменилось (чтобы не мешать вводу)
+		// Но не форматируем во время активного ввода - только при blur/change
+		const currentParsed = naturaParseNumber(input.value);
+		// Проверяем, не находится ли поле в фокусе (активный ввод)
+		const isActiveInput = document.activeElement === input;
+		
+		// Если поле в фокусе и значение валидное - не форматируем, чтобы не обрезать ввод
+		if (isActiveInput && Number.isFinite(currentParsed) && currentParsed >= min) {
+			// Не форматируем во время ввода, только обновляем атрибут value для валидации
+			input.setAttribute('value', input.value);
+			return; // Выходим, не форматируя значение
+		}
+		
+		// Форматируем только если поле не в фокусе или значение невалидное
+		if (!Number.isFinite(currentParsed) || Math.abs(currentParsed - value) > 0.0001) {
+			input.value = formattedQuantity;
+			input.setAttribute('value', formattedQuantity);
+		}
 		
 		if (typeof jQuery !== 'undefined' && typeof wc_add_to_cart_params !== 'undefined') {
 			const wrapper = input.closest('.product-card__quantity-wrapper, .quantity-wrapper');
@@ -3737,6 +3779,34 @@ const initQuantityButtons = () => {
 		}
 	}, 500);
 	
+	// Обработчик для события blur (когда поле теряет фокус) - финальная валидация
+	document.addEventListener('blur', function(e) {
+		const input = e.target;
+		if (!input.matches('input.qty, input[type="number"], .product-card__quantity-input')) return;
+		
+		const wrapper = input.closest('.product-card__quantity-wrapper, .quantity-wrapper');
+		if (!wrapper) return;
+		
+		const productId = wrapper.getAttribute('data-product-id');
+		if (!productId) return;
+		
+		// При потере фокуса сразу валидируем и форматируем
+		const minParsed = naturaParseNumber(input.getAttribute('min'));
+		const min = Number.isFinite(minParsed) ? minParsed : 1;
+		const step = naturaParseNumber(input.getAttribute('step')) || 1;
+		let value = naturaParseNumber(input.value);
+		
+		if (!Number.isFinite(value) || value < min) {
+			value = min;
+		}
+		
+		value = naturaRoundToStep(value, step);
+		const formattedQuantity = naturaFormatQuantity(value, step);
+		input.value = formattedQuantity;
+		input.setAttribute('value', formattedQuantity);
+	}, true);
+	
+	// Обработчик для события change (после завершения ввода) - форматирование
 	document.addEventListener('change', function(e) {
 		const input = e.target;
 		if (!input.matches('input.qty, input[type="number"], .product-card__quantity-input')) return;
