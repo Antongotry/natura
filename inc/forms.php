@@ -32,8 +32,19 @@ function natura_register_form_submissions_cpt() {
 		'public'              => false,
 		'show_ui'             => true,
 		'show_in_menu'        => true,
+		'menu_position'       => 25,
 		'menu_icon'           => 'dashicons-email-alt',
 		'capability_type'     => 'post',
+		'capabilities'        => array(
+			'edit_post'          => 'edit_posts',
+			'read_post'          => 'read',
+			'delete_post'        => 'delete_posts',
+			'edit_posts'         => 'edit_posts',
+			'edit_others_posts'  => 'edit_others_posts',
+			'publish_posts'      => 'publish_posts',
+			'read_private_posts' => 'read_private_posts',
+		),
+		'map_meta_cap'        => true,
 		'hierarchical'       => false,
 		'supports'            => array( 'title', 'editor' ),
 		'has_archive'         => false,
@@ -45,7 +56,7 @@ function natura_register_form_submissions_cpt() {
 
 	register_post_type( 'natura_form_submission', $args );
 }
-add_action( 'init', 'natura_register_form_submissions_cpt' );
+add_action( 'init', 'natura_register_form_submissions_cpt', 10 );
 
 /**
  * Add custom columns to form submissions list
