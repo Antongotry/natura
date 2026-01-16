@@ -1135,33 +1135,58 @@ function natura_apply_custom_price( $price, $product ) {
 	$product_id = $product->get_id();
 
 	// Free access: only apply 0 price in cart/checkout context
-	// Skip for catalog/product pages - they will show regular price
+	// Skip for catalog/product pages - price will be hidden by CSS
 	if ( natura_has_free_access( $user_id ) ) {
 		// Only return 0 if we're in cart or checkout
 		if ( is_cart() || is_checkout() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
 			return 0;
 		}
-		// On other pages, return regular price (will be handled in cart)
+		// On other pages, return regular price (price will be hidden via CSS)
 		return $price;
 	}
 
 	// Check for individual price
 	$user_prices = natura_get_user_prices( $user_id );
 	if ( isset( $user_prices[ $product_id ] ) ) {
-		return $user_prices[ $product_id ];
+		return floatval( $user_prices[ $product_id ] );
 	}
 
 	// Check for percentage discount
 	$discount = natura_get_user_discount( $user_id );
 	if ( $discount > 0 ) {
-		$discounted_price = $price * ( 1 - $discount / 100 );
-		return round( $discounted_price, 2 );
+		$discounted_price = floatval( $price ) * ( 1 - floatval( $discount ) / 100 );
+		// Округлення до цілих (без копійок) для уникнення розбіжностей
+		return floor( $discounted_price );
 	}
 
 	return $price;
 }
 add_filter( 'woocommerce_product_get_price', 'natura_apply_custom_price', 100, 2 );
 add_filter( 'woocommerce_product_get_regular_price', 'natura_apply_custom_price', 100, 2 );
+
+/**
+ * Hide price HTML completely for free access users (except in cart/checkout)
+ */
+function natura_hide_price_for_free_access( $price_html, $product ) {
+	if ( ! is_user_logged_in() ) {
+		return $price_html;
+	}
+
+	$user_id = get_current_user_id();
+	
+	// Free access users - hide price in catalog and product pages
+	if ( natura_has_free_access( $user_id ) ) {
+		// In cart/checkout show 0
+		if ( is_cart() || is_checkout() ) {
+			return '<span class="woocommerce-Price-amount amount"><bdi>0&nbsp;<span class="woocommerce-Price-currencySymbol">₴</span></bdi></span>';
+		}
+		// Otherwise hide completely (return empty string = display: none effect)
+		return '';
+	}
+
+	return $price_html;
+}
+add_filter( 'woocommerce_get_price_html', 'natura_hide_price_for_free_access', 100, 2 );
 
 /**
  * Apply custom prices in cart
@@ -1189,12 +1214,12 @@ function natura_apply_custom_cart_price( $cart ) {
 			$cart_item['data']->set_price( 0 );
 		} elseif ( isset( $user_prices[ $product_id ] ) ) {
 			// Individual price
-			$cart_item['data']->set_price( $user_prices[ $product_id ] );
+			$cart_item['data']->set_price( floatval( $user_prices[ $product_id ] ) );
 		} elseif ( $discount > 0 ) {
-			// Apply percentage discount
-			$original_price   = $product->get_regular_price();
-			$discounted_price = $original_price * ( 1 - $discount / 100 );
-			$cart_item['data']->set_price( round( $discounted_price, 2 ) );
+			// Apply percentage discount - round down to avoid kopiykas mismatch
+			$original_price   = floatval( $product->get_regular_price() );
+			$discounted_price = $original_price * ( 1 - floatval( $discount ) / 100 );
+			$cart_item['data']->set_price( floor( $discounted_price ) );
 		}
 	}
 }
