@@ -1165,7 +1165,7 @@ add_filter( 'woocommerce_product_get_price', 'natura_apply_custom_price', 100, 2
 add_filter( 'woocommerce_product_get_regular_price', 'natura_apply_custom_price', 100, 2 );
 
 /**
- * Hide price HTML completely for free access users (except in cart/checkout)
+ * Hide price HTML completely for free access users everywhere
  */
 function natura_hide_price_for_free_access( $price_html, $product ) {
 	if ( ! is_user_logged_in() ) {
@@ -1174,19 +1174,63 @@ function natura_hide_price_for_free_access( $price_html, $product ) {
 
 	$user_id = get_current_user_id();
 	
-	// Free access users - hide price in catalog and product pages
+	// Free access users - hide price everywhere
 	if ( natura_has_free_access( $user_id ) ) {
-		// In cart/checkout show 0
-		if ( is_cart() || is_checkout() ) {
-			return '<span class="woocommerce-Price-amount amount"><bdi>0&nbsp;<span class="woocommerce-Price-currencySymbol">₴</span></bdi></span>';
-		}
-		// Otherwise hide completely (return empty string = display: none effect)
 		return '';
 	}
 
 	return $price_html;
 }
 add_filter( 'woocommerce_get_price_html', 'natura_hide_price_for_free_access', 100, 2 );
+
+/**
+ * Hide cart item price for free access users
+ */
+function natura_hide_cart_item_price( $price, $cart_item, $cart_item_key ) {
+	if ( ! is_user_logged_in() ) {
+		return $price;
+	}
+
+	if ( natura_has_free_access( get_current_user_id() ) ) {
+		return '';
+	}
+
+	return $price;
+}
+add_filter( 'woocommerce_cart_item_price', 'natura_hide_cart_item_price', 100, 3 );
+
+/**
+ * Hide cart item subtotal for free access users
+ */
+function natura_hide_cart_item_subtotal( $subtotal, $cart_item, $cart_item_key ) {
+	if ( ! is_user_logged_in() ) {
+		return $subtotal;
+	}
+
+	if ( natura_has_free_access( get_current_user_id() ) ) {
+		return '';
+	}
+
+	return $subtotal;
+}
+add_filter( 'woocommerce_cart_item_subtotal', 'natura_hide_cart_item_subtotal', 100, 3 );
+
+/**
+ * Hide cart/checkout totals for free access users
+ */
+function natura_hide_cart_totals( $total ) {
+	if ( ! is_user_logged_in() ) {
+		return $total;
+	}
+
+	if ( natura_has_free_access( get_current_user_id() ) ) {
+		return '';
+	}
+
+	return $total;
+}
+add_filter( 'woocommerce_cart_subtotal', 'natura_hide_cart_totals', 100 );
+add_filter( 'woocommerce_cart_total', 'natura_hide_cart_totals', 100 );
 
 /**
  * Apply custom prices in cart
