@@ -1,6 +1,6 @@
 <?php
 /**
- * Related Products with Swiper Carousel
+ * Related Products with Swiper Carousel (Infinite Loop)
  *
  * @package Natura
  */
@@ -22,11 +22,30 @@ if ( $related_products ) :
 	}
 
 	$carousel_id = 'related-products-carousel-' . wp_unique_id();
+	$products_count = count( $related_products );
 	?>
 
 	<section class="related products single-product__related-section">
 		<div class="container">
-			<h2 class="single-product__related-heading">Схожі товари</h2>
+			<div class="single-product__related-header">
+				<h2 class="single-product__related-heading">Схожі товари</h2>
+				<?php if ( $products_count > 4 ) : ?>
+				<div class="single-product__related-nav">
+					<button type="button" class="single-product__related-prev" aria-label="<?php esc_attr_e( 'Попередні товари', 'natura' ); ?>">
+						<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/left-hover.svg" 
+							data-icon-default="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/left-hover.svg"
+							data-icon-hover="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/white-left.svg"
+							alt="" width="20" height="20">
+					</button>
+					<button type="button" class="single-product__related-next" aria-label="<?php esc_attr_e( 'Наступні товари', 'natura' ); ?>">
+						<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/right-hover.svg"
+							data-icon-default="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/right-hover.svg"
+							data-icon-hover="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/white-right.svg"
+							alt="" width="20" height="20">
+					</button>
+				</div>
+				<?php endif; ?>
+			</div>
 			<div
 				id="<?php echo esc_attr( $carousel_id ); ?>"
 				class="swiper single-product__related-swiper"

@@ -6514,69 +6514,92 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	padding: 0;
 }
 
+/* Header с заголовком и кнопками */
+.single-product__related-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 2rem;
+}
+
 .single-product__related-section .single-product__related-heading {
 	font-size: 2rem;
 	font-weight: 600;
-	margin-bottom: 2rem;
-	margin-top: 0;
+	margin: 0;
+}
+
+/* Кнопки навигации */
+.single-product__related-nav {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.single-product__related-prev,
+.single-product__related-next {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50%;
+	border: 1px solid rgba(48, 48, 48, 0.2);
+	background: transparent;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.single-product__related-prev:hover,
+.single-product__related-next:hover {
+	background: #303030;
+	border-color: #303030;
+}
+
+.single-product__related-prev:hover img,
+.single-product__related-next:hover img {
+	filter: brightness(0) invert(1);
+}
+
+.single-product__related-prev.swiper-button-disabled,
+.single-product__related-next.swiper-button-disabled {
+	opacity: 0.3;
+	cursor: default;
+}
+
+.single-product__related-prev img,
+.single-product__related-next img {
+	width: 1rem;
+	height: 1rem;
 }
 
 .single-product__related-swiper {
 	width: 100%;
-	overflow: visible;
+	overflow: hidden;
 	padding: 0;
 }
 
-/* На десктопе отключаем swiper и делаем сетку 4 в ряд */
+/* Swiper работает на всех размерах экрана */
+.single-product__related-section .swiper-wrapper {
+	display: flex !important;
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.single-product__related-section .swiper-wrapper li.product {
+	flex-shrink: 0 !important;
+	display: flex !important;
+	flex-direction: column !important;
+	height: auto !important;
+}
+
+/* Стили для связанных товаров */
 @media (min-width: 1025px) {
-	.single-product__related-wrapper,
-	.single-product__related-section .swiper-wrapper,
-	.single-product__related-section ul.products.swiper-wrapper,
-	.single-product__related-section #related-products-carousel-1 ul.swiper-wrapper {
-		display: grid !important;
-		grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-		gap: 1.042vw !important;
-		list-style: none !important;
-		margin: 0 !important;
-		padding: 0 !important;
-		width: 100% !important;
-		transform: none !important;
-		flex-wrap: wrap !important;
+	.single-product__related-section .swiper-wrapper li.product {
+		width: calc(25% - 15px) !important;
 	}
 
-	.single-product__related-wrapper li.product,
-	.single-product__related-section .swiper-wrapper li.product,
-	.single-product__related-section ul.products.swiper-wrapper li.product,
-	.single-product__related-section #related-products-carousel-1 ul.swiper-wrapper li.product {
-		width: 100% !important;
-		margin: 0 !important;
-		padding: 0 !important;
-		flex-shrink: 0 !important;
-		float: none !Important;
-		display: flex !important;
-		flex-direction: column !important;
-		height: auto !important;
-		transform: none !important;
-	}
-
-	/* Отключаем swiper на десктопе */
-	.single-product__related-section .swiper,
-	.single-product__related-section .single-product__related-swiper {
-		overflow: visible !important;
-		width: 100% !important;
-		transform: none !important;
-	}
-
-	/* Стили для заголовка схожих товаров */
-	.single-product__related-section .single-product__related-heading {
-		display: block;
-		margin-bottom: 2rem;
-	}
-
-	/* Стили для связанных товаров на десктопе - 4 товара в ряд */
+	/* Стили для связанных товаров на десктопе */
 	.single-product__related-section .products {
-		display: grid !important;
-		grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
 		gap: 1.042vw !important;
 		list-style: none !important;
 		margin: 0 !important;

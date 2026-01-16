@@ -6,6 +6,15 @@ function natura_add_woocommerce_support(): void {
 add_action('after_setup_theme', 'natura_add_woocommerce_support');
 
 /**
+ * Увеличиваем количество похожих товаров для бесконечной карусели
+ */
+function natura_related_products_args( $args ) {
+	$args['posts_per_page'] = 20; // Показываем до 20 товаров для карусели
+	return $args;
+}
+add_filter( 'woocommerce_output_related_products_args', 'natura_related_products_args' );
+
+/**
  * Убеждаемся, что WooCommerce скрипты загружены
  */
 function natura_enqueue_woocommerce_scripts() {

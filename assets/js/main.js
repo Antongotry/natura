@@ -5353,49 +5353,60 @@ const initRelatedProductsCarousel = () => {
 		return;
 	}
 
-	// Отключаем swiper на мобильной версии (ширина экрана <= 768px)
-	if (window.innerWidth <= 768) {
-		return;
-	}
-
 	const swiperEl = section.querySelector('[data-swiper]');
 	if (!swiperEl) {
 		return;
 	}
 
-	const container = swiperEl.closest('.container');
-	const containerWidth = container ? container.offsetWidth : window.innerWidth;
-	const slideWidth = (containerWidth - (3 * parseFloat(getComputedStyle(document.documentElement).fontSize) * 1.042)) / 4;
-	
+	// Получаем количество слайдов
+	const slides = swiperEl.querySelectorAll('.swiper-slide, .product');
+	const slidesCount = slides.length;
+
+	// Для loop нужно минимум 2 * slidesPerView слайдов
+	const enableLoop = slidesCount >= 5;
+
 	const swiper = new Swiper(swiperEl, {
 		slidesPerView: 'auto',
-		spaceBetween: '1.042vw',
-		loop: false,
+		spaceBetween: 20,
+		loop: enableLoop,
 		speed: 450,
 		watchOverflow: true,
 		allowTouchMove: true,
-		resistance: true,
-		resistanceRatio: 0,
-		preventClicks: true,
-		preventClicksPropagation: true,
+		grabCursor: true,
+		navigation: {
+			nextEl: '.single-product__related-next',
+			prevEl: '.single-product__related-prev',
+		},
 		breakpoints: {
 			320: {
-				slidesPerView: 1.2,
-				spaceBetween: (window.innerWidth * 2.667) / 100,
-				loop: false,
+				slidesPerView: 1.3,
+				spaceBetween: 10,
+				loop: enableLoop,
 			},
 			768: {
 				slidesPerView: 2.5,
-				spaceBetween: (window.innerWidth * 2.667) / 100,
-				loop: false,
+				spaceBetween: 15,
+				loop: enableLoop,
 			},
 			1024: {
 				slidesPerView: 4,
-				spaceBetween: '1.042vw',
-				loop: false,
+				spaceBetween: 20,
+				loop: enableLoop,
 			},
 		},
 	});
+
+	// Обновляем состояние кнопок навигации
+	const prevBtn = section.querySelector('.single-product__related-prev');
+	const nextBtn = section.querySelector('.single-product__related-next');
+
+	if (prevBtn && nextBtn) {
+		// Если loop включен, кнопки всегда активны
+		if (enableLoop) {
+			prevBtn.classList.remove('is-disabled');
+			nextBtn.classList.remove('is-disabled');
+		}
+	}
 };
 
 /**
