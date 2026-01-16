@@ -81,26 +81,38 @@ if ( ! function_exists( 'natura_render_product_cat_items' ) ) {
 			return false;
 		}
 
-		// Кастомная сортировка: овощи и фрукты первыми
-		usort( $terms, function( $a, $b ) {
-			$priority_categories = array( 'овочі', 'овощи', 'фрукти', 'фрукты', 'овочі та фрукти', 'овощи и фрукты' );
+		// Сортировка корневых категорий по порядку как на главной странице
+		if ( $parent_id === 0 ) {
+			$allowed_slugs = ['ovochi', 'frukty', 'yagody', 'zelen-travy-salaty', 'gryby', 'pryanoshhi-ta-prypravy', 'bakaliya', 'molochni-produkty', 'yajczya', 'gorihy-ta-nasinnya', 'kava-ta-chaj', 'sneky'];
 			
-			$a_name_lower = function_exists( 'mb_strtolower' ) ? mb_strtolower( $a->name ) : strtolower( $a->name );
-			$b_name_lower = function_exists( 'mb_strtolower' ) ? mb_strtolower( $b->name ) : strtolower( $b->name );
+			// Фильтруем только разрешенные категории
+			$filtered_terms = array_filter(
+				$terms,
+				static function ($term) use ($allowed_slugs) {
+					return in_array($term->slug, $allowed_slugs, true);
+				}
+			);
 			
-			$a_priority = in_array( $a_name_lower, $priority_categories, true ) ? 0 : 1;
-			$b_priority = in_array( $b_name_lower, $priority_categories, true ) ? 0 : 1;
-			
-			// Если одна категория приоритетная, а другая нет - приоритетная идет первой
-			if ( $a_priority !== $b_priority ) {
-				return $a_priority - $b_priority;
+			// Сортируем категории по порядку в массиве $allowed_slugs
+			$sorted_terms = [];
+			foreach ($allowed_slugs as $slug) {
+				foreach ($filtered_terms as $term) {
+					if ($term->slug === $slug) {
+						$sorted_terms[] = $term;
+						break;
+					}
+				}
 			}
 			
-			// Если обе приоритетные или обе нет - сортируем по menu_order (term_order)
-			$a_order = isset( $a->term_order ) ? (int) $a->term_order : 0;
-			$b_order = isset( $b->term_order ) ? (int) $b->term_order : 0;
-			return $a_order - $b_order;
-		} );
+			$terms = $sorted_terms;
+		} else {
+			// Для дочерних категорий сортируем по menu_order
+			usort( $terms, function( $a, $b ) {
+				$a_order = isset( $a->term_order ) ? (int) $a->term_order : 0;
+				$b_order = isset( $b->term_order ) ? (int) $b->term_order : 0;
+				return $a_order - $b_order;
+			} );
+		}
 
 		$printed = false;
 
