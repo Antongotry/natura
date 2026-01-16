@@ -5365,18 +5365,19 @@ const initRelatedProductsCarousel = () => {
 	// Для loop нужно минимум 2 * slidesPerView слайдов
 	const enableLoop = slidesCount >= 5;
 
+	// Рассчитываем spaceBetween в пикселях на основе vw
+	const mobileSpaceBetween = (window.innerWidth * 2.667) / 100;
+	const desktopSpaceBetween = (window.innerWidth * 1.042) / 100;
+	
 	const swiper = new Swiper(swiperEl, {
 		slidesPerView: 2,
 		slidesPerGroup: 1,
-		spaceBetween: (window.innerWidth * 2.667) / 100,
+		spaceBetween: mobileSpaceBetween,
 		loop: enableLoop,
 		speed: 450,
 		watchOverflow: true,
-		watchSlidesProgress: true,
 		allowTouchMove: true,
 		grabCursor: true,
-		resistance: true,
-		resistanceRatio: 0,
 		navigation: {
 			nextEl: '.single-product__related-next',
 			prevEl: '.single-product__related-prev',
@@ -5385,14 +5386,12 @@ const initRelatedProductsCarousel = () => {
 			320: {
 				slidesPerView: 2,
 				slidesPerGroup: 1,
-				spaceBetween: (window.innerWidth * 2.667) / 100,
-				loop: enableLoop,
+				spaceBetween: mobileSpaceBetween,
 			},
 			769: {
 				slidesPerView: 4,
 				slidesPerGroup: 1,
-				spaceBetween: (window.innerWidth * 1.042) / 100,
-				loop: enableLoop,
+				spaceBetween: desktopSpaceBetween,
 			},
 		},
 	});

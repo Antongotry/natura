@@ -6528,21 +6528,21 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	height: auto !important;
 }
 
-/* Related Products Swiper - отключаем grid, Swiper сам управляет шириной */
+/* Related Products Swiper - отключаем grid для swiper */
 .single-product__related-section ul.products.swiper-wrapper,
 .single-product__related-section .swiper-wrapper {
 	display: flex !important;
 	grid-template-columns: unset !important;
 }
 
-.single-product__related-section ul.products.swiper-wrapper li.product,
-.single-product__related-section .swiper-wrapper li.product {
-	width: auto !important;
-	flex-shrink: 0 !important;
-}
-
-/* Мобильная версия */
+/* Мобильная версия: 2 товара */
 @media (max-width: 768px) {
+	.single-product__related-section ul.products.swiper-wrapper li.product,
+	.single-product__related-section .swiper-wrapper li.product {
+		width: calc((100% - 2.667vw) / 2) !important;
+		flex-shrink: 0 !important;
+	}
+	
 	.single-product__related-header {
 		flex-direction: row;
 		align-items: center;
@@ -6561,6 +6561,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.single-product__related-next {
 		width: 2rem;
 		height: 2rem;
+	}
+}
+
+/* Десктопная версия: 4 товара */
+@media (min-width: 769px) {
+	.single-product__related-section ul.products.swiper-wrapper li.product,
+	.single-product__related-section .swiper-wrapper li.product {
+		width: calc((100% - 1.042vw * 3) / 4) !important;
+		flex-shrink: 0 !important;
 	}
 }
 
