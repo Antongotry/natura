@@ -14,55 +14,41 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function natura_register_form_submissions_cpt() {
 	$labels = array(
-		'name'               => __( 'Заявки', 'natura' ),
-		'singular_name'      => __( 'Заявка', 'natura' ),
-		'menu_name'          => __( 'Заявки', 'natura' ),
-		'add_new'            => __( 'Додати нову', 'natura' ),
-		'add_new_item'       => __( 'Додати нову заявку', 'natura' ),
-		'edit_item'          => __( 'Редагувати заявку', 'natura' ),
-		'new_item'           => __( 'Нова заявка', 'natura' ),
-		'view_item'          => __( 'Переглянути заявку', 'natura' ),
-		'search_items'       => __( 'Шукати заявки', 'natura' ),
-		'not_found'          => __( 'Заявки не знайдено', 'natura' ),
-		'not_found_in_trash' => __( 'Заявки не знайдено в кошику', 'natura' ),
+		'name'               => 'Заявки з сайту',
+		'singular_name'      => 'Заявка',
+		'menu_name'          => 'Заявки',
+		'add_new'            => 'Додати нову',
+		'add_new_item'       => 'Додати нову заявку',
+		'edit_item'          => 'Редагувати заявку',
+		'new_item'           => 'Нова заявка',
+		'view_item'          => 'Переглянути заявку',
+		'search_items'       => 'Шукати заявки',
+		'not_found'          => 'Заявки не знайдено',
+		'not_found_in_trash' => 'Заявки не знайдено в кошику',
+		'all_items'          => 'Всі заявки',
 	);
 
 	$args = array(
-		'labels'              => $labels,
-		'public'              => false,
-		'show_ui'             => true,
-		'show_in_menu'        => true,
-		'menu_position'       => 25,
-		'menu_icon'           => 'dashicons-email-alt',
-		'capability_type'     => 'post',
-		'capabilities'        => array(
-			'edit_post'          => 'edit_posts',
-			'read_post'          => 'read',
-			'delete_post'        => 'delete_posts',
-			'edit_posts'         => 'edit_posts',
-			'edit_others_posts'  => 'edit_others_posts',
-			'publish_posts'      => 'publish_posts',
-			'read_private_posts' => 'read_private_posts',
-		),
-		'map_meta_cap'        => true,
+		'labels'             => $labels,
+		'public'             => false,
+		'publicly_queryable' => false,
+		'show_ui'            => true,
+		'show_in_menu'       => true,
+		'menu_position'      => 26,
+		'menu_icon'          => 'dashicons-email-alt',
+		'capability_type'    => 'post',
 		'hierarchical'       => false,
-		'supports'            => array( 'title', 'editor' ),
-		'has_archive'         => false,
-		'rewrite'             => false,
-		'query_var'           => false,
-		'can_export'          => true,
-		'show_in_rest'        => false,
+		'supports'           => array( 'title' ),
+		'has_archive'        => false,
+		'rewrite'            => false,
+		'query_var'          => false,
+		'can_export'         => true,
+		'exclude_from_search'=> true,
 	);
 
-	register_post_type( 'natura_form_submission', $args );
-	
-	// Flush rewrite rules on activation (only once)
-	if ( get_option( 'natura_flush_rewrite_rules' ) !== '1' ) {
-		flush_rewrite_rules( false );
-		update_option( 'natura_flush_rewrite_rules', '1' );
-	}
+	register_post_type( 'natura_submission', $args );
 }
-add_action( 'init', 'natura_register_form_submissions_cpt', 10 );
+add_action( 'init', 'natura_register_form_submissions_cpt', 0 );
 
 /**
  * Add custom columns to form submissions list
@@ -77,7 +63,7 @@ function natura_add_form_submission_columns( $columns ) {
 	$new_columns['date'] = $columns['date'];
 	return $new_columns;
 }
-add_filter( 'manage_natura_form_submission_posts_columns', 'natura_add_form_submission_columns' );
+add_filter( 'manage_natura_submission_posts_columns', 'natura_add_form_submission_columns' );
 
 /**
  * Populate custom columns
@@ -108,7 +94,7 @@ function natura_populate_form_submission_columns( $column, $post_id ) {
 			break;
 	}
 }
-add_action( 'manage_natura_form_submission_posts_custom_column', 'natura_populate_form_submission_columns', 10, 2 );
+add_action( 'manage_natura_submission_posts_custom_column', 'natura_populate_form_submission_columns', 10, 2 );
 
 /**
  * Make columns sortable
@@ -118,14 +104,14 @@ function natura_make_form_submission_columns_sortable( $columns ) {
 	$columns['submission_name'] = 'submission_name';
 	return $columns;
 }
-add_filter( 'manage_edit-natura_form_submission_sortable_columns', 'natura_make_form_submission_columns_sortable' );
+add_filter( 'manage_edit-natura_submission_sortable_columns', 'natura_make_form_submission_columns_sortable' );
 
 /**
  * Add filter dropdown for form types
  */
 function natura_add_form_type_filter() {
 	global $typenow;
-	if ( $typenow === 'natura_form_submission' ) {
+	if ( $typenow === 'natura_submission' ) {
 		$selected = isset( $_GET['form_type_filter'] ) ? $_GET['form_type_filter'] : '';
 		?>
 		<select name="form_type_filter">
@@ -144,7 +130,7 @@ add_action( 'restrict_manage_posts', 'natura_add_form_type_filter' );
 function natura_filter_form_submissions_by_type( $query ) {
 	global $pagenow, $typenow;
 	
-	if ( $pagenow === 'edit.php' && $typenow === 'natura_form_submission' && isset( $_GET['form_type_filter'] ) && $_GET['form_type_filter'] !== '' ) {
+	if ( $pagenow === 'edit.php' && $typenow === 'natura_submission' && isset( $_GET['form_type_filter'] ) && $_GET['form_type_filter'] !== '' ) {
 		$query->set( 'meta_key', '_form_type' );
 		$query->set( 'meta_value', sanitize_text_field( $_GET['form_type_filter'] ) );
 	}
@@ -156,10 +142,10 @@ add_action( 'parse_query', 'natura_filter_form_submissions_by_type' );
  */
 function natura_add_form_submission_meta_boxes() {
 	add_meta_box(
-		'natura_form_submission_details',
+		'natura_submission_details',
 		__( 'Деталі заявки', 'natura' ),
 		'natura_render_form_submission_meta_box',
-		'natura_form_submission',
+		'natura_submission',
 		'normal',
 		'high'
 	);
@@ -176,7 +162,7 @@ function natura_render_form_submission_meta_box( $post ) {
 	$message   = get_post_meta( $post->ID, '_submission_message', true );
 	$email     = get_post_meta( $post->ID, '_submission_email', true );
 
-	wp_nonce_field( 'natura_form_submission_meta_box', 'natura_form_submission_meta_box_nonce' );
+	wp_nonce_field( 'natura_submission_meta_box', 'natura_submission_meta_box_nonce' );
 	?>
 	<table class="form-table">
 		<tr>
@@ -215,8 +201,8 @@ function natura_save_form_submission_meta( $post_id ) {
 		return;
 	}
 
-	if ( ! isset( $_POST['natura_form_submission_meta_box_nonce'] ) ||
-		 ! wp_verify_nonce( $_POST['natura_form_submission_meta_box_nonce'], 'natura_form_submission_meta_box' ) ) {
+	if ( ! isset( $_POST['natura_submission_meta_box_nonce'] ) ||
+		 ! wp_verify_nonce( $_POST['natura_submission_meta_box_nonce'], 'natura_submission_meta_box' ) ) {
 		return;
 	}
 
@@ -240,7 +226,7 @@ function natura_save_form_submission_meta( $post_id ) {
 		update_post_meta( $post_id, '_submission_email', sanitize_email( $_POST['_submission_email'] ) );
 	}
 }
-add_action( 'save_post_natura_form_submission', 'natura_save_form_submission_meta' );
+add_action( 'save_post_natura_submission', 'natura_save_form_submission_meta' );
 
 /**
  * AJAX handler for collaboration form
@@ -269,7 +255,7 @@ function natura_ajax_collaboration_form() {
 			'post_title'   => sprintf( __( 'Заявка на співпрацю від %s', 'natura' ), $name ),
 			'post_content' => $comment,
 			'post_status'  => 'publish',
-			'post_type'    => 'natura_form_submission',
+			'post_type'    => 'natura_submission',
 		)
 	);
 
@@ -347,7 +333,7 @@ function natura_ajax_feedback_form() {
 			'post_title'   => sprintf( __( 'Відгук від %s', 'natura' ), $name ),
 			'post_content' => $message,
 			'post_status'  => 'publish',
-			'post_type'    => 'natura_form_submission',
+			'post_type'    => 'natura_submission',
 		)
 	);
 
