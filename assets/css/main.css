@@ -6928,6 +6928,17 @@ li.product .product-card,
 	filter: none !important;
 }
 
+/* Out of stock button - grey style */
+.product-card__button-wrapper .button--outofstock,
+.product-card__button-wrapper .button--outofstock:hover,
+.product-card__button-wrapper .button--outofstock:focus {
+	background-color: #e0e0e0 !important;
+	border-color: #e0e0e0 !important;
+	color: #757575 !important;
+	cursor: not-allowed !important;
+	pointer-events: none !important;
+}
+
 /* Quantity wrapper in product cards */
 .product-card__quantity-wrapper {
 	display: none;

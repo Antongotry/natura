@@ -153,6 +153,27 @@ function natura_change_sale_badge_text( $text, $post, $product ) {
 }
 add_filter( 'woocommerce_sale_flash', 'natura_change_sale_badge_text', 10, 3 );
 
+/**
+ * Змінюємо текст кнопки "Читати далі" на "Немає в наявності" для товарів outofstock
+ */
+function natura_outofstock_button_text( $text, $product ) {
+	if ( $product && ! $product->is_in_stock() ) {
+		return __( 'Немає в наявності', 'natura' );
+	}
+	return $text;
+}
+add_filter( 'woocommerce_product_add_to_cart_text', 'natura_outofstock_button_text', 10, 2 );
+add_filter( 'woocommerce_loop_add_to_cart_link', 'natura_outofstock_button_class', 10, 2 );
+
+/**
+ * Додаємо клас до кнопки для товарів outofstock
+ */
+function natura_outofstock_button_class( $html, $product ) {
+	if ( $product && ! $product->is_in_stock() ) {
+		$html = str_replace( 'class="button', 'class="button button--outofstock', $html );
+	}
+	return $html;
+}
 
 /**
  * Обертка для бейджа "Акція" на странице товара
