@@ -55,6 +55,12 @@ function natura_register_form_submissions_cpt() {
 	);
 
 	register_post_type( 'natura_form_submission', $args );
+	
+	// Flush rewrite rules on activation (only once)
+	if ( get_option( 'natura_flush_rewrite_rules' ) !== '1' ) {
+		flush_rewrite_rules( false );
+		update_option( 'natura_flush_rewrite_rules', '1' );
+	}
 }
 add_action( 'init', 'natura_register_form_submissions_cpt', 10 );
 
