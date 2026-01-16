@@ -715,25 +715,22 @@ add_filter('woocommerce_admin_shipping_fields', 'natura_admin_shipping_fields');
  * Відображення кастомних полів доставки в адмінці замовлення
  */
 function natura_display_delivery_fields_in_admin_order($order) {
-	$delivery_date = get_post_meta($order->get_id(), '_shipping_delivery_date', true);
-	$delivery_time = get_post_meta($order->get_id(), '_shipping_delivery_time', true);
-	$packaging = get_post_meta($order->get_id(), '_shipping_packaging', true);
+	$delivery_date = $order->get_meta('_shipping_delivery_date', true);
+	$delivery_time = $order->get_meta('_shipping_delivery_time', true);
+	$packaging = $order->get_meta('_shipping_packaging', true);
 	
-	// Час доставки
+	// Час доставки - значення з чекауту
 	$time_labels = array(
-		'10-13' => '10:00 - 13:00',
-		'13-16' => '13:00 - 16:00',
-		'16-19' => '16:00 - 19:00',
-		'19-22' => '19:00 - 22:00',
-		'18-21' => '18:00 - 21:00',
+		'09:00-12:00' => '09:00 - 12:00',
+		'12:00-15:00' => '12:00 - 15:00',
+		'15:00-18:00' => '15:00 - 18:00',
+		'18:00-21:00' => '18:00 - 21:00',
 	);
 	
-	// Упакування
+	// Упакування - значення з чекауту
 	$packaging_labels = array(
-		'paper_bag' => 'Паперовий пакет (+25 грн)',
-		'plastic_bag' => 'Пластиковий пакет (+15 грн)',
-		'own_bag' => 'Своя сумка (безкоштовно)',
-		'gift' => 'Подарункове пакування',
+		'standard' => 'Стандартна упаковка',
+		'gift' => 'Подарункова упаковка',
 	);
 	
 	echo '<div class="natura-delivery-details" style="clear: both; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4CAF50;">';
@@ -776,24 +773,25 @@ add_action('woocommerce_admin_order_data_after_order_details', 'natura_admin_ord
  * Додаємо кастомні поля в email замовлення
  */
 function natura_add_custom_fields_to_order_email($order, $sent_to_admin, $plain_text, $email) {
-	$shipping_city = get_post_meta($order->get_id(), '_shipping_city', true);
-	$shipping_address_1 = get_post_meta($order->get_id(), '_shipping_address_1', true);
-	$shipping_address_2 = get_post_meta($order->get_id(), '_shipping_address_2', true);
-	$delivery_date = get_post_meta($order->get_id(), '_shipping_delivery_date', true);
-	$delivery_time = get_post_meta($order->get_id(), '_shipping_delivery_time', true);
-	$packaging = get_post_meta($order->get_id(), '_shipping_packaging', true);
+	$shipping_city = $order->get_shipping_city();
+	$shipping_address_1 = $order->get_shipping_address_1();
+	$shipping_address_2 = $order->get_shipping_address_2();
+	$delivery_date = $order->get_meta('_shipping_delivery_date', true);
+	$delivery_time = $order->get_meta('_shipping_delivery_time', true);
+	$packaging = $order->get_meta('_shipping_packaging', true);
 	
+	// Час доставки - значення з чекауту
 	$time_labels = array(
-		'10-13' => '10:00 - 13:00',
-		'13-16' => '13:00 - 16:00',
-		'16-19' => '16:00 - 19:00',
-		'19-22' => '19:00 - 22:00',
+		'09:00-12:00' => '09:00 - 12:00',
+		'12:00-15:00' => '12:00 - 15:00',
+		'15:00-18:00' => '15:00 - 18:00',
+		'18:00-21:00' => '18:00 - 21:00',
 	);
 	
+	// Упакування - значення з чекауту
 	$packaging_labels = array(
-		'paper_bag' => 'Паперовий пакет',
-		'plastic_bag' => 'Пластиковий пакет',
-		'own_bag' => 'Своя сумка',
+		'standard' => 'Стандартна упаковка',
+		'gift' => 'Подарункова упаковка',
 	);
 	
 	if ($plain_text) {
