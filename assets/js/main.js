@@ -5368,12 +5368,15 @@ const initRelatedProductsCarousel = () => {
 	const swiper = new Swiper(swiperEl, {
 		slidesPerView: 2,
 		slidesPerGroup: 1,
-		spaceBetween: 10,
+		spaceBetween: (window.innerWidth * 2.667) / 100,
 		loop: enableLoop,
 		speed: 450,
 		watchOverflow: true,
+		watchSlidesProgress: true,
 		allowTouchMove: true,
 		grabCursor: true,
+		resistance: true,
+		resistanceRatio: 0,
 		navigation: {
 			nextEl: '.single-product__related-next',
 			prevEl: '.single-product__related-prev',
@@ -5382,13 +5385,13 @@ const initRelatedProductsCarousel = () => {
 			320: {
 				slidesPerView: 2,
 				slidesPerGroup: 1,
-				spaceBetween: 10,
+				spaceBetween: (window.innerWidth * 2.667) / 100,
 				loop: enableLoop,
 			},
 			769: {
 				slidesPerView: 4,
 				slidesPerGroup: 1,
-				spaceBetween: 20,
+				spaceBetween: (window.innerWidth * 1.042) / 100,
 				loop: enableLoop,
 			},
 		},

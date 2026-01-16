@@ -6528,20 +6528,21 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	height: auto !important;
 }
 
-/* Мобильная версия: 2 товара в ряд */
+/* Related Products Swiper - отключаем grid, Swiper сам управляет шириной */
+.single-product__related-section ul.products.swiper-wrapper,
+.single-product__related-section .swiper-wrapper {
+	display: flex !important;
+	grid-template-columns: unset !important;
+}
+
+.single-product__related-section ul.products.swiper-wrapper li.product,
+.single-product__related-section .swiper-wrapper li.product {
+	width: auto !important;
+	flex-shrink: 0 !important;
+}
+
+/* Мобильная версия */
 @media (max-width: 768px) {
-	.single-product__related-section ul.products.swiper-wrapper,
-	.single-product__related-section .swiper-wrapper {
-		display: flex !important;
-		grid-template-columns: none !important;
-	}
-	
-	.single-product__related-section ul.products.swiper-wrapper li.product,
-	.single-product__related-section .swiper-wrapper li.product {
-		width: calc(50% - 5px) !important;
-		flex-shrink: 0 !important;
-	}
-	
 	.single-product__related-header {
 		flex-direction: row;
 		align-items: center;
@@ -6560,21 +6561,6 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.single-product__related-next {
 		width: 2rem;
 		height: 2rem;
-	}
-}
-
-/* Десктопная версия: 4 товара в ряд */
-@media (min-width: 769px) {
-	.single-product__related-section ul.products.swiper-wrapper,
-	.single-product__related-section .swiper-wrapper {
-		display: flex !important;
-		grid-template-columns: none !important;
-	}
-	
-	.single-product__related-section ul.products.swiper-wrapper li.product,
-	.single-product__related-section .swiper-wrapper li.product {
-		width: calc(25% - 15px) !important;
-		flex-shrink: 0 !important;
 	}
 }
 
