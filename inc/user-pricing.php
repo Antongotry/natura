@@ -505,6 +505,15 @@ function natura_user_pricing_admin_assets( $hook ) {
 				},
 				minimumInputLength: 1
 			});
+
+			// Validate discount percentage
+			$("#discount_percent").on("input change", function() {
+				var val = parseFloat($(this).val());
+				if (val >= 100) {
+					alert("Відсоткова знижка не може бути 100% або більше!\\n\\nДля безкоштовного доступу використовуйте розділ \\"Безкоштовний доступ\\".");
+					$(this).val(99);
+				}
+			});
 		});
 	' );
 
@@ -666,6 +675,37 @@ function natura_delete_user_discount( $user_id ) {
 }
 
 /**
+ * Check if user has free access
+ */
+function natura_has_free_access( $user_id ) {
+	$free_users = get_option( 'natura_free_access_users', array() );
+	return in_array( $user_id, $free_users, true );
+}
+
+/**
+ * Save free access for user
+ */
+function natura_save_free_access( $user_id ) {
+	$free_users = get_option( 'natura_free_access_users', array() );
+	if ( ! in_array( $user_id, $free_users, true ) ) {
+		$free_users[] = $user_id;
+		update_option( 'natura_free_access_users', $free_users );
+	}
+}
+
+/**
+ * Delete free access for user
+ */
+function natura_delete_free_access( $user_id ) {
+	$free_users = get_option( 'natura_free_access_users', array() );
+	$key = array_search( $user_id, $free_users, true );
+	if ( false !== $key ) {
+		unset( $free_users[ $key ] );
+		update_option( 'natura_free_access_users', array_values( $free_users ) );
+	}
+}
+
+/**
  * Admin page
  */
 function natura_user_pricing_page() {
@@ -694,12 +734,29 @@ function natura_user_pricing_page() {
 		$user_id  = intval( $_POST['discount_user_id'] );
 		$discount = floatval( $_POST['discount_percent'] );
 
-		if ( $user_id && $discount > 0 && $discount <= 100 ) {
+		if ( $discount >= 100 ) {
+			$notice = __( 'Помилка: відсоткова знижка не може бути 100% або більше. Для безкоштовного доступу використовуйте розділ "Безкоштовний доступ".', 'natura' );
+			$notice_type = 'error';
+		} elseif ( $user_id && $discount > 0 && $discount < 100 ) {
 			natura_save_user_discount( $user_id, $discount );
 			$notice = __( 'Знижку успішно збережено!', 'natura' );
 			$notice_type = 'success';
 		} else {
-			$notice = __( 'Помилка: перевірте введені дані (знижка від 1 до 100%).', 'natura' );
+			$notice = __( 'Помилка: перевірте введені дані (знижка від 1 до 99%).', 'natura' );
+			$notice_type = 'error';
+		}
+	}
+
+	// Add free access
+	if ( isset( $_POST['natura_add_free_access'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'natura_add_free_access' ) ) {
+		$user_id = intval( $_POST['free_user_id'] );
+
+		if ( $user_id ) {
+			natura_save_free_access( $user_id );
+			$notice = __( 'Безкоштовний доступ надано!', 'natura' );
+			$notice_type = 'success';
+		} else {
+			$notice = __( 'Помилка: виберіть користувача.', 'natura' );
 			$notice_type = 'error';
 		}
 	}
@@ -718,8 +775,16 @@ function natura_user_pricing_page() {
 		$notice_type = 'success';
 	}
 
+	// Delete free access
+	if ( isset( $_GET['delete_free_access'] ) && isset( $_GET['user'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'natura_delete_free_access' ) ) {
+		natura_delete_free_access( intval( $_GET['user'] ) );
+		$notice = __( 'Безкоштовний доступ скасовано!', 'natura' );
+		$notice_type = 'success';
+	}
+
 	$all_prices = natura_get_user_prices();
 	$all_discounts = get_option( 'natura_user_discounts', array() );
+	$all_free_users = get_option( 'natura_free_access_users', array() );
 	?>
 	<div class="natura-admin-wrap">
 		<!-- Header -->
@@ -746,6 +811,9 @@ function natura_user_pricing_page() {
 			</button>
 			<button type="button" class="natura-tab" data-tab="percentage-discounts">
 				<?php esc_html_e( 'Відсоткові знижки', 'natura' ); ?>
+			</button>
+			<button type="button" class="natura-tab" data-tab="free-access">
+				<?php esc_html_e( 'Безкоштовний доступ', 'natura' ); ?>
 			</button>
 		</div>
 
@@ -877,7 +945,7 @@ function natura_user_pricing_page() {
 						</div>
 						<div class="natura-form-group">
 							<label for="discount_percent"><?php esc_html_e( 'Знижка (%)', 'natura' ); ?></label>
-							<input type="number" name="discount_percent" id="discount_percent" step="0.1" min="0.1" max="100" required placeholder="10">
+							<input type="number" name="discount_percent" id="discount_percent" step="0.1" min="0.1" max="99" required placeholder="10">
 						</div>
 						<div class="natura-form-group">
 							<label>&nbsp;</label>
@@ -957,6 +1025,99 @@ function natura_user_pricing_page() {
 				</div>
 			<?php endif; ?>
 		</div>
+
+		<!-- Free Access Tab -->
+		<div id="free-access" class="natura-tab-content">
+			<div class="natura-form-card" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-color: #ffc107;">
+				<h3 style="color: #f57c00;"><?php esc_html_e( 'Надати безкоштовний доступ', 'natura' ); ?></h3>
+				<p class="form-description"><?php esc_html_e( 'Користувачі з безкоштовним доступом можуть замовляти товари без оплати. Ціна для них буде відображатися як "Безкоштовно".', 'natura' ); ?></p>
+				<form method="post">
+					<?php wp_nonce_field( 'natura_add_free_access' ); ?>
+					<div class="natura-form-grid">
+						<div class="natura-form-group">
+							<label for="free_user_id"><?php esc_html_e( 'Користувач', 'natura' ); ?></label>
+							<select name="free_user_id" id="free_user_id" class="natura-select2-users" required style="width: 100%;">
+								<option value=""><?php esc_html_e( 'Виберіть користувача...', 'natura' ); ?></option>
+							</select>
+						</div>
+						<div class="natura-form-group">
+							<label>&nbsp;</label>
+							<button type="submit" name="natura_add_free_access" class="natura-btn natura-btn-primary" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);">
+								<span class="dashicons dashicons-yes"></span>
+								<?php esc_html_e( 'Надати доступ', 'natura' ); ?>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<h3 class="section-title"><?php esc_html_e( 'Користувачі з безкоштовним доступом', 'natura' ); ?></h3>
+
+			<?php if ( ! empty( $all_free_users ) ) : ?>
+				<div class="natura-table-wrap">
+					<table class="natura-table">
+						<thead>
+							<tr>
+								<th><?php esc_html_e( 'Користувач', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Email', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Статус', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Дії', 'natura' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							foreach ( $all_free_users as $user_id ) :
+								$user = get_user_by( 'id', $user_id );
+								if ( ! $user ) {
+									continue;
+								}
+
+								$initials = mb_strtoupper( mb_substr( $user->display_name, 0, 1 ) );
+
+								$delete_url = wp_nonce_url(
+									add_query_arg( array(
+										'delete_free_access' => 1,
+										'user'               => $user_id,
+									) ),
+									'natura_delete_free_access'
+								);
+								?>
+								<tr>
+									<td>
+										<div class="natura-user-info">
+											<div class="natura-user-avatar" style="background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);"><?php echo esc_html( $initials ); ?></div>
+											<div class="natura-user-details">
+												<span class="natura-user-name"><?php echo esc_html( $user->display_name ); ?></span>
+											</div>
+										</div>
+									</td>
+									<td><?php echo esc_html( $user->user_email ); ?></td>
+									<td>
+										<span class="natura-discount-badge" style="background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);">
+											<span class="dashicons dashicons-star-filled"></span>
+											<?php esc_html_e( 'Безкоштовно', 'natura' ); ?>
+										</span>
+									</td>
+									<td>
+										<a href="<?php echo esc_url( $delete_url ); ?>" class="natura-btn natura-btn-delete" onclick="return confirm('<?php esc_attr_e( 'Скасувати безкоштовний доступ?', 'natura' ); ?>');">
+											<span class="dashicons dashicons-trash"></span>
+											<?php esc_html_e( 'Скасувати', 'natura' ); ?>
+										</a>
+									</td>
+								</tr>
+								<?php
+							endforeach;
+							?>
+						</tbody>
+					</table>
+				</div>
+			<?php else : ?>
+				<div class="natura-empty-state">
+					<span class="dashicons dashicons-star-empty" style="font-size: 60px; width: 60px; height: 60px; color: #ccc;"></span>
+					<p><?php esc_html_e( 'Користувачів з безкоштовним доступом поки немає', 'natura' ); ?></p>
+				</div>
+			<?php endif; ?>
+		</div>
 	</div>
 	<?php
 }
@@ -972,7 +1133,12 @@ function natura_apply_custom_price( $price, $product ) {
 	$user_id    = get_current_user_id();
 	$product_id = $product->get_id();
 
-	// Check for individual price first
+	// Check for free access first (highest priority)
+	if ( natura_has_free_access( $user_id ) ) {
+		return 0;
+	}
+
+	// Check for individual price
 	$user_prices = natura_get_user_prices( $user_id );
 	if ( isset( $user_prices[ $product_id ] ) ) {
 		return $user_prices[ $product_id ];
@@ -1003,6 +1169,7 @@ function natura_apply_custom_cart_price( $cart ) {
 	}
 
 	$user_id     = get_current_user_id();
+	$has_free    = natura_has_free_access( $user_id );
 	$user_prices = natura_get_user_prices( $user_id );
 	$discount    = natura_get_user_discount( $user_id );
 
@@ -1010,8 +1177,11 @@ function natura_apply_custom_cart_price( $cart ) {
 		$product_id = $cart_item['product_id'];
 		$product    = $cart_item['data'];
 
-		// Individual price takes priority
-		if ( isset( $user_prices[ $product_id ] ) ) {
+		// Free access takes highest priority
+		if ( $has_free ) {
+			$cart_item['data']->set_price( 0 );
+		} elseif ( isset( $user_prices[ $product_id ] ) ) {
+			// Individual price
 			$cart_item['data']->set_price( $user_prices[ $product_id ] );
 		} elseif ( $discount > 0 ) {
 			// Apply percentage discount
@@ -1032,13 +1202,19 @@ function natura_show_custom_price_notice() {
 	}
 
 	$user_id     = get_current_user_id();
+	$has_free    = natura_has_free_access( $user_id );
 	$user_prices = natura_get_user_prices( $user_id );
 	$discount    = natura_get_user_discount( $user_id );
 
 	global $product;
 	$product_id = $product->get_id();
 
-	if ( isset( $user_prices[ $product_id ] ) ) {
+	if ( $has_free ) {
+		echo '<div class="woocommerce-message" style="margin-bottom: 15px; background: #fff8e1; border-color: #ff9800; color: #e65100;">';
+		echo '<span class="dashicons dashicons-star-filled" style="color: #ff9800;"></span> ';
+		echo esc_html__( 'У вас безкоштовний доступ до всіх товарів!', 'natura' );
+		echo '</div>';
+	} elseif ( isset( $user_prices[ $product_id ] ) ) {
 		echo '<div class="woocommerce-message" style="margin-bottom: 15px; background: #e8f5e9; border-color: #4CAF50; color: #2E7D32;">';
 		echo '<span class="dashicons dashicons-star-filled" style="color: #4CAF50;"></span> ';
 		echo esc_html__( 'Для вас встановлено індивідуальну ціну на цей товар!', 'natura' );
@@ -1064,9 +1240,15 @@ function natura_show_discount_in_account() {
 	}
 
 	$user_id  = get_current_user_id();
+	$has_free = natura_has_free_access( $user_id );
 	$discount = natura_get_user_discount( $user_id );
 
-	if ( $discount > 0 ) {
+	if ( $has_free ) {
+		echo '<div class="woocommerce-message" style="margin-bottom: 20px; background: #fff8e1; border-color: #ff9800; color: #e65100;">';
+		echo '<span class="dashicons dashicons-star-filled" style="color: #ff9800;"></span> ';
+		echo esc_html__( 'У вас безкоштовний доступ до всіх товарів!', 'natura' );
+		echo '</div>';
+	} elseif ( $discount > 0 ) {
 		echo '<div class="woocommerce-message" style="margin-bottom: 20px; background: #e8f5e9; border-color: #4CAF50; color: #2E7D32;">';
 		echo '<span class="dashicons dashicons-ticket-alt" style="color: #4CAF50;"></span> ';
 		printf(
