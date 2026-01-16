@@ -6773,15 +6773,29 @@ li.product .product-card,
 	white-space: nowrap;
 }
 
-/* Desktop: nudge price down to align visually with the first line of the title */
+/* Desktop: price at bottom like mobile - align all prices on same level */
 @media (min-width: 1026px) {
 	.product-card__price-wrapper--desktop {
-		display: flex !important;
-		transform: translateY(calc(0.1em - 0.05vw));
+		display: none !important;
 	}
 	
 	.product-card__price-wrapper--mobile {
-		display: none !important;
+		display: flex !important;
+		flex-shrink: 0 !important;
+		margin-top: auto !important;
+		margin-bottom: 1.042vw !important;
+		width: 100% !important;
+		align-items: baseline !important;
+		justify-content: flex-start !important;
+	}
+	
+	.product-card__price-button-wrapper {
+		display: flex !important;
+		flex-direction: column !important;
+		flex-shrink: 0 !important;
+		margin-top: auto !important;
+		width: 100% !important;
+		gap: 0 !important;
 	}
 }
 
