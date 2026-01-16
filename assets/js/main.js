@@ -1594,6 +1594,73 @@ const updateCartCountGlobal = debounce(() => {
 				document.body.style.overflow = '';
 			}
 		});
+
+		// Handle form submission
+		const form = modal.querySelector('.collaboration-modal__form');
+		if (form && typeof naturaForms !== 'undefined') {
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+
+				const nameInput = form.querySelector('#collaboration-name');
+				const phoneInput = form.querySelector('#collaboration-phone');
+				const commentInput = form.querySelector('#collaboration-comment');
+				const submitBtn = form.querySelector('button[type="submit"]');
+
+				if (!nameInput || !phoneInput || !commentInput) {
+					return;
+				}
+
+				const name = nameInput.value.trim();
+				const phone = phoneInput.value.trim();
+				const comment = commentInput.value.trim();
+
+				if (!name || !phone || !comment) {
+					alert('Будь ласка, заповніть всі обов\'язкові поля.');
+					return;
+				}
+
+				if (submitBtn) {
+					submitBtn.disabled = true;
+					submitBtn.textContent = 'Відправка...';
+				}
+
+				try {
+					const body = new URLSearchParams();
+					body.set('action', 'natura_collaboration_form');
+					body.set('nonce', naturaForms.nonce);
+					body.set('name', name);
+					body.set('phone', phone);
+					body.set('comment', comment);
+
+					const res = await fetch(naturaForms.ajax_url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+						},
+						credentials: 'same-origin',
+						body: body.toString(),
+					});
+
+					const json = await res.json().catch(() => null);
+
+					if (json && json.success) {
+						alert(json.data?.message || 'Дякуємо! Ваша заявка прийнята.');
+						form.reset();
+						modal.classList.remove('is-active');
+						document.body.style.overflow = '';
+					} else {
+						alert(json?.data?.message || 'Помилка відправки. Спробуйте пізніше.');
+					}
+				} catch (err) {
+					alert('Помилка відправки. Спробуйте пізніше.');
+				} finally {
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.textContent = 'Надіслати';
+					}
+				}
+			});
+		}
 	};
 
 	const initFeedbackModal = () => {
@@ -1629,6 +1696,73 @@ const updateCartCountGlobal = debounce(() => {
 				document.body.style.overflow = '';
 			}
 		});
+
+		// Handle form submission
+		const form = modal.querySelector('.feedback-modal__form');
+		if (form && typeof naturaForms !== 'undefined') {
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+
+				const nameInput = form.querySelector('#feedback-name');
+				const phoneInput = form.querySelector('#feedback-phone');
+				const messageInput = form.querySelector('#feedback-message');
+				const submitBtn = form.querySelector('button[type="submit"]');
+
+				if (!nameInput || !phoneInput || !messageInput) {
+					return;
+				}
+
+				const name = nameInput.value.trim();
+				const phone = phoneInput.value.trim();
+				const message = messageInput.value.trim();
+
+				if (!name || !phone || !message) {
+					alert('Будь ласка, заповніть всі обов\'язкові поля.');
+					return;
+				}
+
+				if (submitBtn) {
+					submitBtn.disabled = true;
+					submitBtn.textContent = 'Відправка...';
+				}
+
+				try {
+					const body = new URLSearchParams();
+					body.set('action', 'natura_feedback_form');
+					body.set('nonce', naturaForms.nonce);
+					body.set('name', name);
+					body.set('phone', phone);
+					body.set('message', message);
+
+					const res = await fetch(naturaForms.ajax_url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+						},
+						credentials: 'same-origin',
+						body: body.toString(),
+					});
+
+					const json = await res.json().catch(() => null);
+
+					if (json && json.success) {
+						alert(json.data?.message || 'Дякуємо за ваш відгук!');
+						form.reset();
+						modal.classList.remove('is-active');
+						document.body.style.overflow = '';
+					} else {
+						alert(json?.data?.message || 'Помилка відправки. Спробуйте пізніше.');
+					}
+				} catch (err) {
+					alert('Помилка відправки. Спробуйте пізніше.');
+				} finally {
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.textContent = 'Надіслати';
+					}
+				}
+			});
+		}
 	};
 
 	/**

@@ -16,6 +16,7 @@ if (class_exists('WooCommerce')) {
 }
 
 require_once get_template_directory() . '/inc/auth.php';
+require_once get_template_directory() . '/inc/forms.php';
 
 // Отключить админ-бар для всех пользователей
 add_filter('show_admin_bar', '__return_false');

@@ -69,6 +69,12 @@ function natura_register_assets(): void {
 		'nonce'     => wp_create_nonce('natura_soft_account_nonce'),
 		'auth_url'  => function_exists('natura_get_auth_url') ? natura_get_auth_url('login') : wp_login_url(),
 	));
+
+	// Forms (collaboration and feedback)
+	wp_localize_script('natura-main', 'naturaForms', array(
+		'ajax_url' => admin_url('admin-ajax.php'),
+		'nonce'    => wp_create_nonce('natura_forms_nonce'),
+	));
 }
 add_action('wp_enqueue_scripts', 'natura_register_assets');
 
