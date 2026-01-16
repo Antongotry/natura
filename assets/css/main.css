@@ -6562,6 +6562,12 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		width: 2rem;
 		height: 2rem;
 	}
+	
+	.single-product__related-prev img,
+	.single-product__related-next img {
+		width: 0.9rem;
+		height: 0.9rem;
+	}
 }
 
 /* Десктопная версия: 4 товара */
