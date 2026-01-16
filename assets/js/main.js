@@ -5366,8 +5366,8 @@ const initRelatedProductsCarousel = () => {
 	const enableLoop = slidesCount >= 5;
 
 	const swiper = new Swiper(swiperEl, {
-		slidesPerView: 'auto',
-		spaceBetween: 20,
+		slidesPerView: 2,
+		spaceBetween: 10,
 		loop: enableLoop,
 		speed: 450,
 		watchOverflow: true,
@@ -5379,16 +5379,11 @@ const initRelatedProductsCarousel = () => {
 		},
 		breakpoints: {
 			320: {
-				slidesPerView: 1.3,
+				slidesPerView: 2,
 				spaceBetween: 10,
 				loop: enableLoop,
 			},
-			768: {
-				slidesPerView: 2.5,
-				spaceBetween: 15,
-				loop: enableLoop,
-			},
-			1024: {
+			769: {
 				slidesPerView: 4,
 				spaceBetween: 20,
 				loop: enableLoop,

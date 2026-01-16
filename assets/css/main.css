@@ -6592,8 +6592,35 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	height: auto !important;
 }
 
-/* Стили для связанных товаров */
-@media (min-width: 1025px) {
+/* Мобильная версия: 2 товара в ряд */
+@media (max-width: 768px) {
+	.single-product__related-section .swiper-wrapper li.product {
+		width: calc(50% - 5px) !important;
+	}
+	
+	.single-product__related-header {
+		flex-direction: row;
+		align-items: center;
+		gap: 1rem;
+	}
+	
+	.single-product__related-section .single-product__related-heading {
+		font-size: 1.5rem;
+	}
+	
+	.single-product__related-nav {
+		display: flex;
+	}
+	
+	.single-product__related-prev,
+	.single-product__related-next {
+		width: 2rem;
+		height: 2rem;
+	}
+}
+
+/* Десктопная версия: 4 товара в ряд */
+@media (min-width: 769px) {
 	.single-product__related-section .swiper-wrapper li.product {
 		width: calc(25% - 15px) !important;
 	}
