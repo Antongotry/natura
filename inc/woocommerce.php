@@ -624,6 +624,19 @@ add_filter('woocommerce_checkout_fields', 'natura_customize_checkout_fields');
  * Сохраняем кастомные поля доставки
  */
 function natura_save_custom_checkout_fields($order_id) {
+	// Shipping fields
+	if (!empty($_POST['shipping_city'])) {
+		update_post_meta($order_id, '_shipping_city', sanitize_text_field($_POST['shipping_city']));
+	}
+	
+	if (!empty($_POST['shipping_address_1'])) {
+		update_post_meta($order_id, '_shipping_address_1', sanitize_text_field($_POST['shipping_address_1']));
+	}
+	
+	if (!empty($_POST['shipping_address_2'])) {
+		update_post_meta($order_id, '_shipping_address_2', sanitize_text_field($_POST['shipping_address_2']));
+	}
+	
 	if (!empty($_POST['shipping_delivery_date'])) {
 		update_post_meta($order_id, '_shipping_delivery_date', sanitize_text_field($_POST['shipping_delivery_date']));
 	}
@@ -635,8 +648,141 @@ function natura_save_custom_checkout_fields($order_id) {
 	if (!empty($_POST['shipping_packaging'])) {
 		update_post_meta($order_id, '_shipping_packaging', sanitize_text_field($_POST['shipping_packaging']));
 	}
+	
+	// Billing fields
+	if (!empty($_POST['billing_company'])) {
+		update_post_meta($order_id, '_billing_company', sanitize_text_field($_POST['billing_company']));
+	}
 }
 add_action('woocommerce_checkout_update_order_meta', 'natura_save_custom_checkout_fields');
+
+/**
+ * Відображення кастомних полів в адмінці замовлення
+ */
+function natura_display_custom_fields_in_admin_order($order) {
+	$shipping_city = get_post_meta($order->get_id(), '_shipping_city', true);
+	$shipping_address_1 = get_post_meta($order->get_id(), '_shipping_address_1', true);
+	$shipping_address_2 = get_post_meta($order->get_id(), '_shipping_address_2', true);
+	$delivery_date = get_post_meta($order->get_id(), '_shipping_delivery_date', true);
+	$delivery_time = get_post_meta($order->get_id(), '_shipping_delivery_time', true);
+	$packaging = get_post_meta($order->get_id(), '_shipping_packaging', true);
+	$billing_company = get_post_meta($order->get_id(), '_billing_company', true);
+	
+	// Перевод времени доставки
+	$time_labels = array(
+		'10-13' => '10:00 - 13:00',
+		'13-16' => '13:00 - 16:00',
+		'16-19' => '16:00 - 19:00',
+		'19-22' => '19:00 - 22:00',
+	);
+	
+	// Перевод упаковки
+	$packaging_labels = array(
+		'paper_bag' => 'Паперовий пакет (+25 грн)',
+		'plastic_bag' => 'Пластиковий пакет (+15 грн)',
+		'own_bag' => 'Своя сумка (безкоштовно)',
+	);
+	
+	echo '<div class="natura-order-custom-fields" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">';
+	echo '<h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #333;">📦 Деталі доставки</h3>';
+	
+	if ($billing_company) {
+		echo '<p style="margin: 8px 0;"><strong>Компанія/Заклад:</strong> ' . esc_html($billing_company) . '</p>';
+	}
+	
+	if ($shipping_city) {
+		echo '<p style="margin: 8px 0;"><strong>Місто:</strong> ' . esc_html($shipping_city) . '</p>';
+	}
+	
+	if ($shipping_address_1) {
+		echo '<p style="margin: 8px 0;"><strong>Адреса:</strong> ' . esc_html($shipping_address_1) . '</p>';
+	}
+	
+	if ($shipping_address_2) {
+		echo '<p style="margin: 8px 0;"><strong>Під\'їзд/Поверх/Кв:</strong> ' . esc_html($shipping_address_2) . '</p>';
+	}
+	
+	if ($delivery_date) {
+		// Форматуємо дату
+		$date_formatted = date_i18n('j F Y', strtotime($delivery_date));
+		echo '<p style="margin: 8px 0;"><strong>Дата доставки:</strong> ' . esc_html($date_formatted) . '</p>';
+	}
+	
+	if ($delivery_time) {
+		$time_display = isset($time_labels[$delivery_time]) ? $time_labels[$delivery_time] : $delivery_time;
+		echo '<p style="margin: 8px 0;"><strong>Час доставки:</strong> ' . esc_html($time_display) . '</p>';
+	}
+	
+	if ($packaging) {
+		$packaging_display = isset($packaging_labels[$packaging]) ? $packaging_labels[$packaging] : $packaging;
+		echo '<p style="margin: 8px 0;"><strong>Упакування:</strong> ' . esc_html($packaging_display) . '</p>';
+	}
+	
+	echo '</div>';
+}
+add_action('woocommerce_admin_order_data_after_shipping_address', 'natura_display_custom_fields_in_admin_order');
+
+/**
+ * Додаємо кастомні поля в email замовлення
+ */
+function natura_add_custom_fields_to_order_email($order, $sent_to_admin, $plain_text, $email) {
+	$shipping_city = get_post_meta($order->get_id(), '_shipping_city', true);
+	$shipping_address_1 = get_post_meta($order->get_id(), '_shipping_address_1', true);
+	$shipping_address_2 = get_post_meta($order->get_id(), '_shipping_address_2', true);
+	$delivery_date = get_post_meta($order->get_id(), '_shipping_delivery_date', true);
+	$delivery_time = get_post_meta($order->get_id(), '_shipping_delivery_time', true);
+	$packaging = get_post_meta($order->get_id(), '_shipping_packaging', true);
+	
+	$time_labels = array(
+		'10-13' => '10:00 - 13:00',
+		'13-16' => '13:00 - 16:00',
+		'16-19' => '16:00 - 19:00',
+		'19-22' => '19:00 - 22:00',
+	);
+	
+	$packaging_labels = array(
+		'paper_bag' => 'Паперовий пакет',
+		'plastic_bag' => 'Пластиковий пакет',
+		'own_bag' => 'Своя сумка',
+	);
+	
+	if ($plain_text) {
+		echo "\n\n=== ДЕТАЛІ ДОСТАВКИ ===\n";
+		if ($shipping_city) echo "Місто: " . $shipping_city . "\n";
+		if ($shipping_address_1) echo "Адреса: " . $shipping_address_1 . "\n";
+		if ($shipping_address_2) echo "Під'їзд/Поверх/Кв: " . $shipping_address_2 . "\n";
+		if ($delivery_date) echo "Дата: " . date_i18n('j F Y', strtotime($delivery_date)) . "\n";
+		if ($delivery_time) echo "Час: " . (isset($time_labels[$delivery_time]) ? $time_labels[$delivery_time] : $delivery_time) . "\n";
+		if ($packaging) echo "Упакування: " . (isset($packaging_labels[$packaging]) ? $packaging_labels[$packaging] : $packaging) . "\n";
+	} else {
+		echo '<h2 style="color: #4CAF50; font-size: 18px; margin-top: 30px;">📦 Деталі доставки</h2>';
+		echo '<table cellspacing="0" cellpadding="6" style="width: 100%; border: 1px solid #e5e5e5; margin-bottom: 20px;">';
+		
+		if ($shipping_city) {
+			echo '<tr><th style="text-align: left; border: 1px solid #e5e5e5; padding: 12px; background: #f8f8f8;">Місто</th><td style="text-align: left; border: 1px solid #e5e5e5; padding: 12px;">' . esc_html($shipping_city) . '</td></tr>';
+		}
+		if ($shipping_address_1) {
+			echo '<tr><th style="text-align: left; border: 1px solid #e5e5e5; padding: 12px; background: #f8f8f8;">Адреса</th><td style="text-align: left; border: 1px solid #e5e5e5; padding: 12px;">' . esc_html($shipping_address_1) . '</td></tr>';
+		}
+		if ($shipping_address_2) {
+			echo '<tr><th style="text-align: left; border: 1px solid #e5e5e5; padding: 12px; background: #f8f8f8;">Під\'їзд/Поверх/Кв</th><td style="text-align: left; border: 1px solid #e5e5e5; padding: 12px;">' . esc_html($shipping_address_2) . '</td></tr>';
+		}
+		if ($delivery_date) {
+			echo '<tr><th style="text-align: left; border: 1px solid #e5e5e5; padding: 12px; background: #f8f8f8;">Дата доставки</th><td style="text-align: left; border: 1px solid #e5e5e5; padding: 12px;">' . esc_html(date_i18n('j F Y', strtotime($delivery_date))) . '</td></tr>';
+		}
+		if ($delivery_time) {
+			$time_display = isset($time_labels[$delivery_time]) ? $time_labels[$delivery_time] : $delivery_time;
+			echo '<tr><th style="text-align: left; border: 1px solid #e5e5e5; padding: 12px; background: #f8f8f8;">Час доставки</th><td style="text-align: left; border: 1px solid #e5e5e5; padding: 12px;">' . esc_html($time_display) . '</td></tr>';
+		}
+		if ($packaging) {
+			$packaging_display = isset($packaging_labels[$packaging]) ? $packaging_labels[$packaging] : $packaging;
+			echo '<tr><th style="text-align: left; border: 1px solid #e5e5e5; padding: 12px; background: #f8f8f8;">Упакування</th><td style="text-align: left; border: 1px solid #e5e5e5; padding: 12px;">' . esc_html($packaging_display) . '</td></tr>';
+		}
+		
+		echo '</table>';
+	}
+}
+add_action('woocommerce_email_after_order_table', 'natura_add_custom_fields_to_order_email', 10, 4);
 
 /**
  * Валидация обязательных полей чекаута перед отправкой заказа

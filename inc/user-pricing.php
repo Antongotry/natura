@@ -1124,6 +1124,7 @@ function natura_user_pricing_page() {
 
 /**
  * Apply custom prices on frontend
+ * Note: Free access users get price 0 only in cart/checkout, not in catalog
  */
 function natura_apply_custom_price( $price, $product ) {
 	if ( ! is_user_logged_in() || is_admin() ) {
@@ -1133,9 +1134,15 @@ function natura_apply_custom_price( $price, $product ) {
 	$user_id    = get_current_user_id();
 	$product_id = $product->get_id();
 
-	// Check for free access first (highest priority)
+	// Free access: only apply 0 price in cart/checkout context
+	// Skip for catalog/product pages - they will show regular price
 	if ( natura_has_free_access( $user_id ) ) {
-		return 0;
+		// Only return 0 if we're in cart or checkout
+		if ( is_cart() || is_checkout() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+			return 0;
+		}
+		// On other pages, return regular price (will be handled in cart)
+		return $price;
 	}
 
 	// Check for individual price
