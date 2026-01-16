@@ -1232,14 +1232,14 @@ function natura_sort_products_by_priority_categories( $query ) {
 		
 		$orderby_parts = array();
 		
+		// Сначала сортировка по наличию: товары в наличии (instock) первыми, не в наличии (outofstock) в конце
+		$orderby_parts[] = "CASE WHEN stock_meta.meta_value = 'outofstock' THEN 1 ELSE 0 END ASC";
+		
+		// Потом товары из приоритетных категорий (овочі + фрукти), но только среди товаров в наличии
 		if ( ! empty( $priority_product_ids ) ) {
 			$priority_ids_str = implode( ',', array_map( 'intval', $priority_product_ids ) );
-			// Сначала товары из приоритетных категорий (овочі + фрукти вперемешку)
 			$orderby_parts[] = "FIELD({$wpdb->posts}.ID, {$priority_ids_str}) DESC";
 		}
-		
-		// Сортировка по наличию: сначала товары в наличии (instock), потом не в наличии (outofstock)
-		$orderby_parts[] = "CASE WHEN stock_meta.meta_value = 'outofstock' THEN 1 ELSE 0 END ASC";
 		
 		// Дополнительная сортировка по menu_order
 		$orderby_parts[] = "{$wpdb->posts}.menu_order ASC";
