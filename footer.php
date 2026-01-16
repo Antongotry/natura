@@ -48,7 +48,7 @@
 						<p class="site-footer__title"><?php esc_html_e('Компанія', 'natura'); ?></p>
 						<div class="site-footer__company-address">
 							<p class="site-footer__text site-footer__text--mobile">08140 Київська область,</p>
-							<p class="site-footer__text site-footer__text--mobile">Києво-Святошинський район,</p>
+							<p class="site-footer__text site-footer__text--mobile">Бучанський район,</p>
 							<p class="site-footer__text site-footer__text--mobile">с.Шевченкове, вул. Київська 94</p>
 						</div>
 					</div>
@@ -129,7 +129,7 @@
 							<p class="site-footer__title"><?php esc_html_e('Компанія', 'natura'); ?></p>
 							<div class="site-footer__company-address">
 								<p class="site-footer__text">08140 Київська область,</p>
-								<p class="site-footer__text">Києво-Святошинський район,</p>
+								<p class="site-footer__text">Бучанський район,</p>
 								<p class="site-footer__text">с.Шевченкове, вул. Київська 94</p>
 							</div>
 						</div>
