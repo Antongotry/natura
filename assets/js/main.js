@@ -5367,6 +5367,7 @@ const initRelatedProductsCarousel = () => {
 
 	const swiper = new Swiper(swiperEl, {
 		slidesPerView: 2,
+		slidesPerGroup: 1,
 		spaceBetween: 10,
 		loop: enableLoop,
 		speed: 450,
@@ -5380,11 +5381,13 @@ const initRelatedProductsCarousel = () => {
 		breakpoints: {
 			320: {
 				slidesPerView: 2,
+				slidesPerGroup: 1,
 				spaceBetween: 10,
 				loop: enableLoop,
 			},
 			769: {
 				slidesPerView: 4,
+				slidesPerGroup: 1,
 				spaceBetween: 20,
 				loop: enableLoop,
 			},
