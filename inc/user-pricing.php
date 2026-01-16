@@ -30,42 +30,439 @@ add_action( 'admin_menu', 'natura_user_pricing_menu' );
  * Enqueue admin styles and scripts
  */
 function natura_user_pricing_admin_assets( $hook ) {
-	if ( 'woocommerce_page_natura-user-pricing' !== $hook ) {
+	if ( 'toplevel_page_natura-user-pricing' !== $hook ) {
 		return;
 	}
 
 	wp_enqueue_style( 'select2', WC()->plugin_url() . '/assets/css/select2.css', array(), '4.0.3' );
 	wp_enqueue_script( 'select2', WC()->plugin_url() . '/assets/js/select2/select2.full.min.js', array( 'jquery' ), '4.0.3', true );
 
+	// Natura-style admin CSS
 	wp_add_inline_style( 'select2', '
-		.natura-user-pricing-wrap { max-width: 1200px; margin-top: 20px; }
-		.natura-user-pricing-wrap h1 { margin-bottom: 20px; }
-		.natura-pricing-form { background: #fff; padding: 20px; border: 1px solid #ccd0d4; margin-bottom: 20px; }
-		.natura-pricing-form .form-row { margin-bottom: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-		.natura-pricing-form label { font-weight: 600; min-width: 150px; }
-		.natura-pricing-form .select2-container { min-width: 300px !important; }
-		.natura-pricing-form input[type="number"] { width: 150px; }
-		.natura-pricing-table { width: 100%; border-collapse: collapse; background: #fff; }
-		.natura-pricing-table th, .natura-pricing-table td { padding: 12px; text-align: left; border: 1px solid #ccd0d4; }
-		.natura-pricing-table th { background: #f1f1f1; font-weight: 600; }
-		.natura-pricing-table tr:hover { background: #f9f9f9; }
-		.natura-pricing-table .price-original { color: #999; text-decoration: line-through; }
-		.natura-pricing-table .price-custom { color: #0073aa; font-weight: 600; }
-		.natura-pricing-table .actions { white-space: nowrap; }
-		.natura-pricing-table .delete-price { color: #a00; text-decoration: none; }
-		.natura-pricing-table .delete-price:hover { color: #dc3232; }
-		.natura-notice { padding: 10px 15px; margin-bottom: 20px; border-left: 4px solid; }
-		.natura-notice.success { background: #d4edda; border-color: #28a745; }
-		.natura-notice.error { background: #f8d7da; border-color: #dc3545; }
-		.natura-filters { margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
-		.natura-bulk-section { background: #fff3cd; padding: 15px; border: 1px solid #ffc107; margin-bottom: 20px; border-radius: 4px; }
-		.natura-bulk-section h3 { margin-top: 0; }
+		/* Natura Admin Theme */
+		.natura-admin-wrap {
+			max-width: 1400px;
+			margin: 20px auto;
+			padding: 0 20px;
+			font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+		}
+		
+		.natura-admin-wrap * {
+			box-sizing: border-box;
+		}
+		
+		.natura-admin-header {
+			background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+			color: #fff;
+			padding: 30px 40px;
+			border-radius: 16px;
+			margin-bottom: 30px;
+			box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+		}
+		
+		.natura-admin-header h1 {
+			margin: 0 0 8px 0;
+			font-size: 28px;
+			font-weight: 700;
+			color: #fff;
+		}
+		
+		.natura-admin-header p {
+			margin: 0;
+			opacity: 0.9;
+			font-size: 15px;
+		}
+		
+		/* Tabs */
+		.natura-tabs {
+			display: flex;
+			gap: 0;
+			margin-bottom: 0;
+			border-bottom: none;
+		}
+		
+		.natura-tab {
+			padding: 16px 32px;
+			background: #f5f5f5;
+			border: none;
+			border-radius: 12px 12px 0 0;
+			cursor: pointer;
+			font-size: 15px;
+			font-weight: 600;
+			color: #666;
+			transition: all 0.3s ease;
+			margin-right: 4px;
+		}
+		
+		.natura-tab:hover {
+			background: #e8e8e8;
+			color: #333;
+		}
+		
+		.natura-tab.active {
+			background: #fff;
+			color: #4CAF50;
+			box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+		}
+		
+		/* Tab Content */
+		.natura-tab-content {
+			display: none;
+			background: #fff;
+			border-radius: 0 16px 16px 16px;
+			padding: 30px;
+			box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+		}
+		
+		.natura-tab-content.active {
+			display: block;
+		}
+		
+		/* Form Card */
+		.natura-form-card {
+			background: linear-gradient(135deg, #f8fdf8 0%, #f0f7f0 100%);
+			border: 1px solid #c8e6c9;
+			border-radius: 12px;
+			padding: 24px;
+			margin-bottom: 30px;
+		}
+		
+		.natura-form-card h3 {
+			margin: 0 0 20px 0;
+			font-size: 18px;
+			font-weight: 600;
+			color: #2E7D32;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		
+		.natura-form-card h3::before {
+			content: "+";
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 28px;
+			height: 28px;
+			background: #4CAF50;
+			color: #fff;
+			border-radius: 50%;
+			font-size: 18px;
+			font-weight: 700;
+		}
+		
+		.natura-form-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 20px;
+			align-items: end;
+		}
+		
+		.natura-form-group {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+		
+		.natura-form-group label {
+			font-weight: 600;
+			font-size: 13px;
+			color: #555;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		
+		.natura-form-group select,
+		.natura-form-group input[type="number"] {
+			padding: 12px 16px;
+			border: 2px solid #e0e0e0;
+			border-radius: 10px;
+			font-size: 15px;
+			transition: all 0.3s ease;
+			background: #fff;
+			width: 100%;
+		}
+		
+		.natura-form-group select:focus,
+		.natura-form-group input[type="number"]:focus {
+			border-color: #4CAF50;
+			outline: none;
+			box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+		}
+		
+		.natura-btn {
+			padding: 14px 28px;
+			border: none;
+			border-radius: 10px;
+			font-size: 15px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+		}
+		
+		.natura-btn-primary {
+			background: linear-gradient(135deg, #4CAF50 0%, #43A047 100%);
+			color: #fff;
+			box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+		}
+		
+		.natura-btn-primary:hover {
+			background: linear-gradient(135deg, #43A047 0%, #388E3C 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+		}
+		
+		/* Table */
+		.natura-table-wrap {
+			overflow-x: auto;
+		}
+		
+		.natura-table {
+			width: 100%;
+			border-collapse: separate;
+			border-spacing: 0;
+		}
+		
+		.natura-table th {
+			background: #f5f5f5;
+			padding: 16px 20px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 13px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			color: #666;
+			border-bottom: 2px solid #e0e0e0;
+		}
+		
+		.natura-table th:first-child {
+			border-radius: 10px 0 0 0;
+		}
+		
+		.natura-table th:last-child {
+			border-radius: 0 10px 0 0;
+		}
+		
+		.natura-table td {
+			padding: 16px 20px;
+			border-bottom: 1px solid #f0f0f0;
+			vertical-align: middle;
+		}
+		
+		.natura-table tbody tr {
+			transition: all 0.2s ease;
+		}
+		
+		.natura-table tbody tr:hover {
+			background: #f8fdf8;
+		}
+		
+		.natura-table tbody tr:last-child td {
+			border-bottom: none;
+		}
+		
+		.natura-table tbody tr:last-child td:first-child {
+			border-radius: 0 0 0 10px;
+		}
+		
+		.natura-table tbody tr:last-child td:last-child {
+			border-radius: 0 0 10px 0;
+		}
+		
+		.natura-user-info {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		
+		.natura-user-avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #fff;
+			font-weight: 700;
+			font-size: 16px;
+			flex-shrink: 0;
+		}
+		
+		.natura-user-details {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+		
+		.natura-user-name {
+			font-weight: 600;
+			color: #333;
+		}
+		
+		.natura-user-email {
+			font-size: 13px;
+			color: #888;
+		}
+		
+		.natura-price-original {
+			color: #999;
+			text-decoration: line-through;
+			font-size: 14px;
+		}
+		
+		.natura-price-custom {
+			color: #4CAF50;
+			font-weight: 700;
+			font-size: 18px;
+		}
+		
+		.natura-discount-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+			color: #fff;
+			padding: 8px 16px;
+			border-radius: 20px;
+			font-weight: 700;
+			font-size: 16px;
+		}
+		
+		.natura-btn-delete {
+			background: #fff;
+			color: #e53935;
+			border: 2px solid #ffcdd2;
+			padding: 8px 16px;
+			font-size: 13px;
+		}
+		
+		.natura-btn-delete:hover {
+			background: #ffebee;
+			border-color: #e53935;
+		}
+		
+		.natura-empty-state {
+			text-align: center;
+			padding: 60px 20px;
+			color: #999;
+		}
+		
+		.natura-empty-state svg {
+			width: 80px;
+			height: 80px;
+			margin-bottom: 20px;
+			opacity: 0.3;
+		}
+		
+		.natura-empty-state p {
+			font-size: 16px;
+			margin: 0;
+		}
+		
+		/* Notice */
+		.natura-notice {
+			padding: 16px 20px;
+			border-radius: 10px;
+			margin-bottom: 20px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			font-weight: 500;
+		}
+		
+		.natura-notice.success {
+			background: #e8f5e9;
+			color: #2E7D32;
+			border: 1px solid #c8e6c9;
+		}
+		
+		.natura-notice.error {
+			background: #ffebee;
+			color: #c62828;
+			border: 1px solid #ffcdd2;
+		}
+		
+		/* Select2 Custom Styles */
+		.select2-container--default .select2-selection--single {
+			height: 48px !important;
+			border: 2px solid #e0e0e0 !important;
+			border-radius: 10px !important;
+			padding: 8px 12px !important;
+		}
+		
+		.select2-container--default .select2-selection--single .select2-selection__rendered {
+			line-height: 28px !important;
+			padding-left: 4px !important;
+			color: #333 !important;
+		}
+		
+		.select2-container--default .select2-selection--single .select2-selection__arrow {
+			height: 46px !important;
+			right: 8px !important;
+		}
+		
+		.select2-container--default.select2-container--focus .select2-selection--single {
+			border-color: #4CAF50 !important;
+			box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1) !important;
+		}
+		
+		.select2-dropdown {
+			border: 2px solid #e0e0e0 !important;
+			border-radius: 10px !important;
+			box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+			margin-top: 4px !important;
+		}
+		
+		.select2-results__option--highlighted[aria-selected] {
+			background: #4CAF50 !important;
+		}
+		
+		.section-title {
+			font-size: 18px;
+			font-weight: 600;
+			color: #333;
+			margin: 0 0 20px 0;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		
+		.section-title::before {
+			content: "";
+			display: block;
+			width: 4px;
+			height: 24px;
+			background: #4CAF50;
+			border-radius: 2px;
+		}
+		
+		.form-description {
+			color: #888;
+			font-size: 14px;
+			margin-bottom: 20px;
+			padding-left: 14px;
+			border-left: 3px solid #e0e0e0;
+		}
 	' );
 
 	wp_add_inline_script( 'select2', '
 		jQuery(document).ready(function($) {
+			// Tab switching
+			$(".natura-tab").on("click", function() {
+				var tab = $(this).data("tab");
+				$(".natura-tab").removeClass("active");
+				$(this).addClass("active");
+				$(".natura-tab-content").removeClass("active");
+				$("#" + tab).addClass("active");
+			});
+
+			// Select2 for users
 			$(".natura-select2-users").select2({
-				placeholder: "Виберіть користувача...",
+				placeholder: "Почніть вводити ім\'я або email...",
 				allowClear: true,
 				ajax: {
 					url: ajaxurl,
@@ -83,11 +480,12 @@ function natura_user_pricing_admin_assets( $hook ) {
 					},
 					cache: true
 				},
-				minimumInputLength: 2
+				minimumInputLength: 1
 			});
 
+			// Select2 for products
 			$(".natura-select2-products").select2({
-				placeholder: "Виберіть товар...",
+				placeholder: "Почніть вводити назву товару...",
 				allowClear: true,
 				ajax: {
 					url: ajaxurl,
@@ -105,34 +503,7 @@ function natura_user_pricing_admin_assets( $hook ) {
 					},
 					cache: true
 				},
-				minimumInputLength: 2
-			});
-
-			$(".natura-select2-categories").select2({
-				placeholder: "Виберіть категорію...",
-				allowClear: true
-			});
-
-			$(".natura-filter-user").select2({
-				placeholder: "Фільтр за користувачем...",
-				allowClear: true,
-				ajax: {
-					url: ajaxurl,
-					dataType: "json",
-					delay: 250,
-					data: function(params) {
-						return {
-							action: "natura_search_users",
-							term: params.term,
-							nonce: naturaUserPricing.nonce
-						};
-					},
-					processResults: function(data) {
-						return { results: data };
-					},
-					cache: true
-				},
-				minimumInputLength: 2
+				minimumInputLength: 1
 			});
 		});
 	' );
@@ -155,13 +526,22 @@ function natura_ajax_search_users() {
 
 	$term = isset( $_GET['term'] ) ? sanitize_text_field( $_GET['term'] ) : '';
 
-	$users = get_users( array(
-		'search'         => '*' . $term . '*',
-		'search_columns' => array( 'user_login', 'user_email', 'display_name' ),
-		'number'         => 20,
-		'orderby'        => 'display_name',
-		'order'          => 'ASC',
-	) );
+	if ( empty( $term ) ) {
+		// Return first 20 users if no search term
+		$users = get_users( array(
+			'number'  => 20,
+			'orderby' => 'display_name',
+			'order'   => 'ASC',
+		) );
+	} else {
+		$users = get_users( array(
+			'search'         => '*' . $term . '*',
+			'search_columns' => array( 'user_login', 'user_email', 'display_name' ),
+			'number'         => 20,
+			'orderby'        => 'display_name',
+			'order'          => 'ASC',
+		) );
+	}
 
 	$results = array();
 	foreach ( $users as $user ) {
@@ -187,19 +567,24 @@ function natura_ajax_search_products() {
 
 	$term = isset( $_GET['term'] ) ? sanitize_text_field( $_GET['term'] ) : '';
 
-	$products = wc_get_products( array(
-		's'       => $term,
+	$args = array(
 		'limit'   => 20,
 		'status'  => 'publish',
 		'orderby' => 'title',
 		'order'   => 'ASC',
-	) );
+	);
+
+	if ( ! empty( $term ) ) {
+		$args['s'] = $term;
+	}
+
+	$products = wc_get_products( $args );
 
 	$results = array();
 	foreach ( $products as $product ) {
 		$results[] = array(
 			'id'   => $product->get_id(),
-			'text' => sprintf( '%s (₴%s)', $product->get_name(), $product->get_price() ),
+			'text' => sprintf( '%s — %s', $product->get_name(), wc_price( $product->get_price() ) ),
 		);
 	}
 
@@ -244,7 +629,6 @@ function natura_delete_user_price( $user_id, $product_id ) {
 	if ( isset( $prices[ $user_id ][ $product_id ] ) ) {
 		unset( $prices[ $user_id ][ $product_id ] );
 
-		// Remove user entry if no prices left
 		if ( empty( $prices[ $user_id ] ) ) {
 			unset( $prices[ $user_id ] );
 		}
@@ -336,213 +720,243 @@ function natura_user_pricing_page() {
 
 	$all_prices = natura_get_user_prices();
 	$all_discounts = get_option( 'natura_user_discounts', array() );
-
-	// Filter by user
-	$filter_user = isset( $_GET['filter_user'] ) ? intval( $_GET['filter_user'] ) : 0;
 	?>
-	<div class="wrap natura-user-pricing-wrap">
-		<h1><?php esc_html_e( 'Ціни для користувачів', 'natura' ); ?></h1>
+	<div class="natura-admin-wrap">
+		<!-- Header -->
+		<div class="natura-admin-header">
+			<h1><?php esc_html_e( 'Ціни для користувачів', 'natura' ); ?></h1>
+			<p><?php esc_html_e( 'Встановлюйте індивідуальні ціни та знижки для ваших клієнтів', 'natura' ); ?></p>
+		</div>
 
 		<?php if ( $notice ) : ?>
 			<div class="natura-notice <?php echo esc_attr( $notice_type ); ?>">
+				<?php if ( 'success' === $notice_type ) : ?>
+					<span class="dashicons dashicons-yes-alt"></span>
+				<?php else : ?>
+					<span class="dashicons dashicons-warning"></span>
+				<?php endif; ?>
 				<?php echo esc_html( $notice ); ?>
 			</div>
 		<?php endif; ?>
 
-		<!-- Tab navigation -->
-		<h2 class="nav-tab-wrapper">
-			<a href="#individual-prices" class="nav-tab nav-tab-active" data-tab="individual-prices">
+		<!-- Tabs -->
+		<div class="natura-tabs">
+			<button type="button" class="natura-tab active" data-tab="individual-prices">
 				<?php esc_html_e( 'Індивідуальні ціни', 'natura' ); ?>
-			</a>
-			<a href="#percentage-discounts" class="nav-tab" data-tab="percentage-discounts">
+			</button>
+			<button type="button" class="natura-tab" data-tab="percentage-discounts">
 				<?php esc_html_e( 'Відсоткові знижки', 'natura' ); ?>
-			</a>
-		</h2>
+			</button>
+		</div>
 
 		<!-- Individual Prices Tab -->
-		<div id="individual-prices" class="tab-content" style="display: block;">
-			<div class="natura-pricing-form">
+		<div id="individual-prices" class="natura-tab-content active">
+			<div class="natura-form-card">
 				<h3><?php esc_html_e( 'Додати індивідуальну ціну', 'natura' ); ?></h3>
 				<form method="post">
 					<?php wp_nonce_field( 'natura_add_user_price' ); ?>
-					<div class="form-row">
-						<label for="user_id"><?php esc_html_e( 'Користувач:', 'natura' ); ?></label>
-						<select name="user_id" id="user_id" class="natura-select2-users" required>
-							<option value=""><?php esc_html_e( 'Виберіть користувача...', 'natura' ); ?></option>
-						</select>
-					</div>
-					<div class="form-row">
-						<label for="product_id"><?php esc_html_e( 'Товар:', 'natura' ); ?></label>
-						<select name="product_id" id="product_id" class="natura-select2-products" required>
-							<option value=""><?php esc_html_e( 'Виберіть товар...', 'natura' ); ?></option>
-						</select>
-					</div>
-					<div class="form-row">
-						<label for="custom_price"><?php esc_html_e( 'Ціна (₴):', 'natura' ); ?></label>
-						<input type="number" name="custom_price" id="custom_price" step="0.01" min="0" required>
-					</div>
-					<div class="form-row">
-						<label></label>
-						<button type="submit" name="natura_add_price" class="button button-primary">
-							<?php esc_html_e( 'Зберегти ціну', 'natura' ); ?>
-						</button>
+					<div class="natura-form-grid">
+						<div class="natura-form-group">
+							<label for="user_id"><?php esc_html_e( 'Користувач', 'natura' ); ?></label>
+							<select name="user_id" id="user_id" class="natura-select2-users" required style="width: 100%;">
+								<option value=""><?php esc_html_e( 'Виберіть користувача...', 'natura' ); ?></option>
+							</select>
+						</div>
+						<div class="natura-form-group">
+							<label for="product_id"><?php esc_html_e( 'Товар', 'natura' ); ?></label>
+							<select name="product_id" id="product_id" class="natura-select2-products" required style="width: 100%;">
+								<option value=""><?php esc_html_e( 'Виберіть товар...', 'natura' ); ?></option>
+							</select>
+						</div>
+						<div class="natura-form-group">
+							<label for="custom_price"><?php esc_html_e( 'Ціна (₴)', 'natura' ); ?></label>
+							<input type="number" name="custom_price" id="custom_price" step="0.01" min="0" required placeholder="0.00">
+						</div>
+						<div class="natura-form-group">
+							<label>&nbsp;</label>
+							<button type="submit" name="natura_add_price" class="natura-btn natura-btn-primary">
+								<span class="dashicons dashicons-plus-alt2"></span>
+								<?php esc_html_e( 'Зберегти', 'natura' ); ?>
+							</button>
+						</div>
 					</div>
 				</form>
 			</div>
 
-			<h3><?php esc_html_e( 'Поточні індивідуальні ціни', 'natura' ); ?></h3>
+			<h3 class="section-title"><?php esc_html_e( 'Поточні індивідуальні ціни', 'natura' ); ?></h3>
 
 			<?php if ( ! empty( $all_prices ) ) : ?>
-				<table class="natura-pricing-table">
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Користувач', 'natura' ); ?></th>
-							<th><?php esc_html_e( 'Товар', 'natura' ); ?></th>
-							<th><?php esc_html_e( 'Звичайна ціна', 'natura' ); ?></th>
-							<th><?php esc_html_e( 'Індивідуальна ціна', 'natura' ); ?></th>
-							<th><?php esc_html_e( 'Дії', 'natura' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php
-						foreach ( $all_prices as $user_id => $products ) :
-							$user = get_user_by( 'id', $user_id );
-							if ( ! $user ) {
-								continue;
-							}
-
-							foreach ( $products as $product_id => $custom_price ) :
-								$product = wc_get_product( $product_id );
-								if ( ! $product ) {
+				<div class="natura-table-wrap">
+					<table class="natura-table">
+						<thead>
+							<tr>
+								<th><?php esc_html_e( 'Користувач', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Товар', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Звичайна ціна', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Індивідуальна ціна', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Дії', 'natura' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							foreach ( $all_prices as $user_id => $products ) :
+								$user = get_user_by( 'id', $user_id );
+								if ( ! $user ) {
 									continue;
 								}
 
+								$initials = mb_strtoupper( mb_substr( $user->display_name, 0, 1 ) );
+
+								foreach ( $products as $product_id => $custom_price ) :
+									$product = wc_get_product( $product_id );
+									if ( ! $product ) {
+										continue;
+									}
+
+									$delete_url = wp_nonce_url(
+										add_query_arg( array(
+											'delete_price' => 1,
+											'user'         => $user_id,
+											'product'      => $product_id,
+										) ),
+										'natura_delete_price'
+									);
+									?>
+									<tr>
+										<td>
+											<div class="natura-user-info">
+												<div class="natura-user-avatar"><?php echo esc_html( $initials ); ?></div>
+												<div class="natura-user-details">
+													<span class="natura-user-name"><?php echo esc_html( $user->display_name ); ?></span>
+													<span class="natura-user-email"><?php echo esc_html( $user->user_email ); ?></span>
+												</div>
+											</div>
+										</td>
+										<td>
+											<a href="<?php echo esc_url( get_edit_post_link( $product_id ) ); ?>" target="_blank" style="color: #333; text-decoration: none; font-weight: 500;">
+												<?php echo esc_html( $product->get_name() ); ?>
+											</a>
+										</td>
+										<td><span class="natura-price-original"><?php echo wc_price( $product->get_regular_price() ); ?></span></td>
+										<td><span class="natura-price-custom"><?php echo wc_price( $custom_price ); ?></span></td>
+										<td>
+											<a href="<?php echo esc_url( $delete_url ); ?>" class="natura-btn natura-btn-delete" onclick="return confirm('<?php esc_attr_e( 'Видалити цю ціну?', 'natura' ); ?>');">
+												<span class="dashicons dashicons-trash"></span>
+												<?php esc_html_e( 'Видалити', 'natura' ); ?>
+											</a>
+										</td>
+									</tr>
+									<?php
+								endforeach;
+							endforeach;
+							?>
+						</tbody>
+					</table>
+				</div>
+			<?php else : ?>
+				<div class="natura-empty-state">
+					<span class="dashicons dashicons-tag" style="font-size: 60px; width: 60px; height: 60px; color: #ccc;"></span>
+					<p><?php esc_html_e( 'Індивідуальних цін поки немає', 'natura' ); ?></p>
+				</div>
+			<?php endif; ?>
+		</div>
+
+		<!-- Percentage Discounts Tab -->
+		<div id="percentage-discounts" class="natura-tab-content">
+			<div class="natura-form-card">
+				<h3><?php esc_html_e( 'Додати відсоткову знижку', 'natura' ); ?></h3>
+				<p class="form-description"><?php esc_html_e( 'Знижка застосовується автоматично до всіх товарів для цього користувача (якщо немає індивідуальної ціни на товар).', 'natura' ); ?></p>
+				<form method="post">
+					<?php wp_nonce_field( 'natura_add_user_discount' ); ?>
+					<div class="natura-form-grid">
+						<div class="natura-form-group">
+							<label for="discount_user_id"><?php esc_html_e( 'Користувач', 'natura' ); ?></label>
+							<select name="discount_user_id" id="discount_user_id" class="natura-select2-users" required style="width: 100%;">
+								<option value=""><?php esc_html_e( 'Виберіть користувача...', 'natura' ); ?></option>
+							</select>
+						</div>
+						<div class="natura-form-group">
+							<label for="discount_percent"><?php esc_html_e( 'Знижка (%)', 'natura' ); ?></label>
+							<input type="number" name="discount_percent" id="discount_percent" step="0.1" min="0.1" max="100" required placeholder="10">
+						</div>
+						<div class="natura-form-group">
+							<label>&nbsp;</label>
+							<button type="submit" name="natura_add_discount" class="natura-btn natura-btn-primary">
+								<span class="dashicons dashicons-plus-alt2"></span>
+								<?php esc_html_e( 'Зберегти', 'natura' ); ?>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<h3 class="section-title"><?php esc_html_e( 'Поточні відсоткові знижки', 'natura' ); ?></h3>
+
+			<?php if ( ! empty( $all_discounts ) ) : ?>
+				<div class="natura-table-wrap">
+					<table class="natura-table">
+						<thead>
+							<tr>
+								<th><?php esc_html_e( 'Користувач', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Email', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Знижка', 'natura' ); ?></th>
+								<th><?php esc_html_e( 'Дії', 'natura' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							foreach ( $all_discounts as $user_id => $discount ) :
+								$user = get_user_by( 'id', $user_id );
+								if ( ! $user ) {
+									continue;
+								}
+
+								$initials = mb_strtoupper( mb_substr( $user->display_name, 0, 1 ) );
+
 								$delete_url = wp_nonce_url(
 									add_query_arg( array(
-										'delete_price' => 1,
-										'user'         => $user_id,
-										'product'      => $product_id,
+										'delete_discount' => 1,
+										'user'            => $user_id,
 									) ),
-									'natura_delete_price'
+									'natura_delete_discount'
 								);
 								?>
 								<tr>
 									<td>
-										<?php echo esc_html( $user->display_name ); ?>
-										<br><small><?php echo esc_html( $user->user_email ); ?></small>
+										<div class="natura-user-info">
+											<div class="natura-user-avatar"><?php echo esc_html( $initials ); ?></div>
+											<div class="natura-user-details">
+												<span class="natura-user-name"><?php echo esc_html( $user->display_name ); ?></span>
+											</div>
+										</div>
+									</td>
+									<td><?php echo esc_html( $user->user_email ); ?></td>
+									<td>
+										<span class="natura-discount-badge">
+											<span class="dashicons dashicons-ticket-alt"></span>
+											<?php echo esc_html( $discount ); ?>%
+										</span>
 									</td>
 									<td>
-										<a href="<?php echo esc_url( get_edit_post_link( $product_id ) ); ?>" target="_blank">
-											<?php echo esc_html( $product->get_name() ); ?>
-										</a>
-									</td>
-									<td class="price-original">₴<?php echo esc_html( $product->get_regular_price() ); ?></td>
-									<td class="price-custom">₴<?php echo esc_html( number_format( $custom_price, 2 ) ); ?></td>
-									<td class="actions">
-										<a href="<?php echo esc_url( $delete_url ); ?>" class="delete-price" onclick="return confirm('<?php esc_attr_e( 'Видалити цю ціну?', 'natura' ); ?>');">
+										<a href="<?php echo esc_url( $delete_url ); ?>" class="natura-btn natura-btn-delete" onclick="return confirm('<?php esc_attr_e( 'Видалити цю знижку?', 'natura' ); ?>');">
+											<span class="dashicons dashicons-trash"></span>
 											<?php esc_html_e( 'Видалити', 'natura' ); ?>
 										</a>
 									</td>
 								</tr>
 								<?php
 							endforeach;
-						endforeach;
-						?>
-					</tbody>
-				</table>
-			<?php else : ?>
-				<p><?php esc_html_e( 'Індивідуальних цін поки немає.', 'natura' ); ?></p>
-			<?php endif; ?>
-		</div>
-
-		<!-- Percentage Discounts Tab -->
-		<div id="percentage-discounts" class="tab-content" style="display: none;">
-			<div class="natura-pricing-form">
-				<h3><?php esc_html_e( 'Додати відсоткову знижку для користувача', 'natura' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Знижка застосовується до всіх товарів для цього користувача (якщо немає індивідуальної ціни).', 'natura' ); ?></p>
-				<form method="post">
-					<?php wp_nonce_field( 'natura_add_user_discount' ); ?>
-					<div class="form-row">
-						<label for="discount_user_id"><?php esc_html_e( 'Користувач:', 'natura' ); ?></label>
-						<select name="discount_user_id" id="discount_user_id" class="natura-select2-users" required>
-							<option value=""><?php esc_html_e( 'Виберіть користувача...', 'natura' ); ?></option>
-						</select>
-					</div>
-					<div class="form-row">
-						<label for="discount_percent"><?php esc_html_e( 'Знижка (%):', 'natura' ); ?></label>
-						<input type="number" name="discount_percent" id="discount_percent" step="0.1" min="0.1" max="100" required>
-					</div>
-					<div class="form-row">
-						<label></label>
-						<button type="submit" name="natura_add_discount" class="button button-primary">
-							<?php esc_html_e( 'Зберегти знижку', 'natura' ); ?>
-						</button>
-					</div>
-				</form>
-			</div>
-
-			<h3><?php esc_html_e( 'Поточні відсоткові знижки', 'natura' ); ?></h3>
-
-			<?php if ( ! empty( $all_discounts ) ) : ?>
-				<table class="natura-pricing-table">
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Користувач', 'natura' ); ?></th>
-							<th><?php esc_html_e( 'Email', 'natura' ); ?></th>
-							<th><?php esc_html_e( 'Знижка', 'natura' ); ?></th>
-							<th><?php esc_html_e( 'Дії', 'natura' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php
-						foreach ( $all_discounts as $user_id => $discount ) :
-							$user = get_user_by( 'id', $user_id );
-							if ( ! $user ) {
-								continue;
-							}
-
-							$delete_url = wp_nonce_url(
-								add_query_arg( array(
-									'delete_discount' => 1,
-									'user'            => $user_id,
-								) ),
-								'natura_delete_discount'
-							);
 							?>
-							<tr>
-								<td><?php echo esc_html( $user->display_name ); ?></td>
-								<td><?php echo esc_html( $user->user_email ); ?></td>
-								<td class="price-custom"><?php echo esc_html( $discount ); ?>%</td>
-								<td class="actions">
-									<a href="<?php echo esc_url( $delete_url ); ?>" class="delete-price" onclick="return confirm('<?php esc_attr_e( 'Видалити цю знижку?', 'natura' ); ?>');">
-										<?php esc_html_e( 'Видалити', 'natura' ); ?>
-									</a>
-								</td>
-							</tr>
-							<?php
-						endforeach;
-						?>
-					</tbody>
-				</table>
+						</tbody>
+					</table>
+				</div>
 			<?php else : ?>
-				<p><?php esc_html_e( 'Відсоткових знижок поки немає.', 'natura' ); ?></p>
+				<div class="natura-empty-state">
+					<span class="dashicons dashicons-tickets-alt" style="font-size: 60px; width: 60px; height: 60px; color: #ccc;"></span>
+					<p><?php esc_html_e( 'Відсоткових знижок поки немає', 'natura' ); ?></p>
+				</div>
 			<?php endif; ?>
 		</div>
-
-		<script>
-		jQuery(document).ready(function($) {
-			$('.nav-tab').on('click', function(e) {
-				e.preventDefault();
-				var tab = $(this).data('tab');
-				
-				$('.nav-tab').removeClass('nav-tab-active');
-				$(this).addClass('nav-tab-active');
-				
-				$('.tab-content').hide();
-				$('#' + tab).show();
-			});
-		});
-		</script>
 	</div>
 	<?php
 }
@@ -625,11 +1039,13 @@ function natura_show_custom_price_notice() {
 	$product_id = $product->get_id();
 
 	if ( isset( $user_prices[ $product_id ] ) ) {
-		echo '<div class="woocommerce-message" style="margin-bottom: 15px;">';
+		echo '<div class="woocommerce-message" style="margin-bottom: 15px; background: #e8f5e9; border-color: #4CAF50; color: #2E7D32;">';
+		echo '<span class="dashicons dashicons-star-filled" style="color: #4CAF50;"></span> ';
 		echo esc_html__( 'Для вас встановлено індивідуальну ціну на цей товар!', 'natura' );
 		echo '</div>';
 	} elseif ( $discount > 0 ) {
-		echo '<div class="woocommerce-message" style="margin-bottom: 15px;">';
+		echo '<div class="woocommerce-message" style="margin-bottom: 15px; background: #e8f5e9; border-color: #4CAF50; color: #2E7D32;">';
+		echo '<span class="dashicons dashicons-ticket-alt" style="color: #4CAF50;"></span> ';
 		printf(
 			esc_html__( 'Ваша персональна знижка: %s%%', 'natura' ),
 			esc_html( $discount )
@@ -651,7 +1067,8 @@ function natura_show_discount_in_account() {
 	$discount = natura_get_user_discount( $user_id );
 
 	if ( $discount > 0 ) {
-		echo '<div class="woocommerce-message" style="margin-bottom: 20px;">';
+		echo '<div class="woocommerce-message" style="margin-bottom: 20px; background: #e8f5e9; border-color: #4CAF50; color: #2E7D32;">';
+		echo '<span class="dashicons dashicons-ticket-alt" style="color: #4CAF50;"></span> ';
 		printf(
 			esc_html__( 'Ваша персональна знижка на всі товари: %s%%', 'natura' ),
 			esc_html( $discount )
