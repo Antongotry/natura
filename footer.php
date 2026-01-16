@@ -59,10 +59,10 @@
 				</div>
 				<!-- Мобильная версия: Кнопки карты -->
 				<div class="site-footer__map-mobile">
-					<a class="site-footer__map-button-mobile-bottom" href="https://maps.google.com/?q=08140+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+%D0%9A%D0%B8%D1%94%D0%B2%D0%BE-%D0%A1%D0%B2%D1%8F%D1%82%D0%BE%D1%88%D0%B8%D0%BD%D1%81%D1%8C%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD,+%D1%81.%D0%A8%D0%B5%D0%B2%D1%87%D0%B5%D0%BD%D0%BA%D0%BE%D0%B2%D0%B5,+%D0%B2%D1%83%D0%BB.+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+94" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
+					<a class="site-footer__map-button-mobile-bottom" href="https://www.google.com/maps/place/%D0%9D%D0%B0%D1%82%D1%83%D1%80%D0%B0+%D0%9C%D0%B0%D1%80%D0%BA%D0%B5%D1%82/data=!4m2!3m1!1s0x0:0x8d6d42f346fdc7cf?sa=X&ved=1t:2428&hl=uk-UA&ictx=111" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
 						Google Maps
 					</a>
-					<a class="site-footer__map-arrow-mobile" href="https://maps.google.com/?q=08140+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+%D0%9A%D0%B8%D1%94%D0%B2%D0%BE-%D0%A1%D0%B2%D1%8F%D1%82%D0%BE%D1%88%D0%B8%D0%BD%D1%81%D1%8C%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD,+%D1%81.%D0%A8%D0%B5%D0%B2%D1%87%D0%B5%D0%BD%D0%BA%D0%BE%D0%B2%D0%B5,+%D0%B2%D1%83%D0%BB.+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+94" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
+					<a class="site-footer__map-arrow-mobile" href="https://www.google.com/maps/place/%D0%9D%D0%B0%D1%82%D1%83%D1%80%D0%B0+%D0%9C%D0%B0%D1%80%D0%BA%D0%B5%D1%82/data=!4m2!3m1!1s0x0:0x8d6d42f346fdc7cf?sa=X&ved=1t:2428&hl=uk-UA&ictx=111" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
 						<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/vecto3r.svg" alt="">
 					</a>
 				</div>
@@ -138,10 +138,10 @@
 							<p class="site-footer__text">Прийом замовлень на сайті 24/7</p>
 						</div>
 						<div class="site-footer__map">
-							<a class="site-footer__map-button" href="https://maps.google.com/?q=08140+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+%D0%9A%D0%B8%D1%94%D0%B2%D0%BE-%D0%A1%D0%B2%D1%8F%D1%82%D0%BE%D1%88%D0%B8%D0%BD%D1%81%D1%8C%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD,+%D1%81.%D0%A8%D0%B5%D0%B2%D1%87%D0%B5%D0%BD%D0%BA%D0%BE%D0%B2%D0%B5,+%D0%B2%D1%83%D0%BB.+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+94" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
+							<a class="site-footer__map-button" href="https://www.google.com/maps/place/%D0%9D%D0%B0%D1%82%D1%83%D1%80%D0%B0+%D0%9C%D0%B0%D1%80%D0%BA%D0%B5%D1%82/data=!4m2!3m1!1s0x0:0x8d6d42f346fdc7cf?sa=X&ved=1t:2428&hl=uk-UA&ictx=111" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
 								Google Maps
 							</a>
-							<a class="site-footer__map-icon" href="https://maps.google.com/?q=08140+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+%D0%9A%D0%B8%D1%94%D0%B2%D0%BE-%D0%A1%D0%B2%D1%8F%D1%82%D0%BE%D1%88%D0%B8%D0%BD%D1%81%D1%8C%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD,+%D1%81.%D0%A8%D0%B5%D0%B2%D1%87%D0%B5%D0%BD%D0%BA%D0%BE%D0%B2%D0%B5,+%D0%B2%D1%83%D0%BB.+%D0%9A%D0%B8%D1%97%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+94" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
+							<a class="site-footer__map-icon" href="https://www.google.com/maps/place/%D0%9D%D0%B0%D1%82%D1%83%D1%80%D0%B0+%D0%9C%D0%B0%D1%80%D0%BA%D0%B5%D1%82/data=!4m2!3m1!1s0x0:0x8d6d42f346fdc7cf?sa=X&ved=1t:2428&hl=uk-UA&ictx=111" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Відкрити адресу на Google Maps', 'natura'); ?>">
 								<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/vecto3r.svg" alt="">
 							</a>
 						</div>
