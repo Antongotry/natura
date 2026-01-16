@@ -108,10 +108,10 @@ if ( ! function_exists( 'natura_render_product_cat_items' ) ) {
 		} else {
 			// Для дочерних категорий сортируем по menu_order
 			usort( $terms, function( $a, $b ) {
-				$a_order = isset( $a->term_order ) ? (int) $a->term_order : 0;
-				$b_order = isset( $b->term_order ) ? (int) $b->term_order : 0;
-				return $a_order - $b_order;
-			} );
+			$a_order = isset( $a->term_order ) ? (int) $a->term_order : 0;
+			$b_order = isset( $b->term_order ) ? (int) $b->term_order : 0;
+			return $a_order - $b_order;
+		} );
 		}
 
 		$printed = false;

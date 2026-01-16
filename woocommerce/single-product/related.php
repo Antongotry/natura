@@ -28,7 +28,7 @@ if ( $related_products ) :
 	<section class="related products single-product__related-section">
 		<div class="container">
 			<div class="single-product__related-header">
-				<h2 class="single-product__related-heading">Схожі товари</h2>
+			<h2 class="single-product__related-heading">Схожі товари</h2>
 				<?php if ( $products_count > 4 ) : ?>
 				<div class="single-product__related-nav">
 					<button type="button" class="single-product__related-prev" aria-label="<?php esc_attr_e( 'Попередні товари', 'natura' ); ?>">

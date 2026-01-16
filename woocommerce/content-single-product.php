@@ -31,8 +31,9 @@ global $product;
 			<?php
 			// Бейдж наличия товара
 			$is_in_stock = $product->is_in_stock();
+			$stock_class = $is_in_stock ? '' : ' single-product__stock-badge--outofstock';
 			?>
-			<div class="single-product__stock-badge">
+			<div class="single-product__stock-badge<?php echo esc_attr( $stock_class ); ?>">
 				<img src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/12/ellipse-45.svg" alt="" class="single-product__stock-icon">
 				<span class="single-product__stock-text">
 					<?php echo $is_in_stock ? 'Товар в наявності' : 'Товар не в наявності'; ?>

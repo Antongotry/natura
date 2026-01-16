@@ -5686,6 +5686,15 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	align-self: flex-start;
 }
 
+/* Out of stock badge - grey style */
+.single-product__stock-badge--outofstock {
+	background-color: #e0e0e0;
+}
+
+.single-product__stock-badge--outofstock .single-product__stock-text {
+	color: #757575;
+}
+
 .single-product__stock-badge span {
 	line-height: 100% !important;
 	letter-spacing: -0.03em !important;
