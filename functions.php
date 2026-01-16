@@ -18,6 +18,7 @@ if (class_exists('WooCommerce')) {
 
 require_once get_template_directory() . '/inc/auth.php';
 require_once get_template_directory() . '/inc/forms.php';
+require_once get_template_directory() . '/inc/optimization.php';
 
 // Одноразовий скрипт: товари з ціною 0 -> "Немає в наявності" (видаліть після використання)
 if ( is_admin() && file_exists( get_template_directory() . '/set-zero-price-out-of-stock.php' ) ) {

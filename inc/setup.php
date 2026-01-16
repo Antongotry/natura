@@ -57,8 +57,9 @@ if (!function_exists('wp_body_open')) {
 
 /**
  * Disable caching while we develop the theme.
- * Tied to WP_DEBUG so it can be easily removed for production.
+ * ВИМКНЕНО ДЛЯ ПРОДАКШЕНУ - розкоментуйте для розробки
  */
+/*
 if (defined('WP_DEBUG') && WP_DEBUG) {
 	function natura_dev_disable_caching_flags(): void {
 		if (!defined('DONOTCACHEPAGE')) {
@@ -78,5 +79,6 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 	}
 	add_action('send_headers', 'natura_dev_send_nocache_headers');
 }
+*/
 
 

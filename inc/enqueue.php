@@ -12,7 +12,7 @@ function natura_register_assets(): void {
 	
 	wp_enqueue_style('natura-style', get_stylesheet_uri(), array(), $style_version);
 	wp_enqueue_style('natura-main', $theme_uri . '/assets/css/main.css', array('natura-style'), $main_css_version);
-	wp_enqueue_style('natura-home', $theme_uri . '/assets/css/pages/home.css', array('natura-main'), $home_css_version . '-' . time());
+	wp_enqueue_style('natura-home', $theme_uri . '/assets/css/pages/home.css', array('natura-main'), $home_css_version);
 	
 	// Auth & Account CSS
 	if (is_page_template('page-auth.php') || is_page('auth')) {
@@ -24,22 +24,35 @@ function natura_register_assets(): void {
 		wp_enqueue_style('natura-account', $theme_uri . '/assets/css/pages/account.css', array('natura-main'), $account_css_version);
 	}
 	
-	// Lenis CSS
-	wp_enqueue_style('lenis', 'https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.css', array(), '1.2.3');
+	// Умовне завантаження бібліотек (контролюється в Natura > Оптимізація)
+	$load_swiper = ! function_exists( 'natura_should_load_swiper' ) || natura_should_load_swiper();
+	$load_gsap   = ! function_exists( 'natura_should_load_gsap' ) || natura_should_load_gsap();
+	$load_lenis  = ! function_exists( 'natura_should_load_lenis' ) || natura_should_load_lenis();
 	
-	// Swiper CSS
-	wp_enqueue_style('swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11');
+	// Lenis CSS & JS
+	if ( $load_lenis ) {
+		wp_enqueue_style('lenis', 'https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.css', array(), '1.2.3');
+		wp_enqueue_script('lenis', 'https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.min.js', array(), '1.2.3', true);
+	}
 	
-	// Lenis JS
-	wp_enqueue_script('lenis', 'https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.min.js', array(), '1.2.3', true);
-	
-	// Swiper JS
-	wp_enqueue_script('swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11', true);
+	// Swiper CSS & JS
+	if ( $load_swiper ) {
+		wp_enqueue_style('swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11');
+		wp_enqueue_script('swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11', true);
+	}
 	
 	// GSAP JS
-	wp_enqueue_script('gsap', 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js', array(), '3.12.5', true);
+	if ( $load_gsap ) {
+		wp_enqueue_script('gsap', 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js', array(), '3.12.5', true);
+	}
 	
-	wp_enqueue_script('natura-main', $theme_uri . '/assets/js/main.js', array('jquery', 'swiper', 'lenis', 'gsap'), $main_js_version, true);
+	// Main JS - залежності динамічні
+	$main_deps = array( 'jquery' );
+	if ( $load_swiper ) $main_deps[] = 'swiper';
+	if ( $load_lenis ) $main_deps[] = 'lenis';
+	if ( $load_gsap ) $main_deps[] = 'gsap';
+	
+	wp_enqueue_script('natura-main', $theme_uri . '/assets/js/main.js', $main_deps, $main_js_version, true);
 	
 	// Auth JS
 	if (is_page_template('page-auth.php') || is_page('auth')) {
