@@ -48,6 +48,93 @@ function natura_register_form_submissions_cpt() {
 add_action( 'init', 'natura_register_form_submissions_cpt' );
 
 /**
+ * Add custom columns to form submissions list
+ */
+function natura_add_form_submission_columns( $columns ) {
+	$new_columns = array();
+	$new_columns['cb'] = $columns['cb'];
+	$new_columns['title'] = __( 'Заявка', 'natura' );
+	$new_columns['form_type'] = __( 'Тип форми', 'natura' );
+	$new_columns['submission_name'] = __( 'Ім\'я', 'natura' );
+	$new_columns['submission_phone'] = __( 'Телефон', 'natura' );
+	$new_columns['date'] = $columns['date'];
+	return $new_columns;
+}
+add_filter( 'manage_natura_form_submission_posts_columns', 'natura_add_form_submission_columns' );
+
+/**
+ * Populate custom columns
+ */
+function natura_populate_form_submission_columns( $column, $post_id ) {
+	switch ( $column ) {
+		case 'form_type':
+			$form_type = get_post_meta( $post_id, '_form_type', true );
+			if ( $form_type === 'collaboration' ) {
+				echo '<span style="color: #2271b1;">' . esc_html__( 'Співпраця', 'natura' ) . '</span>';
+			} elseif ( $form_type === 'feedback' ) {
+				echo '<span style="color: #00a32a;">' . esc_html__( 'Зворотний зв\'язок', 'natura' ) . '</span>';
+			} else {
+				echo '—';
+			}
+			break;
+		case 'submission_name':
+			$name = get_post_meta( $post_id, '_submission_name', true );
+			echo $name ? esc_html( $name ) : '—';
+			break;
+		case 'submission_phone':
+			$phone = get_post_meta( $post_id, '_submission_phone', true );
+			if ( $phone ) {
+				echo '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
+			} else {
+				echo '—';
+			}
+			break;
+	}
+}
+add_action( 'manage_natura_form_submission_posts_custom_column', 'natura_populate_form_submission_columns', 10, 2 );
+
+/**
+ * Make columns sortable
+ */
+function natura_make_form_submission_columns_sortable( $columns ) {
+	$columns['form_type'] = 'form_type';
+	$columns['submission_name'] = 'submission_name';
+	return $columns;
+}
+add_filter( 'manage_edit-natura_form_submission_sortable_columns', 'natura_make_form_submission_columns_sortable' );
+
+/**
+ * Add filter dropdown for form types
+ */
+function natura_add_form_type_filter() {
+	global $typenow;
+	if ( $typenow === 'natura_form_submission' ) {
+		$selected = isset( $_GET['form_type_filter'] ) ? $_GET['form_type_filter'] : '';
+		?>
+		<select name="form_type_filter">
+			<option value=""><?php esc_html_e( 'Всі типи форм', 'natura' ); ?></option>
+			<option value="collaboration" <?php selected( $selected, 'collaboration' ); ?>><?php esc_html_e( 'Співпраця', 'natura' ); ?></option>
+			<option value="feedback" <?php selected( $selected, 'feedback' ); ?>><?php esc_html_e( 'Зворотний зв\'язок', 'natura' ); ?></option>
+		</select>
+		<?php
+	}
+}
+add_action( 'restrict_manage_posts', 'natura_add_form_type_filter' );
+
+/**
+ * Filter posts by form type
+ */
+function natura_filter_form_submissions_by_type( $query ) {
+	global $pagenow, $typenow;
+	
+	if ( $pagenow === 'edit.php' && $typenow === 'natura_form_submission' && isset( $_GET['form_type_filter'] ) && $_GET['form_type_filter'] !== '' ) {
+		$query->set( 'meta_key', '_form_type' );
+		$query->set( 'meta_value', sanitize_text_field( $_GET['form_type_filter'] ) );
+	}
+}
+add_action( 'parse_query', 'natura_filter_form_submissions_by_type' );
+
+/**
  * Add meta boxes for form submissions
  */
 function natura_add_form_submission_meta_boxes() {
