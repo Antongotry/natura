@@ -621,40 +621,49 @@ function natura_customize_checkout_fields($fields) {
 add_filter('woocommerce_checkout_fields', 'natura_customize_checkout_fields');
 
 /**
- * Сохраняем кастомные поля доставки
+ * Зберігаємо кастомні поля доставки через WooCommerce Order object
  */
 function natura_save_custom_checkout_fields($order_id) {
-	// Shipping fields
+	$order = wc_get_order($order_id);
+	if (!$order) {
+		return;
+	}
+	
+	// Shipping fields - зберігаємо через WooCommerce методи
 	if (!empty($_POST['shipping_city'])) {
-		update_post_meta($order_id, '_shipping_city', sanitize_text_field($_POST['shipping_city']));
+		$order->set_shipping_city(sanitize_text_field($_POST['shipping_city']));
 	}
 	
 	if (!empty($_POST['shipping_address_1'])) {
-		update_post_meta($order_id, '_shipping_address_1', sanitize_text_field($_POST['shipping_address_1']));
+		$order->set_shipping_address_1(sanitize_text_field($_POST['shipping_address_1']));
 	}
 	
 	if (!empty($_POST['shipping_address_2'])) {
-		update_post_meta($order_id, '_shipping_address_2', sanitize_text_field($_POST['shipping_address_2']));
+		$order->set_shipping_address_2(sanitize_text_field($_POST['shipping_address_2']));
 	}
 	
+	// Кастомні поля доставки - через meta
 	if (!empty($_POST['shipping_delivery_date'])) {
-		update_post_meta($order_id, '_shipping_delivery_date', sanitize_text_field($_POST['shipping_delivery_date']));
+		$order->update_meta_data('_shipping_delivery_date', sanitize_text_field($_POST['shipping_delivery_date']));
 	}
 	
 	if (!empty($_POST['shipping_delivery_time'])) {
-		update_post_meta($order_id, '_shipping_delivery_time', sanitize_text_field($_POST['shipping_delivery_time']));
+		$order->update_meta_data('_shipping_delivery_time', sanitize_text_field($_POST['shipping_delivery_time']));
 	}
 	
 	if (!empty($_POST['shipping_packaging'])) {
-		update_post_meta($order_id, '_shipping_packaging', sanitize_text_field($_POST['shipping_packaging']));
+		$order->update_meta_data('_shipping_packaging', sanitize_text_field($_POST['shipping_packaging']));
 	}
 	
 	// Billing fields
 	if (!empty($_POST['billing_company'])) {
-		update_post_meta($order_id, '_billing_company', sanitize_text_field($_POST['billing_company']));
+		$order->set_billing_company(sanitize_text_field($_POST['billing_company']));
 	}
+	
+	// Зберігаємо всі зміни
+	$order->save();
 }
-add_action('woocommerce_checkout_update_order_meta', 'natura_save_custom_checkout_fields');
+add_action('woocommerce_checkout_update_order_meta', 'natura_save_custom_checkout_fields', 20);
 
 /**
  * Замінюємо стандартні billing поля в адмінці замовлення на наші
