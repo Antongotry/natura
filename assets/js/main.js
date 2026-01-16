@@ -6123,4 +6123,58 @@ if (document.readyState === 'loading') {
 
 	// Инициализация таймера при загрузке
 	updateActivityTime();
+
+	// Stock notification form
+	const notificationForms = document.querySelectorAll('.stock-notification');
+	
+	notificationForms.forEach(form => {
+		form.addEventListener('submit', function(e) {
+			e.preventDefault();
+			
+			const formData = new FormData(this);
+			const productId = this.dataset.productId;
+			const messageDiv = this.querySelector('.stock-notification__message');
+			const button = this.querySelector('.stock-notification__button');
+			
+			if (!naturaStockNotification || !naturaStockNotification.nonce) {
+				console.error('naturaStockNotification not available');
+				return;
+			}
+			
+			formData.append('action', 'natura_stock_notification');
+			formData.append('product_id', productId);
+			formData.append('nonce', naturaStockNotification.nonce);
+			
+			button.disabled = true;
+			const originalText = button.textContent;
+			button.textContent = 'Відправка...';
+			
+			fetch(naturaStockNotification.ajax_url, {
+				method: 'POST',
+				body: formData
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					messageDiv.style.display = 'block';
+					messageDiv.style.color = '#4DBD56';
+					messageDiv.textContent = data.data.message;
+					this.reset();
+				} else {
+					messageDiv.style.display = 'block';
+					messageDiv.style.color = '#d32f2f';
+					messageDiv.textContent = data.data.message;
+				}
+				button.disabled = false;
+				button.textContent = originalText;
+			})
+			.catch(error => {
+				messageDiv.style.display = 'block';
+				messageDiv.style.color = '#d32f2f';
+				messageDiv.textContent = 'Помилка. Спробуйте пізніше.';
+				button.disabled = false;
+				button.textContent = originalText;
+			});
+		});
+	});
 })();

@@ -5701,6 +5701,70 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	display: none !important;
 }
 
+/* Stock notification form */
+.stock-notification-form {
+	margin-top: 2.083vw;
+}
+
+.stock-notification {
+	display: flex;
+	flex-direction: column;
+	gap: 1.042vw;
+}
+
+.stock-notification__field {
+	width: 100%;
+}
+
+.stock-notification__input {
+	width: 100%;
+	padding: 1.042vw 2.604vw;
+	border: 2px solid rgba(48, 48, 48, 0.1);
+	border-radius: 999px;
+	font-family: var(--font-family-base);
+	font-size: 0.938vw;
+	line-height: 1;
+	letter-spacing: -0.02em;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease;
+}
+
+.stock-notification__input:focus {
+	outline: none;
+	border-color: #4DBD56;
+}
+
+.stock-notification__button {
+	width: 100%;
+	padding: 1.042vw 2.604vw;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background-color: #4DBD56;
+	color: #ffffff;
+	font-family: var(--font-family-base);
+	font-weight: 500;
+	font-size: 0.938vw;
+	line-height: 1;
+	letter-spacing: -0.02em;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.stock-notification__button:hover {
+	background-color: #43A047;
+}
+
+.stock-notification__button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.stock-notification__message {
+	margin-top: 0.521vw;
+	font-size: 0.833vw;
+	line-height: 1.4;
+}
+
 .single-product__stock-badge span {
 	line-height: 100% !important;
 	letter-spacing: -0.03em !important;
@@ -6108,6 +6172,34 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		min-width: 0 !important;
 		white-space: nowrap !important;
 		text-overflow: ellipsis !important;
+	}
+
+	/* Stock notification form mobile */
+	.stock-notification-form {
+		margin-top: 4vw !important;
+		order: 5 !important;
+	}
+
+	.stock-notification {
+		gap: 2.667vw !important;
+	}
+
+	.stock-notification__input {
+		padding: 2.667vw 5.333vw !important;
+		font-size: 3.2vw !important;
+		border-radius: 999px !important;
+	}
+
+	.stock-notification__button {
+		padding: 2.667vw 5.333vw !important;
+		font-size: 3.2vw !important;
+		height: 10.667vw !important;
+		min-height: 10.667vw !important;
+	}
+
+	.stock-notification__message {
+		margin-top: 1.333vw !important;
+		font-size: 2.667vw !important;
 	}
 }
 

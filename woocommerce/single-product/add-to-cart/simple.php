@@ -42,6 +42,25 @@ if ( $product->is_in_stock() ) : ?>
 
 	<?php do_action( 'woocommerce_after_add_to_cart_form' ); ?>
 
+<?php else : ?>
+	<!-- Форма "Повідомити про наявність" для товарів outofstock -->
+	<div class="stock-notification-form">
+		<form class="stock-notification" method="post" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
+			<?php wp_nonce_field( 'natura_stock_notification', 'stock_notification_nonce' ); ?>
+			<div class="stock-notification__field">
+				<?php if ( is_user_logged_in() ) : ?>
+					<?php $current_user = wp_get_current_user(); ?>
+					<input type="email" name="email" value="<?php echo esc_attr( $current_user->user_email ); ?>" placeholder="<?php esc_attr_e( 'Ваш email', 'natura' ); ?>" required class="stock-notification__input" />
+				<?php else : ?>
+					<input type="email" name="email" placeholder="<?php esc_attr_e( 'Ваш email', 'natura' ); ?>" required class="stock-notification__input" />
+				<?php endif; ?>
+			</div>
+			<button type="submit" class="single_add_to_cart_button button alt stock-notification__button">
+				<?php esc_html_e( 'Повідомити про наявність', 'natura' ); ?>
+			</button>
+			<div class="stock-notification__message" style="display: none;"></div>
+		</form>
+	</div>
 <?php endif; ?>
 
 

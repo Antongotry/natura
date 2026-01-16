@@ -1235,9 +1235,91 @@ function natura_sort_products_by_priority_categories( $query ) {
 		
 		return $clauses;
 	}, 10, 2 );
+	}
+
+/**
+ * AJAX handler для "Повідомити про наявність"
+ */
+function natura_ajax_stock_notification() {
+	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'natura_stock_notification' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Помилка безпеки', 'natura' ) ) );
+	}
+	
+	$email = sanitize_email( $_POST['email'] ?? '' );
+	$product_id = intval( $_POST['product_id'] ?? 0 );
+	
+	if ( empty( $email ) || ! is_email( $email ) ) {
+		wp_send_json_error( array( 'message' => __( 'Будь ласка, введіть коректний email', 'natura' ) ) );
+	}
+	
+	if ( ! $product_id || ! wc_get_product( $product_id ) ) {
+		wp_send_json_error( array( 'message' => __( 'Товар не знайдено', 'natura' ) ) );
+	}
+	
+	// Перевіряємо, чи вже є підписка
+	$existing = get_post_meta( $product_id, '_stock_notification_emails', true );
+	if ( ! is_array( $existing ) ) {
+		$existing = array();
+	}
+	
+	if ( in_array( $email, $existing, true ) ) {
+		wp_send_json_error( array( 'message' => __( 'Ви вже підписані на сповіщення', 'natura' ) ) );
+	}
+	
+	// Додаємо email
+	$existing[] = $email;
+	update_post_meta( $product_id, '_stock_notification_emails', $existing );
+	
+	wp_send_json_success( array( 'message' => __( 'Дякуємо! Ми повідомимо вас, коли товар з\'явиться в наявності', 'natura' ) ) );
 }
+add_action( 'wp_ajax_natura_stock_notification', 'natura_ajax_stock_notification' );
+add_action( 'wp_ajax_nopriv_natura_stock_notification', 'natura_ajax_stock_notification' );
 
+/**
+ * Відправляє email сповіщення при появі товару в наявності
+ */
+function natura_send_stock_notifications( $product_id ) {
+	$product = wc_get_product( $product_id );
+	
+	if ( ! $product || ! $product->is_in_stock() ) {
+		return;
+	}
+	
+	$emails = get_post_meta( $product_id, '_stock_notification_emails', true );
+	
+	if ( ! is_array( $emails ) || empty( $emails ) ) {
+		return;
+	}
+	
+	$product_name = $product->get_name();
+	$product_url = $product->get_permalink();
+	
+	$subject = sprintf( __( 'Товар "%s" з\'явився в наявності!', 'natura' ), $product_name );
+	
+	$message = sprintf(
+		__( 'Вітаємо!%1$sТовар "%2$s", на який ви підписалися, з\'явився в наявності.%1$sПерейти до товару: %3$s', 'natura' ),
+		"\n\n",
+		$product_name,
+		$product_url
+	);
+	
+	$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+	
+	foreach ( $emails as $email ) {
+		wp_mail( $email, $subject, nl2br( esc_html( $message ) ), $headers );
+	}
+	
+	// Видаляємо підписки після відправки
+	delete_post_meta( $product_id, '_stock_notification_emails' );
+}
+add_action( 'woocommerce_product_set_stock_status', 'natura_check_stock_notifications', 10, 2 );
+add_action( 'woocommerce_variation_set_stock_status', 'natura_check_stock_notifications', 10, 2 );
 
+function natura_check_stock_notifications( $product_id, $stock_status ) {
+	if ( $stock_status === 'instock' ) {
+		natura_send_stock_notifications( $product_id );
+	}
+}
 
 
 

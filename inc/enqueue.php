@@ -75,6 +75,12 @@ function natura_register_assets(): void {
 		'ajax_url' => admin_url('admin-ajax.php'),
 		'nonce'    => wp_create_nonce('natura_forms_nonce'),
 	));
+
+	// Stock notification
+	wp_localize_script('natura-main', 'naturaStockNotification', array(
+		'ajax_url' => admin_url('admin-ajax.php'),
+		'nonce'    => wp_create_nonce('natura_stock_notification'),
+	));
 }
 add_action('wp_enqueue_scripts', 'natura_register_assets');
 
