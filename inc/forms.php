@@ -196,7 +196,7 @@ function natura_ajax_collaboration_form() {
 	$headers = array(
 		'Content-Type: text/plain; charset=UTF-8',
 		'From: ' . get_bloginfo( 'name' ) . ' <' . $admin_email . '>',
-		'Reply-To: ' . $name . ' <noreply@' . parse_url( home_url(), PHP_URL_HOST ) . '>',
+		'Reply-To: ' . $admin_email,
 	);
 
 	// Send email
@@ -274,7 +274,7 @@ function natura_ajax_feedback_form() {
 	$headers = array(
 		'Content-Type: text/plain; charset=UTF-8',
 		'From: ' . get_bloginfo( 'name' ) . ' <' . $admin_email . '>',
-		'Reply-To: ' . $name . ' <noreply@' . parse_url( home_url(), PHP_URL_HOST ) . '>',
+		'Reply-To: ' . $admin_email,
 	);
 
 	// Send email
