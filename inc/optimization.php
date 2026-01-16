@@ -403,8 +403,16 @@ function natura_should_load_gsap() {
 		return true;
 	}
 	
-	// GSAP потрібен тільки на головній
-	return is_front_page();
+	// GSAP потрібен для анімацій на багатьох сторінках
+	// Вимикаємо тільки для checkout/cart
+	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		return false;
+	}
+	if ( function_exists( 'is_cart' ) && is_cart() ) {
+		return false;
+	}
+	
+	return true; // Завантажувати на всіх інших сторінках
 }
 
 function natura_should_load_lenis() {
@@ -412,6 +420,14 @@ function natura_should_load_lenis() {
 		return true;
 	}
 	
-	// Lenis потрібен тільки на головній
-	return is_front_page();
+	// Lenis потрібен на всіх сторінках для плавного скролу
+	// Вимикаємо тільки для checkout/cart щоб не заважати формам
+	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		return false;
+	}
+	if ( function_exists( 'is_cart' ) && is_cart() ) {
+		return false;
+	}
+	
+	return true; // Завантажувати на всіх інших сторінках
 }
