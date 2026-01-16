@@ -14,13 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Add admin menu for user pricing
  */
 function natura_user_pricing_menu() {
-	add_submenu_page(
-		'woocommerce',
+	add_menu_page(
 		__( 'Ціни для користувачів', 'natura' ),
-		__( 'Ціни для користувачів', 'natura' ),
+		__( 'Ціни користувачів', 'natura' ),
 		'manage_woocommerce',
 		'natura-user-pricing',
-		'natura_user_pricing_page'
+		'natura_user_pricing_page',
+		'dashicons-tag',
+		27
 	);
 }
 add_action( 'admin_menu', 'natura_user_pricing_menu' );
