@@ -1225,13 +1225,26 @@ function natura_sort_products_by_priority_categories( $query ) {
 	add_filter( 'posts_clauses', function( $clauses, $wp_query ) use ( $priority_product_ids ) {
 		global $wpdb;
 		
+		// Добавляем JOIN с postmeta для stock_status
+		if ( strpos( $clauses['join'], 'stock_meta' ) === false ) {
+			$clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} AS stock_meta ON ({$wpdb->posts}.ID = stock_meta.post_id AND stock_meta.meta_key = '_stock_status')";
+		}
+		
+		$orderby_parts = array();
+		
 		if ( ! empty( $priority_product_ids ) ) {
 			$priority_ids_str = implode( ',', array_map( 'intval', $priority_product_ids ) );
-			
-			// Добавляем сортировку: сначала товары из приоритетных категорий (овочі + фрукти вперемешку)
-			// FIELD возвращает 0 если ID не найден, поэтому DESC ставит приоритетные первыми
-			$clauses['orderby'] = "FIELD({$wpdb->posts}.ID, {$priority_ids_str}) DESC, {$wpdb->posts}.menu_order ASC";
+			// Сначала товары из приоритетных категорий (овочі + фрукти вперемешку)
+			$orderby_parts[] = "FIELD({$wpdb->posts}.ID, {$priority_ids_str}) DESC";
 		}
+		
+		// Сортировка по наличию: сначала товары в наличии (instock), потом не в наличии (outofstock)
+		$orderby_parts[] = "CASE WHEN stock_meta.meta_value = 'outofstock' THEN 1 ELSE 0 END ASC";
+		
+		// Дополнительная сортировка по menu_order
+		$orderby_parts[] = "{$wpdb->posts}.menu_order ASC";
+		
+		$clauses['orderby'] = implode( ', ', $orderby_parts );
 		
 		return $clauses;
 	}, 10, 2 );
