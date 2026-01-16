@@ -1155,8 +1155,7 @@ function natura_apply_custom_price( $price, $product ) {
 	$discount = natura_get_user_discount( $user_id );
 	if ( $discount > 0 ) {
 		$discounted_price = floatval( $price ) * ( 1 - floatval( $discount ) / 100 );
-		// Округлення до цілих (без копійок) для уникнення розбіжностей
-		return floor( $discounted_price );
+		return $discounted_price;
 	}
 
 	return $price;
@@ -1260,10 +1259,10 @@ function natura_apply_custom_cart_price( $cart ) {
 			// Individual price
 			$cart_item['data']->set_price( floatval( $user_prices[ $product_id ] ) );
 		} elseif ( $discount > 0 ) {
-			// Apply percentage discount - round down to avoid kopiykas mismatch
+			// Apply percentage discount
 			$original_price   = floatval( $product->get_regular_price() );
 			$discounted_price = $original_price * ( 1 - floatval( $discount ) / 100 );
-			$cart_item['data']->set_price( floor( $discounted_price ) );
+			$cart_item['data']->set_price( $discounted_price );
 		}
 	}
 }
