@@ -67,8 +67,8 @@
 				</div>
 				<!-- Мобильная версия: Юридические ссылки -->
 				<div class="site-footer__legal-mobile">
-					<a class="site-footer__legal" href="#" aria-label="<?php esc_attr_e('Політика конфіденційності', 'natura'); ?>">
-						<?php esc_html_e('Політика конфіденційності', 'natura'); ?>
+					<a class="site-footer__legal" href="<?php echo esc_url(function_exists('natura_get_terms_url') ? natura_get_terms_url() : home_url('/terms/')); ?>" aria-label="<?php esc_attr_e('Угода користувача', 'natura'); ?>">
+						<?php esc_html_e('Угода користувача', 'natura'); ?>
 					</a>
 					<a class="site-footer__legal" href="<?php echo esc_url(function_exists('natura_get_offer_url') ? natura_get_offer_url() : home_url('/offer/')); ?>" aria-label="<?php esc_attr_e('Договір оферти', 'natura'); ?>">
 						<?php esc_html_e('Договір оферти', 'natura'); ?>
@@ -117,8 +117,8 @@
 							</ul>
 						</div>
 					</div>
-					<a class="site-footer__legal" href="#" aria-label="<?php esc_attr_e('Політика конфіденційності', 'natura'); ?>">
-						<?php esc_html_e('Політика конфіденційності', 'natura'); ?>
+					<a class="site-footer__legal" href="<?php echo esc_url(function_exists('natura_get_terms_url') ? natura_get_terms_url() : home_url('/terms/')); ?>" aria-label="<?php esc_attr_e('Угода користувача', 'natura'); ?>">
+						<?php esc_html_e('Угода користувача', 'natura'); ?>
 					</a>
 				</div>
 				<div class="site-footer__company">

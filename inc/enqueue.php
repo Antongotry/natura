@@ -36,6 +36,12 @@ function natura_register_assets(): void {
 		wp_enqueue_style('natura-offer', $theme_uri . '/assets/css/pages/offer.css', array('natura-main'), $offer_css_version);
 	}
 	
+	// Terms Page CSS (uses same styles as offer page)
+	if (is_page_template('page-terms.php') || is_page('terms')) {
+		$offer_css_version = file_exists($theme_path . '/assets/css/pages/offer.css') ? filemtime($theme_path . '/assets/css/pages/offer.css') : NATURA_THEME_VERSION;
+		wp_enqueue_style('natura-terms', $theme_uri . '/assets/css/pages/offer.css', array('natura-main'), $offer_css_version);
+	}
+	
 	// Умовне завантаження бібліотек (контролюється в Natura > Оптимізація)
 	$load_swiper = ! function_exists( 'natura_should_load_swiper' ) || natura_should_load_swiper();
 	$load_gsap   = ! function_exists( 'natura_should_load_gsap' ) || natura_should_load_gsap();
