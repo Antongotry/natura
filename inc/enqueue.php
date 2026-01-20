@@ -19,9 +19,21 @@ function natura_register_assets(): void {
 		$auth_css_version = file_exists($theme_path . '/assets/css/pages/auth.css') ? filemtime($theme_path . '/assets/css/pages/auth.css') : NATURA_THEME_VERSION;
 		wp_enqueue_style('natura-auth', $theme_uri . '/assets/css/pages/auth.css', array('natura-main'), $auth_css_version);
 	}
+	
+	// Error 404 CSS
+	if (is_404()) {
+		$error_css_version = file_exists($theme_path . '/assets/css/pages/error.css') ? filemtime($theme_path . '/assets/css/pages/error.css') : NATURA_THEME_VERSION;
+		wp_enqueue_style('natura-error', $theme_uri . '/assets/css/pages/error.css', array('natura-main'), $error_css_version);
+	}
 	if (function_exists('is_account_page') && is_account_page()) {
 		$account_css_version = file_exists($theme_path . '/assets/css/pages/account.css') ? filemtime($theme_path . '/assets/css/pages/account.css') : NATURA_THEME_VERSION;
 		wp_enqueue_style('natura-account', $theme_uri . '/assets/css/pages/account.css', array('natura-main'), $account_css_version);
+	}
+	
+	// Offer Page CSS
+	if (is_page_template('page-offer.php') || is_page('offer')) {
+		$offer_css_version = file_exists($theme_path . '/assets/css/pages/offer.css') ? filemtime($theme_path . '/assets/css/pages/offer.css') : NATURA_THEME_VERSION;
+		wp_enqueue_style('natura-offer', $theme_uri . '/assets/css/pages/offer.css', array('natura-main'), $offer_css_version);
 	}
 	
 	// Умовне завантаження бібліотек (контролюється в Natura > Оптимізація)
@@ -32,18 +44,18 @@ function natura_register_assets(): void {
 	// Lenis CSS & JS
 	if ( $load_lenis ) {
 		wp_enqueue_style('lenis', 'https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.css', array(), '1.2.3');
-		wp_enqueue_script('lenis', 'https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.min.js', array(), '1.2.3', true);
+	wp_enqueue_script('lenis', 'https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.min.js', array(), '1.2.3', true);
 	}
 	
 	// Swiper CSS & JS
 	if ( $load_swiper ) {
 		wp_enqueue_style('swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11');
-		wp_enqueue_script('swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11', true);
+	wp_enqueue_script('swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11', true);
 	}
 	
 	// GSAP JS
 	if ( $load_gsap ) {
-		wp_enqueue_script('gsap', 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js', array(), '3.12.5', true);
+	wp_enqueue_script('gsap', 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js', array(), '3.12.5', true);
 	}
 	
 	// Main JS - залежності динамічні

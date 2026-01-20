@@ -28,9 +28,8 @@
 				<div class="site-footer__section site-footer__section--mobile-social">
 					<p class="site-footer__title"><?php esc_html_e('Соцмережі', 'natura'); ?></p>
 					<ul class="site-footer__list" aria-label="<?php esc_attr_e('Ми в соцмережах', 'natura'); ?>">
-						<li class="site-footer__item"><a class="site-footer__link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook</a></li>
-						<li class="site-footer__item"><a class="site-footer__link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-						<li class="site-footer__item"><a class="site-footer__link" href="https://t.me/naturamarket" target="_blank" rel="noopener noreferrer">Telegram</a></li>
+						<li class="site-footer__item"><a class="site-footer__link" href="https://www.facebook.com/naturamarket.com.ua/" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+						<li class="site-footer__item"><a class="site-footer__link" href="https://www.instagram.com/natura_market_ua" target="_blank" rel="noopener noreferrer">Instagram</a></li>
 					</ul>
 				</div>
 				<!-- Мобильная версия: Контакты -->
@@ -71,7 +70,7 @@
 					<a class="site-footer__legal" href="#" aria-label="<?php esc_attr_e('Політика конфіденційності', 'natura'); ?>">
 						<?php esc_html_e('Політика конфіденційності', 'natura'); ?>
 					</a>
-					<a class="site-footer__legal" href="#" aria-label="<?php esc_attr_e('Договір оферти', 'natura'); ?>">
+					<a class="site-footer__legal" href="<?php echo esc_url(function_exists('natura_get_offer_url') ? natura_get_offer_url() : home_url('/offer/')); ?>" aria-label="<?php esc_attr_e('Договір оферти', 'natura'); ?>">
 						<?php esc_html_e('Договір оферти', 'natura'); ?>
 					</a>
 				</div>
@@ -96,7 +95,7 @@
 							<li class="site-footer__item"><a class="site-footer__link" href="#schedule"><?php esc_html_e('Графік роботи', 'natura'); ?></a></li>
 						</ul>
 					</div>
-					<a class="site-footer__legal" href="#" aria-label="<?php esc_attr_e('Договір оферти', 'natura'); ?>">
+					<a class="site-footer__legal" href="<?php echo esc_url(function_exists('natura_get_offer_url') ? natura_get_offer_url() : home_url('/offer/')); ?>" aria-label="<?php esc_attr_e('Договір оферти', 'natura'); ?>">
 						<?php esc_html_e('Договір оферти', 'natura'); ?>
 					</a>
 				</div>
@@ -105,9 +104,8 @@
 						<div class="site-footer__section site-footer__section--social">
 							<p class="site-footer__title"><?php esc_html_e('Соцмережі', 'natura'); ?></p>
 							<ul class="site-footer__list" aria-label="<?php esc_attr_e('Ми в соцмережах', 'natura'); ?>">
-								<li class="site-footer__item"><a class="site-footer__link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook</a></li>
-								<li class="site-footer__item"><a class="site-footer__link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-								<li class="site-footer__item"><a class="site-footer__link" href="https://t.me/naturamarket" target="_blank" rel="noopener noreferrer">Telegram</a></li>
+								<li class="site-footer__item"><a class="site-footer__link" href="https://www.facebook.com/naturamarket.com.ua/" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+								<li class="site-footer__item"><a class="site-footer__link" href="https://www.instagram.com/natura_market_ua" target="_blank" rel="noopener noreferrer">Instagram</a></li>
 							</ul>
 						</div>
 						<div class="site-footer__section">
