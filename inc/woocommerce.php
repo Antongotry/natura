@@ -640,10 +640,55 @@ function natura_save_custom_checkout_fields($order_id) {
 		$order->set_billing_company(sanitize_text_field($_POST['billing_company']));
 	}
 	
+	// Додаємо SKU (артикул) до кожного товару в замовленні
+	foreach ($order->get_items() as $item_id => $item) {
+		$product = $item->get_product();
+		if ($product) {
+			$sku = $product->get_sku();
+			if ($sku) {
+				// Зберігаємо SKU в метаданих товару замовлення
+				wc_add_order_item_meta($item_id, '_product_sku', $sku);
+			}
+		}
+	}
+	
 	// Зберігаємо всі зміни
 	$order->save();
 }
 add_action('woocommerce_checkout_update_order_meta', 'natura_save_custom_checkout_fields', 20);
+
+/**
+ * Додаємо SKU до назви товару в email-повідомленнях та інших місцях
+ */
+function natura_add_sku_to_order_item_name($name, $item) {
+	$product = $item->get_product();
+	if ($product) {
+		$sku = $product->get_sku();
+		if ($sku) {
+			$name .= ' <small style="color: #666;">(Артикул: ' . esc_html($sku) . ')</small>';
+		}
+	}
+	return $name;
+}
+add_filter('woocommerce_order_item_name', 'natura_add_sku_to_order_item_name', 10, 2);
+
+/**
+ * Додаємо SKU до метаданих товару в email-повідомленнях
+ */
+function natura_add_sku_to_order_item_meta($formatted_meta, $item) {
+	$product = $item->get_product();
+	if ($product) {
+		$sku = $product->get_sku();
+		if ($sku) {
+			$formatted_meta['_product_sku'] = array(
+				'label' => 'Артикул',
+				'value' => $sku,
+			);
+		}
+	}
+	return $formatted_meta;
+}
+add_filter('woocommerce_order_item_get_formatted_meta_data', 'natura_add_sku_to_order_item_meta', 10, 2);
 
 /**
  * Замінюємо стандартні billing поля в адмінці замовлення на наші
@@ -1248,7 +1293,7 @@ function natura_sort_products_by_priority_categories( $query ) {
 		
 		return $clauses;
 	}, 10, 2 );
-	}
+}
 
 /**
  * AJAX handler для "Повідомити про наявність"
