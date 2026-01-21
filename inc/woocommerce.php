@@ -1215,6 +1215,82 @@ function natura_force_new_order_status_processing( $status, $order_id ) {
 }
 
 /**
+ * Формує JSON замовлення для відправки в зовнішні системи
+ * Включає ID товара та SKU (артикул) для кожного товару
+ */
+function natura_format_order_json( $order_id ) {
+	$order = wc_get_order( $order_id );
+	if ( ! $order ) {
+		return false;
+	}
+
+	// Основні дані замовлення
+	$order_data = array(
+		'order_number'   => $order->get_order_number(),
+		'order_date'     => $order->get_date_created()->date( 'c' ), // ISO 8601 формат
+		'order_total'    => number_format( (float) $order->get_total(), 2, '.', '' ),
+		'payment_method' => $order->get_payment_method_title(),
+		'customer'       => array(
+			'full_name' => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
+			'phone'     => $order->get_billing_phone(),
+			'email'     => $order->get_billing_email(),
+			'company'   => $order->get_billing_company() ?: '',
+		),
+		'shipping'        => array(
+			'city'         => $order->get_shipping_city() ?: '',
+			'address'      => $order->get_shipping_address_1() ?: '',
+			'apartment'    => $order->get_shipping_address_2() ?: '',
+			'delivery_date' => $order->get_meta( '_shipping_delivery_date' ) ?: '',
+			'delivery_time' => $order->get_meta( '_shipping_delivery_time' ) ?: '',
+			'packaging'    => $order->get_meta( '_shipping_packaging' ) ?: '',
+		),
+		'items'           => array(),
+		'comment'         => $order->get_customer_note() ?: '',
+	);
+
+	// Товари замовлення
+	foreach ( $order->get_items() as $item_id => $item ) {
+		$product = $item->get_product();
+		if ( ! $product ) {
+			continue;
+		}
+
+		$sku = $product->get_sku();
+		$product_id = $product->get_id();
+		$quantity = $item->get_quantity();
+		$item_price = (float) $item->get_subtotal() / $quantity; // Ціна за одиницю
+		$item_total = (float) $item->get_subtotal();
+
+		$order_data['items'][] = array(
+			'sku'      => $sku ?: '',
+			'name'     => $item->get_name(),
+			'quantity' => $quantity,
+			'price'    => number_format( $item_price, 2, '.', '' ),
+			'total'    => number_format( $item_total, 2, '.', '' ),
+			'id'       => (string) $product_id, // ID товара як рядок
+		);
+	}
+
+	return $order_data;
+}
+
+/**
+ * Зберігає JSON замовлення в метаданих замовлення при його створенні
+ */
+function natura_save_order_json( $order_id ) {
+	$order_data = natura_format_order_json( $order_id );
+	if ( $order_data ) {
+		$order = wc_get_order( $order_id );
+		if ( $order ) {
+			$order->update_meta_data( '_order_json_data', wp_json_encode( $order_data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT ) );
+			$order->save();
+		}
+	}
+}
+add_action( 'woocommerce_checkout_order_processed', 'natura_save_order_json', 20, 1 );
+add_action( 'woocommerce_new_order', 'natura_save_order_json', 20, 1 );
+
+/**
  * Сортировка товаров на главной странице каталога: сначала овощи и фрукты
  */
 add_action( 'woocommerce_product_query', 'natura_sort_products_by_priority_categories' );
