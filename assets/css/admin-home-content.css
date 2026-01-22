@@ -1,0 +1,157 @@
+/**
+ * Admin styles for home content management.
+ *
+ * @package Natura
+ */
+
+.natura-home-content-tabs {
+	margin: 20px 0;
+}
+
+.natura-tab-content {
+	display: block; /* Show by default for now, since we only have one tab */
+}
+
+.natura-tab-content.active {
+	display: block;
+}
+
+.natura-sync-section {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 15px;
+	margin: 20px 0;
+}
+
+.natura-sync-section h3 {
+	margin-top: 0;
+}
+
+.natura-carousel-sections {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 30px;
+	margin: 30px 0;
+}
+
+.natura-carousel-section {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 20px;
+}
+
+.natura-carousel-section h3 {
+	margin-top: 0;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.natura-carousel-items {
+	margin: 20px 0;
+	min-height: 100px;
+}
+
+.natura-carousel-item {
+	background: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 15px;
+	margin-bottom: 15px;
+	cursor: move;
+	position: relative;
+}
+
+.natura-carousel-item:hover {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.natura-carousel-item-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #ddd;
+}
+
+.natura-item-number {
+	font-weight: 600;
+	color: #2271b1;
+	font-size: 14px;
+}
+
+.natura-remove-item {
+	color: #b32d2e;
+	text-decoration: none;
+}
+
+.natura-remove-item:hover {
+	color: #d63638;
+}
+
+.natura-carousel-item-content {
+	display: grid;
+	gap: 15px;
+}
+
+.natura-field {
+	margin-bottom: 15px;
+}
+
+.natura-field label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 8px;
+	color: #1d2327;
+}
+
+.natura-image-field {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.natura-image-preview,
+.natura-image-hover-preview {
+	min-height: 100px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 10px;
+	background: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.natura-image-preview img,
+.natura-image-hover-preview img {
+	max-width: 100%;
+	max-height: 150px;
+	object-fit: contain;
+}
+
+.natura-image-preview:empty::before,
+.natura-image-hover-preview:empty::before {
+	content: 'Немає зображення';
+	color: #999;
+	font-style: italic;
+}
+
+.natura-add-item {
+	margin-top: 15px;
+	width: 100%;
+}
+
+.is-hidden {
+	display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+	.natura-carousel-sections {
+		grid-template-columns: 1fr;
+	}
+}

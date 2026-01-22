@@ -19,6 +19,7 @@ if (class_exists('WooCommerce')) {
 require_once get_template_directory() . '/inc/auth.php';
 require_once get_template_directory() . '/inc/forms.php';
 require_once get_template_directory() . '/inc/optimization.php';
+require_once get_template_directory() . '/inc/home-content.php';
 
 // Одноразовий скрипт: товари з ціною 0 -> "Немає в наявності" (видаліть після використання)
 if ( is_admin() && file_exists( get_template_directory() . '/set-zero-price-out-of-stock.php' ) ) {
@@ -27,6 +28,49 @@ if ( is_admin() && file_exists( get_template_directory() . '/set-zero-price-out-
 
 // Отключить админ-бар для всех пользователей
 add_filter('show_admin_bar', '__return_false');
+
+/**
+ * Налаштування email відправника для всіх листів сайту
+ * Листи відправляються з: zakaz@naturamarket.kiev.ua
+ * Листи приходять на: zakaz@naturamarket.kiev.ua
+ */
+define('NATURA_EMAIL_ADDRESS', 'zakaz@naturamarket.kiev.ua');
+define('NATURA_EMAIL_NAME', 'Natura Market');
+
+// Глобальний фільтр для From Email (WordPress)
+add_filter('wp_mail_from', 'natura_mail_from');
+function natura_mail_from($email) {
+	return NATURA_EMAIL_ADDRESS;
+}
+
+// Глобальний фільтр для From Name (WordPress)
+add_filter('wp_mail_from_name', 'natura_mail_from_name');
+function natura_mail_from_name($name) {
+	return NATURA_EMAIL_NAME;
+}
+
+// WooCommerce: Email From Address
+add_filter('woocommerce_email_from_address', 'natura_wc_email_from_address', 10, 2);
+function natura_wc_email_from_address($from_email, $email) {
+	return NATURA_EMAIL_ADDRESS;
+}
+
+// WooCommerce: Email From Name
+add_filter('woocommerce_email_from_name', 'natura_wc_email_from_name', 10, 2);
+function natura_wc_email_from_name($from_name, $email) {
+	return NATURA_EMAIL_NAME;
+}
+
+// WooCommerce: Email отримувача для адмін-листів (нове замовлення, скасування тощо)
+add_filter('woocommerce_email_recipient_new_order', 'natura_wc_admin_email_recipient', 10, 2);
+add_filter('woocommerce_email_recipient_cancelled_order', 'natura_wc_admin_email_recipient', 10, 2);
+add_filter('woocommerce_email_recipient_failed_order', 'natura_wc_admin_email_recipient', 10, 2);
+add_filter('woocommerce_email_recipient_low_stock', 'natura_wc_admin_email_recipient', 10, 2);
+add_filter('woocommerce_email_recipient_no_stock', 'natura_wc_admin_email_recipient', 10, 2);
+add_filter('woocommerce_email_recipient_backorder', 'natura_wc_admin_email_recipient', 10, 2);
+function natura_wc_admin_email_recipient($recipient, $order) {
+	return NATURA_EMAIL_ADDRESS;
+}
 
 // AJAX обработчик для поиска товаров
 add_action('wp_ajax_natura_product_search', 'natura_product_search');

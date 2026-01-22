@@ -282,48 +282,8 @@
 				const data = await response.json();
 				
 				if (data.success && data.data.auth_url) {
-					// Открываем popup для авторизации через Google
-					const width = 500;
-					const height = 600;
-					const left = (screen.width - width) / 2;
-					const top = (screen.height - height) / 2;
-					
-					const popup = window.open(
-						data.data.auth_url,
-						'Google OAuth',
-						`width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no`
-					);
-					
-					// Слушаем сообщения от popup (если используется postMessage)
-					// Или просто ждем редиректа (так как callback делает редирект)
-					
-					// Проверяем, закрыт ли popup (пользователь может закрыть его вручную)
-					const checkPopup = setInterval(() => {
-						if (popup.closed) {
-							clearInterval(checkPopup);
-							// Восстанавливаем кнопку
-							button.disabled = false;
-							button.querySelector('span').textContent = originalText;
-						}
-					}, 500);
-					
-					// Также слушаем focus на основном окне (когда popup делает редирект)
-					window.addEventListener('focus', function checkRedirect() {
-						// Если popup закрыт, возможно произошел редирект
-						if (popup.closed) {
-							window.removeEventListener('focus', checkRedirect);
-							// Проверяем, не произошел ли редирект на страницу с ошибкой
-							const urlParams = new URLSearchParams(window.location.search);
-							if (urlParams.has('google_error')) {
-								const errorDiv = document.querySelector('[data-error]');
-								if (errorDiv) {
-									errorDiv.textContent = decodeURIComponent(urlParams.get('google_error'));
-									errorDiv.classList.add('auth-page__error--visible');
-								}
-							}
-						}
-					});
-					
+					// Прямой редирект на страницу авторизации Google в текущем окне
+					window.location.href = data.data.auth_url;
 				} else {
 					throw new Error(data.data?.message || 'Помилка при отриманні URL авторизації');
 				}

@@ -1,0 +1,39 @@
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress
+
+# Зміна версії PHP (Hostinger)
+# Спробуй різні варіанти:
+# AddHandler application/x-httpd-php74 .php
+# AddHandler application/x-httpd-php80 .php
+# AddHandler application/x-httpd-php81 .php
+# AddHandler application/x-httpd-php82 .php
+
+# Для Hostinger зазвичай використовується:
+AddHandler application/x-httpd-php80 .php
+
+# Або через suPHP (якщо підтримується):
+# suPHP_ConfigPath /home/mx395217/naturamarket.kiev.ua/www
+
+# Кешування та стиснення
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpg "access plus 1 year"
+ExpiresByType image/jpeg "access plus 1 year"
+ExpiresByType image/gif "access plus 1 year"
+ExpiresByType image/png "access plus 1 year"
+ExpiresByType image/webp "access plus 1 year"
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>

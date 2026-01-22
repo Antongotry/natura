@@ -36,136 +36,123 @@ if (! defined('ABSPATH')) {
 			</div>
 		</div>
 		<div class="trusted__carousels">
-			<div class="trusted__carousel trusted__carousel--right">
-				<div class="trusted__carousel-track">
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-1.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-1-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-2.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-2-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-3.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-3-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-4.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-4-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-5.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-5-hover.svg" alt="">
-						</div>
-					</div>
-					<!-- Дубликат для бесшовного перехода -->
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-1.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-1-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-2.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-2-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-3.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-3-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-4.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-4-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-5.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/ca-5-hover.svg" alt="">
-						</div>
+			<?php
+			$carousel_items = natura_get_trusted_carousel_items();
+			$top_items = ! empty($carousel_items['top']) ? $carousel_items['top'] : array();
+			$bottom_items = ! empty($carousel_items['bottom']) ? $carousel_items['bottom'] : array();
+
+			// Top carousel (right)
+			if (! empty($top_items)) :
+				?>
+				<div class="trusted__carousel trusted__carousel--right">
+					<div class="trusted__carousel-track">
+						<?php
+						// Render original items
+						foreach ($top_items as $item) {
+							$icon_id = isset($item['icon_id']) ? (int) $item['icon_id'] : 0;
+							$icon_hover_id = isset($item['icon_hover_id']) ? (int) $item['icon_hover_id'] : 0;
+							$icon_url = $icon_id ? wp_get_attachment_image_url($icon_id, 'full') : '';
+							$icon_hover_url = $icon_hover_id ? wp_get_attachment_image_url($icon_hover_id, 'full') : '';
+
+							if ($icon_url || $icon_hover_url) {
+								?>
+								<div class="trusted__carousel-item">
+									<div class="trusted__item-content">
+										<?php if ($icon_url) : ?>
+											<img class="trusted__icon" src="<?php echo esc_url($icon_url); ?>" alt="">
+										<?php endif; ?>
+										<?php if ($icon_hover_url) : ?>
+											<img class="trusted__icon-hover" src="<?php echo esc_url($icon_hover_url); ?>" alt="">
+										<?php endif; ?>
+									</div>
+								</div>
+								<?php
+							}
+						}
+						// Duplicate items for seamless loop
+						foreach ($top_items as $item) {
+							$icon_id = isset($item['icon_id']) ? (int) $item['icon_id'] : 0;
+							$icon_hover_id = isset($item['icon_hover_id']) ? (int) $item['icon_hover_id'] : 0;
+							$icon_url = $icon_id ? wp_get_attachment_image_url($icon_id, 'full') : '';
+							$icon_hover_url = $icon_hover_id ? wp_get_attachment_image_url($icon_hover_id, 'full') : '';
+
+							if ($icon_url || $icon_hover_url) {
+								?>
+								<div class="trusted__carousel-item">
+									<div class="trusted__item-content">
+										<?php if ($icon_url) : ?>
+											<img class="trusted__icon" src="<?php echo esc_url($icon_url); ?>" alt="">
+										<?php endif; ?>
+										<?php if ($icon_hover_url) : ?>
+											<img class="trusted__icon-hover" src="<?php echo esc_url($icon_hover_url); ?>" alt="">
+										<?php endif; ?>
+									</div>
+								</div>
+								<?php
+							}
+						}
+						?>
 					</div>
 				</div>
-			</div>
-			<div class="trusted__carousel trusted__carousel--left">
-				<div class="trusted__carousel-track">
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-1.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-1-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-2.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-2-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-3.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-3-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-4.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-4-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-5.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-5-hover.svg" alt="">
-						</div>
-					</div>
-					<!-- Дубликат для бесшовного перехода -->
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-1.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-1-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-2.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-2-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-3.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-3-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-4.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-4-hover.svg" alt="">
-						</div>
-					</div>
-					<div class="trusted__carousel-item">
-						<div class="trusted__item-content">
-							<img class="trusted__icon" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-5.svg" alt="">
-							<img class="trusted__icon-hover" src="https://bisque-parrot-207888.hostingersite.com/wp-content/uploads/2025/11/cb-5-hover.svg" alt="">
-						</div>
+				<?php
+			endif;
+
+			// Bottom carousel (left)
+			if (! empty($bottom_items)) :
+				?>
+				<div class="trusted__carousel trusted__carousel--left">
+					<div class="trusted__carousel-track">
+						<?php
+						// Render original items
+						foreach ($bottom_items as $item) {
+							$icon_id = isset($item['icon_id']) ? (int) $item['icon_id'] : 0;
+							$icon_hover_id = isset($item['icon_hover_id']) ? (int) $item['icon_hover_id'] : 0;
+							$icon_url = $icon_id ? wp_get_attachment_image_url($icon_id, 'full') : '';
+							$icon_hover_url = $icon_hover_id ? wp_get_attachment_image_url($icon_hover_id, 'full') : '';
+
+							if ($icon_url || $icon_hover_url) {
+								?>
+								<div class="trusted__carousel-item">
+									<div class="trusted__item-content">
+										<?php if ($icon_url) : ?>
+											<img class="trusted__icon" src="<?php echo esc_url($icon_url); ?>" alt="">
+										<?php endif; ?>
+										<?php if ($icon_hover_url) : ?>
+											<img class="trusted__icon-hover" src="<?php echo esc_url($icon_hover_url); ?>" alt="">
+										<?php endif; ?>
+									</div>
+								</div>
+								<?php
+							}
+						}
+						// Duplicate items for seamless loop
+						foreach ($bottom_items as $item) {
+							$icon_id = isset($item['icon_id']) ? (int) $item['icon_id'] : 0;
+							$icon_hover_id = isset($item['icon_hover_id']) ? (int) $item['icon_hover_id'] : 0;
+							$icon_url = $icon_id ? wp_get_attachment_image_url($icon_id, 'full') : '';
+							$icon_hover_url = $icon_hover_id ? wp_get_attachment_image_url($icon_hover_id, 'full') : '';
+
+							if ($icon_url || $icon_hover_url) {
+								?>
+								<div class="trusted__carousel-item">
+									<div class="trusted__item-content">
+										<?php if ($icon_url) : ?>
+											<img class="trusted__icon" src="<?php echo esc_url($icon_url); ?>" alt="">
+										<?php endif; ?>
+										<?php if ($icon_hover_url) : ?>
+											<img class="trusted__icon-hover" src="<?php echo esc_url($icon_hover_url); ?>" alt="">
+										<?php endif; ?>
+									</div>
+								</div>
+								<?php
+							}
+						}
+						?>
 					</div>
 				</div>
-			</div>
+				<?php
+			endif;
+			?>
 		</div>
 	</div>
 </section>

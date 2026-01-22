@@ -6623,16 +6623,16 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 /* Swiper работает на всех размерах экрана */
 .single-product__related-section .swiper-wrapper {
 	display: flex !important;
-	list-style: none !important;
-	margin: 0 !important;
-	padding: 0 !important;
+		list-style: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
 }
 
 .single-product__related-section .swiper-wrapper li.product {
-	flex-shrink: 0 !important;
-	display: flex !important;
-	flex-direction: column !important;
-	height: auto !important;
+		flex-shrink: 0 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		height: auto !important;
 }
 
 /* Related Products Swiper - отключаем grid для swiper */
@@ -6649,7 +6649,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 		width: calc((100% - 2.667vw) / 2) !important;
 		flex-shrink: 0 !important;
 	}
-	
+
 	.single-product__related-header {
 		flex-direction: row;
 		align-items: center;
@@ -6659,7 +6659,7 @@ a:not(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a) {
 	.single-product__related-section .single-product__related-heading {
 		font-size: 1.5rem;
 	}
-	
+
 	.single-product__related-nav {
 		display: flex;
 	}

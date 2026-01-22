@@ -270,8 +270,8 @@ function natura_ajax_collaboration_form() {
 	update_post_meta( $post_id, '_submission_phone', $phone );
 	update_post_meta( $post_id, '_submission_message', $comment );
 
-	// Get admin email
-	$admin_email = get_option( 'admin_email' );
+	// Email для отримання заявок (використовуємо константу з functions.php)
+	$to_email = defined('NATURA_EMAIL_ADDRESS') ? NATURA_EMAIL_ADDRESS : get_option('admin_email');
 
 	// Prepare email
 	$subject = sprintf( __( 'Нова заявка на співпрацю від %s', 'natura' ), $name );
@@ -283,14 +283,8 @@ function natura_ajax_collaboration_form() {
 		get_bloginfo( 'name' )
 	);
 
-	$headers = array(
-		'Content-Type: text/plain; charset=UTF-8',
-		'From: ' . get_bloginfo( 'name' ) . ' <' . $admin_email . '>',
-		'Reply-To: ' . $admin_email,
-	);
-
-	// Send email
-	$email_sent = wp_mail( $admin_email, $subject, $message, $headers );
+	// Send email (From налаштовується глобально через фільтри в functions.php)
+	$email_sent = wp_mail( $to_email, $subject, $message );
 
 	if ( ! $email_sent ) {
 		// Log error but don't fail the request
@@ -348,8 +342,8 @@ function natura_ajax_feedback_form() {
 	update_post_meta( $post_id, '_submission_phone', $phone );
 	update_post_meta( $post_id, '_submission_message', $message );
 
-	// Get admin email
-	$admin_email = get_option( 'admin_email' );
+	// Email для отримання заявок (використовуємо константу з functions.php)
+	$to_email = defined('NATURA_EMAIL_ADDRESS') ? NATURA_EMAIL_ADDRESS : get_option('admin_email');
 
 	// Prepare email
 	$subject = sprintf( __( 'Новий відгук від %s', 'natura' ), $name );
@@ -361,14 +355,8 @@ function natura_ajax_feedback_form() {
 		get_bloginfo( 'name' )
 	);
 
-	$headers = array(
-		'Content-Type: text/plain; charset=UTF-8',
-		'From: ' . get_bloginfo( 'name' ) . ' <' . $admin_email . '>',
-		'Reply-To: ' . $admin_email,
-	);
-
-	// Send email
-	$email_sent = wp_mail( $admin_email, $subject, $message_body, $headers );
+	// Send email (From налаштовується глобально через фільтри в functions.php)
+	$email_sent = wp_mail( $to_email, $subject, $message_body );
 
 	if ( ! $email_sent ) {
 		// Log error but don't fail the request
