@@ -55,9 +55,40 @@ function natura_home_content_page() {
 	// Handle sync from template
 	if (isset($_POST['natura_trusted_sync']) && check_admin_referer('natura_trusted_sync', 'natura_trusted_sync_nonce')) {
 		$synced_data = natura_sync_trusted_from_template();
-		if ($synced_data) {
+		if ($synced_data && (! empty($synced_data['top']) || ! empty($synced_data['bottom']))) {
 			update_option(NATURA_TRUSTED_CAROUSEL_OPTION, $synced_data);
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Дані синхронізовано з шаблону!', 'natura') . '</p></div>';
+			$top_count = isset($synced_data['top']) ? count($synced_data['top']) : 0;
+			$bottom_count = isset($synced_data['bottom']) ? count($synced_data['bottom']) : 0;
+			echo '<div class="notice notice-success is-dismissible"><p>' . 
+				sprintf(
+					esc_html__('Дані синхронізовано! Знайдено: %d елементів у верхній ленті, %d елементів у нижній ленті. Сторінка буде оновлена...', 'natura'),
+					$top_count,
+					$bottom_count
+				) . '</p></div>';
+			
+			// Refresh page data
+			$carousel_data = $synced_data;
+			$top_items = isset($carousel_data['top']) ? $carousel_data['top'] : array();
+			$bottom_items = isset($carousel_data['bottom']) ? $carousel_data['bottom'] : array();
+			
+			// Add JavaScript to reload page after a short delay
+			echo '<script>
+				setTimeout(function() {
+					window.location.reload();
+				}, 1500);
+			</script>';
+		} else {
+			// Try to get current saved data as fallback
+			$current_data = get_option(NATURA_TRUSTED_CAROUSEL_OPTION, false);
+			if ($current_data && (! empty($current_data['top']) || ! empty($current_data['bottom']))) {
+				echo '<div class="notice notice-info is-dismissible"><p>' . 
+					esc_html__('Використано збережені дані. Якщо потрібно синхронізувати з медіа-бібліотекою, переконайтеся, що файли ca-1.svg, ca-2.svg, cb-1.svg тощо завантажені.', 'natura') . 
+					'</p></div>';
+			} else {
+				echo '<div class="notice notice-warning is-dismissible"><p>' . 
+					esc_html__('Не вдалося знайти зображення в медіа-бібліотеці. Переконайтеся, що файли ca-1.svg, ca-2.svg, cb-1.svg, cb-2.svg тощо завантажені в медіа-бібліотеку WordPress. Або додайте елементи вручну через форму вище.', 'natura') . 
+					'</p></div>';
+			}
 		}
 	}
 
@@ -268,126 +299,199 @@ function natura_sanitize_carousel_items($items) {
 
 /**
  * Sync trusted carousel data from template file.
- * This function parses the template file to extract current items.
+ * This function tries to find images in media library by known filenames.
  *
  * @return array|false Synced data or false on failure.
  */
 function natura_sync_trusted_from_template() {
-	$template_file = get_template_directory() . '/template-parts/home/trusted.php';
-	
-	if (! file_exists($template_file)) {
-		return false;
-	}
-
-	$content = file_get_contents($template_file);
-	
-	// Extract top carousel section (trusted__carousel--right)
-	preg_match(
-		'/<div class="trusted__carousel trusted__carousel--right">(.*?)<\/div>\s*<\/div>/s',
-		$content,
-		$top_section
+	// Default image filenames that were used in the original template
+	$top_filenames = array(
+		array('icon' => 'ca-1.svg', 'hover' => 'ca-1-hover.svg'),
+		array('icon' => 'ca-2.svg', 'hover' => 'ca-2-hover.svg'),
+		array('icon' => 'ca-3.svg', 'hover' => 'ca-3-hover.svg'),
+		array('icon' => 'ca-4.svg', 'hover' => 'ca-4-hover.svg'),
+		array('icon' => 'ca-5.svg', 'hover' => 'ca-5-hover.svg'),
 	);
 
-	// Extract bottom carousel section (trusted__carousel--left)
-	preg_match(
-		'/<div class="trusted__carousel trusted__carousel--left">(.*?)<\/div>\s*<\/div>/s',
-		$content,
-		$bottom_section
+	$bottom_filenames = array(
+		array('icon' => 'cb-1.svg', 'hover' => 'cb-1-hover.svg'),
+		array('icon' => 'cb-2.svg', 'hover' => 'cb-2-hover.svg'),
+		array('icon' => 'cb-3.svg', 'hover' => 'cb-3-hover.svg'),
+		array('icon' => 'cb-4.svg', 'hover' => 'cb-4-hover.svg'),
+		array('icon' => 'cb-5.svg', 'hover' => 'cb-5-hover.svg'),
 	);
 
 	$top_items = array();
 	$bottom_items = array();
 
 	// Process top carousel
-	if (! empty($top_section[1])) {
-		// Extract all carousel items from top section
-		preg_match_all(
-			'/<div class="trusted__carousel-item">.*?<img[^>]*class="trusted__icon"[^>]*src=["\']([^"\']+)["\'][^>]*>.*?<img[^>]*class="trusted__icon-hover"[^>]*src=["\']([^"\']+)["\'][^>]*>.*?<\/div>/s',
-			$top_section[1],
-			$top_matches,
-			PREG_SET_ORDER
-		);
+	foreach ($top_filenames as $file_pair) {
+		$icon_id = natura_find_attachment_by_filename($file_pair['icon']);
+		$icon_hover_id = natura_find_attachment_by_filename($file_pair['hover']);
 
-		$top_seen = array();
-		foreach ($top_matches as $match) {
-			if (count($top_seen) >= 10) { // Limit to avoid duplicates
-				break;
-			}
-			
-			$icon_url = isset($match[1]) ? $match[1] : '';
-			$icon_hover_url = isset($match[2]) ? $match[2] : '';
-			
-			if (empty($icon_url) && empty($icon_hover_url)) {
-				continue;
-			}
-			
-			// Check if we've seen this combination (to avoid duplicates)
-			$key = md5($icon_url . $icon_hover_url);
-			if (in_array($key, $top_seen, true)) {
-				continue;
-			}
-			$top_seen[] = $key;
+		// If exact match not found, try to find by pattern (ca-1, ca_1, ca1, etc.)
+		if (! $icon_id) {
+			$base_name = pathinfo($file_pair['icon'], PATHINFO_FILENAME); // e.g., 'ca-1' from 'ca-1.svg'
+			$icon_id = natura_find_attachment_by_pattern($base_name);
+		}
+		if (! $icon_hover_id) {
+			$base_name = pathinfo($file_pair['hover'], PATHINFO_FILENAME); // e.g., 'ca-1-hover' from 'ca-1-hover.svg'
+			$icon_hover_id = natura_find_attachment_by_pattern($base_name);
+		}
 
-			// Convert URL to attachment ID
-			$icon_id = natura_url_to_attachment_id($icon_url);
-			$icon_hover_id = natura_url_to_attachment_id($icon_hover_url);
-
-			if ($icon_id || $icon_hover_id) {
-				$top_items[] = array(
-					'icon_id' => $icon_id,
-					'icon_hover_id' => $icon_hover_id,
-				);
-			}
+		if ($icon_id || $icon_hover_id) {
+			$top_items[] = array(
+				'icon_id' => $icon_id,
+				'icon_hover_id' => $icon_hover_id,
+			);
 		}
 	}
 
 	// Process bottom carousel
-	if (! empty($bottom_section[1])) {
-		// Extract all carousel items from bottom section
-		preg_match_all(
-			'/<div class="trusted__carousel-item">.*?<img[^>]*class="trusted__icon"[^>]*src=["\']([^"\']+)["\'][^>]*>.*?<img[^>]*class="trusted__icon-hover"[^>]*src=["\']([^"\']+)["\'][^>]*>.*?<\/div>/s',
-			$bottom_section[1],
-			$bottom_matches,
-			PREG_SET_ORDER
-		);
+	foreach ($bottom_filenames as $file_pair) {
+		$icon_id = natura_find_attachment_by_filename($file_pair['icon']);
+		$icon_hover_id = natura_find_attachment_by_filename($file_pair['hover']);
 
-		$bottom_seen = array();
-		foreach ($bottom_matches as $match) {
-			if (count($bottom_seen) >= 10) { // Limit to avoid duplicates
-				break;
-			}
-			
-			$icon_url = isset($match[1]) ? $match[1] : '';
-			$icon_hover_url = isset($match[2]) ? $match[2] : '';
-			
-			if (empty($icon_url) && empty($icon_hover_url)) {
-				continue;
-			}
-			
-			// Check if we've seen this combination (to avoid duplicates)
-			$key = md5($icon_url . $icon_hover_url);
-			if (in_array($key, $bottom_seen, true)) {
-				continue;
-			}
-			$bottom_seen[] = $key;
+		// If exact match not found, try to find by pattern (cb-1, cb_1, cb1, etc.)
+		if (! $icon_id) {
+			$base_name = pathinfo($file_pair['icon'], PATHINFO_FILENAME); // e.g., 'cb-1' from 'cb-1.svg'
+			$icon_id = natura_find_attachment_by_pattern($base_name);
+		}
+		if (! $icon_hover_id) {
+			$base_name = pathinfo($file_pair['hover'], PATHINFO_FILENAME); // e.g., 'cb-1-hover' from 'cb-1-hover.svg'
+			$icon_hover_id = natura_find_attachment_by_pattern($base_name);
+		}
 
-			// Convert URL to attachment ID
-			$icon_id = natura_url_to_attachment_id($icon_url);
-			$icon_hover_id = natura_url_to_attachment_id($icon_hover_url);
-
-			if ($icon_id || $icon_hover_id) {
-				$bottom_items[] = array(
-					'icon_id' => $icon_id,
-					'icon_hover_id' => $icon_hover_id,
-				);
-			}
+		if ($icon_id || $icon_hover_id) {
+			$bottom_items[] = array(
+				'icon_id' => $icon_id,
+				'icon_hover_id' => $icon_hover_id,
+			);
 		}
 	}
 
-	return array(
-		'top' => $top_items,
-		'bottom' => $bottom_items,
-	);
+	// If we found items, return them
+	if (! empty($top_items) || ! empty($bottom_items)) {
+		return array(
+			'top' => $top_items,
+			'bottom' => $bottom_items,
+		);
+	}
+
+	// If no items found, try to get from current saved data
+	$current_data = get_option(NATURA_TRUSTED_CAROUSEL_OPTION, false);
+	if ($current_data && (isset($current_data['top']) || isset($current_data['bottom']))) {
+		return $current_data;
+	}
+
+	return false;
+}
+
+/**
+ * Find attachment ID by pattern (for flexible search).
+ * Searches for files containing the pattern in filename or title.
+ *
+ * @param string $pattern Pattern to search for (e.g., 'ca-1', 'ca1').
+ * @return int Attachment ID or 0.
+ */
+function natura_find_attachment_by_pattern($pattern) {
+	if (empty($pattern)) {
+		return 0;
+	}
+
+	global $wpdb;
+
+	// Search in _wp_attached_file meta using LIKE (with and without separators)
+	$attachment_id = $wpdb->get_var($wpdb->prepare(
+		"SELECT post_id FROM {$wpdb->postmeta} 
+		WHERE meta_key = '_wp_attached_file' 
+		AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s)
+		LIMIT 1",
+		'%' . $wpdb->esc_like($pattern) . '%',
+		'%' . $wpdb->esc_like(str_replace('-', '_', $pattern)) . '%',
+		'%' . $wpdb->esc_like(str_replace(array('-', '_'), '', $pattern)) . '%'
+	));
+
+	if ($attachment_id) {
+		return (int) $attachment_id;
+	}
+
+	// Also try in post title
+	$attachment_id = $wpdb->get_var($wpdb->prepare(
+		"SELECT ID FROM {$wpdb->posts} 
+		WHERE post_type = 'attachment' 
+		AND (post_title LIKE %s OR post_title LIKE %s OR post_title LIKE %s)
+		LIMIT 1",
+		'%' . $wpdb->esc_like($pattern) . '%',
+		'%' . $wpdb->esc_like(str_replace('-', '_', $pattern)) . '%',
+		'%' . $wpdb->esc_like(str_replace(array('-', '_'), '', $pattern)) . '%'
+	));
+
+	return $attachment_id ? (int) $attachment_id : 0;
+}
+
+/**
+ * Find attachment ID by filename.
+ *
+ * @param string $filename Filename to search for.
+ * @return int Attachment ID or 0.
+ */
+function natura_find_attachment_by_filename($filename) {
+	if (empty($filename)) {
+		return 0;
+	}
+
+	global $wpdb;
+
+	// Clean filename (remove path if present)
+	$filename = basename($filename);
+	
+	// Try exact match in _wp_attached_file meta
+	$attachment_id = $wpdb->get_var($wpdb->prepare(
+		"SELECT post_id FROM {$wpdb->postmeta} 
+		WHERE meta_key = '_wp_attached_file' 
+		AND (meta_value = %s OR meta_value LIKE %s)
+		LIMIT 1",
+		$filename,
+		'%/' . $wpdb->esc_like($filename)
+	));
+
+	if ($attachment_id) {
+		return (int) $attachment_id;
+	}
+
+	// Try to find by post title
+	$attachment_id = $wpdb->get_var($wpdb->prepare(
+		"SELECT ID FROM {$wpdb->posts} 
+		WHERE post_type = 'attachment' 
+		AND (post_title = %s OR post_title LIKE %s)
+		LIMIT 1",
+		$filename,
+		'%' . $wpdb->esc_like($filename) . '%'
+	));
+
+	if ($attachment_id) {
+		return (int) $attachment_id;
+	}
+
+	// Try to find by guid (URL) - remove extension for more flexible search
+	$filename_no_ext = pathinfo($filename, PATHINFO_FILENAME);
+	if ($filename_no_ext) {
+		$attachment_id = $wpdb->get_var($wpdb->prepare(
+			"SELECT ID FROM {$wpdb->posts} 
+			WHERE post_type = 'attachment' 
+			AND (guid LIKE %s OR guid LIKE %s)
+			LIMIT 1",
+			'%' . $wpdb->esc_like($filename) . '%',
+			'%' . $wpdb->esc_like($filename_no_ext) . '%'
+		));
+
+		if ($attachment_id) {
+			return (int) $attachment_id;
+		}
+	}
+
+	return 0;
 }
 
 /**
@@ -411,15 +515,7 @@ function natura_url_to_attachment_id($url) {
 	// If direct lookup fails, try to find by filename
 	$filename = basename(parse_url($url, PHP_URL_PATH));
 	if ($filename) {
-		global $wpdb;
-		$attachment_id = $wpdb->get_var($wpdb->prepare(
-			"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file' AND meta_value LIKE %s LIMIT 1",
-			'%' . $wpdb->esc_like($filename)
-		));
-		
-		if ($attachment_id) {
-			return (int) $attachment_id;
-		}
+		return natura_find_attachment_by_filename($filename);
 	}
 
 	return 0;
