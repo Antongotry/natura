@@ -183,6 +183,12 @@
 		$(document).on('change', '.natura-image-id, .natura-image-hover-id', function() {
 			updateHiddenFields();
 		});
+
+		// Update hidden fields before form submission
+		$('#natura-trusted-form').on('submit', function(e) {
+			// Update fields immediately before submit
+			updateHiddenFields();
+		});
 	}
 
 	/**
@@ -244,8 +250,12 @@
 			}
 		});
 
-		$('#trusted-top-data').val(JSON.stringify(topItems));
-		$('#trusted-bottom-data').val(JSON.stringify(bottomItems));
+		// Update hidden fields with JSON data
+		const topData = JSON.stringify(topItems);
+		const bottomData = JSON.stringify(bottomItems);
+		
+		$('#trusted-top-data').val(topData);
+		$('#trusted-bottom-data').val(bottomData);
 	}
 
 	// Initialize on document ready

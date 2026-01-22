@@ -37,19 +37,39 @@ function natura_home_content_page() {
 
 	// Handle form submission
 	if (isset($_POST['natura_trusted_save']) && check_admin_referer('natura_trusted_save', 'natura_trusted_nonce')) {
-		$top_items = isset($_POST['trusted_top']) ? json_decode(stripslashes($_POST['trusted_top']), true) : array();
-		$bottom_items = isset($_POST['trusted_bottom']) ? json_decode(stripslashes($_POST['trusted_bottom']), true) : array();
+		$top_items_raw = isset($_POST['trusted_top']) ? $_POST['trusted_top'] : '';
+		$bottom_items_raw = isset($_POST['trusted_bottom']) ? $_POST['trusted_bottom'] : '';
+		
+		// Decode JSON data
+		$top_items = ! empty($top_items_raw) ? json_decode(stripslashes($top_items_raw), true) : array();
+		$bottom_items = ! empty($bottom_items_raw) ? json_decode(stripslashes($bottom_items_raw), true) : array();
+		
+		// Check for JSON decode errors
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			echo '<div class="notice notice-error is-dismissible"><p>' . 
+				esc_html__('Помилка при обробці даних: ', 'natura') . json_last_error_msg() . '</p></div>';
+		} else {
+			// Validate and sanitize data
+			$top_items = natura_sanitize_carousel_items($top_items);
+			$bottom_items = natura_sanitize_carousel_items($bottom_items);
 
-		// Validate and sanitize data
-		$top_items = natura_sanitize_carousel_items($top_items);
-		$bottom_items = natura_sanitize_carousel_items($bottom_items);
+			$saved = update_option(NATURA_TRUSTED_CAROUSEL_OPTION, array(
+				'top' => $top_items,
+				'bottom' => $bottom_items,
+			));
 
-		update_option(NATURA_TRUSTED_CAROUSEL_OPTION, array(
-			'top' => $top_items,
-			'bottom' => $bottom_items,
-		));
-
-		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Налаштування збережено!', 'natura') . '</p></div>';
+			if ($saved !== false) {
+				echo '<div class="notice notice-success is-dismissible"><p>' . 
+					sprintf(
+						esc_html__('Налаштування збережено! Збережено %d елементів у верхній ленті, %d елементів у нижній ленті.', 'natura'),
+						count($top_items),
+						count($bottom_items)
+					) . '</p></div>';
+			} else {
+				echo '<div class="notice notice-warning is-dismissible"><p>' . 
+					esc_html__('Дані не змінилися або сталася помилка при збереженні.', 'natura') . '</p></div>';
+			}
+		}
 	}
 
 	// Handle sync from template
@@ -122,7 +142,7 @@ function natura_home_content_page() {
 					<p class="description">
 						<?php esc_html_e('Натисніть кнопку нижче, щоб синхронізувати дані з поточного шаблону (якщо в коді є жорстко закодовані елементи).', 'natura'); ?>
 					</p>
-					<form method="post" action="" style="display: inline-block;">
+					<form method="post" action="" id="natura-sync-form" style="display: inline-block;">
 						<?php wp_nonce_field('natura_trusted_sync', 'natura_trusted_sync_nonce'); ?>
 						<button type="submit" name="natura_trusted_sync" class="button button-secondary">
 							<?php esc_html_e('Синхронізувати з шаблоном', 'natura'); ?>
