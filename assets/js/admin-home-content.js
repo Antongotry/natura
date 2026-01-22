@@ -188,6 +188,22 @@
 		$('#natura-trusted-form').on('submit', function(e) {
 			// Update fields immediately before submit
 			updateHiddenFields();
+			
+			// Verify fields were updated
+			const topData = $('#trusted-top-data').val();
+			const bottomData = $('#trusted-bottom-data').val();
+			
+			if (typeof console !== 'undefined' && console.log) {
+				console.log('Natura: Form submitting with data', {
+					topDataLength: topData ? topData.length : 0,
+					bottomDataLength: bottomData ? bottomData.length : 0,
+					topData: topData ? topData.substring(0, 150) : 'empty',
+					bottomData: bottomData ? bottomData.substring(0, 150) : 'empty'
+				});
+			}
+			
+			// Allow form to submit normally
+			return true;
 		});
 	}
 
@@ -226,36 +242,62 @@
 		const topItems = [];
 		const bottomItems = [];
 
+		// Collect top carousel items
 		$('.natura-carousel-item[data-carousel="top"]').each(function() {
 			const iconId = $(this).find('.natura-image-id').val();
 			const iconHoverId = $(this).find('.natura-image-hover-id').val();
 
+			// Include item even if only one image is set
 			if (iconId || iconHoverId) {
 				topItems.push({
-					icon_id: parseInt(iconId) || 0,
-					icon_hover_id: parseInt(iconHoverId) || 0
+					icon_id: iconId ? parseInt(iconId) : 0,
+					icon_hover_id: iconHoverId ? parseInt(iconHoverId) : 0
 				});
 			}
 		});
 
+		// Collect bottom carousel items
 		$('.natura-carousel-item[data-carousel="bottom"]').each(function() {
 			const iconId = $(this).find('.natura-image-id').val();
 			const iconHoverId = $(this).find('.natura-image-hover-id').val();
 
+			// Include item even if only one image is set
 			if (iconId || iconHoverId) {
 				bottomItems.push({
-					icon_id: parseInt(iconId) || 0,
-					icon_hover_id: parseInt(iconHoverId) || 0
+					icon_id: iconId ? parseInt(iconId) : 0,
+					icon_hover_id: iconHoverId ? parseInt(iconHoverId) : 0
 				});
 			}
 		});
 
 		// Update hidden fields with JSON data
-		const topData = JSON.stringify(topItems);
-		const bottomData = JSON.stringify(bottomItems);
-		
-		$('#trusted-top-data').val(topData);
-		$('#trusted-bottom-data').val(bottomData);
+		try {
+			const topData = JSON.stringify(topItems);
+			const bottomData = JSON.stringify(bottomItems);
+			
+			const topField = $('#trusted-top-data');
+			const bottomField = $('#trusted-bottom-data');
+			
+			if (topField.length) {
+				topField.val(topData);
+			}
+			if (bottomField.length) {
+				bottomField.val(bottomData);
+			}
+			
+			// Debug output
+			if (typeof console !== 'undefined' && console.log) {
+				console.log('Natura: Updated hidden fields', {
+					topCount: topItems.length,
+					bottomCount: bottomItems.length,
+					topItems: topItems,
+					bottomItems: bottomItems
+				});
+			}
+		} catch (e) {
+			console.error('Error updating hidden fields:', e);
+			alert('Помилка при підготовці даних для збереження: ' + e.message);
+		}
 	}
 
 	// Initialize on document ready

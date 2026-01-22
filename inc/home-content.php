@@ -40,23 +40,57 @@ function natura_home_content_page() {
 		$top_items_raw = isset($_POST['trusted_top']) ? $_POST['trusted_top'] : '';
 		$bottom_items_raw = isset($_POST['trusted_bottom']) ? $_POST['trusted_bottom'] : '';
 		
-		// Decode JSON data
-		$top_items = ! empty($top_items_raw) ? json_decode(stripslashes($top_items_raw), true) : array();
-		$bottom_items = ! empty($bottom_items_raw) ? json_decode(stripslashes($bottom_items_raw), true) : array();
+		// Debug: log received data (remove in production)
+		if (defined('WP_DEBUG') && WP_DEBUG) {
+			error_log('Natura Trusted Save - Top raw: ' . substr($top_items_raw, 0, 200));
+			error_log('Natura Trusted Save - Bottom raw: ' . substr($bottom_items_raw, 0, 200));
+		}
+		
+		// Decode JSON data - handle both raw and slashed data
+		$top_items = array();
+		$bottom_items = array();
+		
+		if (! empty($top_items_raw)) {
+			// Try without stripslashes first
+			$top_items = json_decode($top_items_raw, true);
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				// Try with stripslashes
+				$top_items = json_decode(stripslashes($top_items_raw), true);
+			}
+			if (json_last_error() !== JSON_ERROR_NONE || ! is_array($top_items)) {
+				$top_items = array();
+			}
+		}
+		
+		if (! empty($bottom_items_raw)) {
+			// Try without stripslashes first
+			$bottom_items = json_decode($bottom_items_raw, true);
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				// Try with stripslashes
+				$bottom_items = json_decode(stripslashes($bottom_items_raw), true);
+			}
+			if (json_last_error() !== JSON_ERROR_NONE || ! is_array($bottom_items)) {
+				$bottom_items = array();
+			}
+		}
 		
 		// Check for JSON decode errors
-		if (json_last_error() !== JSON_ERROR_NONE) {
+		$json_error = json_last_error();
+		if ($json_error !== JSON_ERROR_NONE && (! empty($top_items_raw) || ! empty($bottom_items_raw))) {
 			echo '<div class="notice notice-error is-dismissible"><p>' . 
-				esc_html__('Помилка при обробці даних: ', 'natura') . json_last_error_msg() . '</p></div>';
+				esc_html__('Помилка при обробці даних: ', 'natura') . json_last_error_msg() . 
+				' (Код помилки: ' . $json_error . ')</p></div>';
 		} else {
 			// Validate and sanitize data
 			$top_items = natura_sanitize_carousel_items($top_items);
 			$bottom_items = natura_sanitize_carousel_items($bottom_items);
 
-			$saved = update_option(NATURA_TRUSTED_CAROUSEL_OPTION, array(
+			$data_to_save = array(
 				'top' => $top_items,
 				'bottom' => $bottom_items,
-			));
+			);
+			
+			$saved = update_option(NATURA_TRUSTED_CAROUSEL_OPTION, $data_to_save);
 
 			if ($saved !== false) {
 				echo '<div class="notice notice-success is-dismissible"><p>' . 
