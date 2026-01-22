@@ -7,8 +7,6 @@
 (function($) {
 	'use strict';
 
-	let mediaUploader;
-
 	/**
 	 * Initialize admin page.
 	 */
@@ -33,6 +31,13 @@
 		// Image upload
 		$(document).on('click', '.natura-image-upload', function(e) {
 			e.preventDefault();
+			
+			// Check if wp.media is available
+			if (typeof wp === 'undefined' || !wp.media) {
+				alert('Медіа-бібліотека WordPress не завантажена. Перезавантажте сторінку.');
+				return;
+			}
+
 			const button = $(this);
 			const field = button.closest('.natura-image-field');
 			const input = field.find('.natura-image-id');
@@ -46,39 +51,50 @@
 				removeBtn: removeBtn
 			};
 
-			// If media uploader exists, remove previous handlers
-			if (mediaUploader) {
-				mediaUploader.off('select');
-			} else {
-				mediaUploader = wp.media({
-					title: 'Оберіть зображення',
-					button: {
-						text: 'Використати зображення'
-					},
-					multiple: false
-				});
-			}
+			// Create new media uploader instance for each click to avoid conflicts
+			const uploader = wp.media({
+				title: 'Оберіть зображення',
+				button: {
+					text: 'Використати зображення'
+				},
+				library: {
+					type: 'image'
+				},
+				multiple: false
+			});
 
 			// Set current selection if image already exists
 			if (input.val()) {
-				mediaUploader.state().get('selection').reset();
-				mediaUploader.state().get('selection').add(wp.media.attachment(input.val()));
+				uploader.on('open', function() {
+					const selection = uploader.state().get('selection');
+					const attachment = wp.media.attachment(input.val());
+					attachment.fetch();
+					selection.reset([attachment]);
+				});
 			}
 
-			mediaUploader.on('select', function() {
-				const attachment = mediaUploader.state().get('selection').first().toJSON();
+			// Handle selection
+			uploader.on('select', function() {
+				const attachment = uploader.state().get('selection').first().toJSON();
 				currentField.input.val(attachment.id);
-				currentField.preview.html('<img src="' + attachment.url + '" alt="">');
+				currentField.preview.html('<img src="' + attachment.url + '" alt="" style="max-width: 100%; height: auto;">');
 				currentField.removeBtn.removeClass('is-hidden');
 				updateHiddenFields();
 			});
 
-			mediaUploader.open();
+			uploader.open();
 		});
 
 		// Hover image upload
 		$(document).on('click', '.natura-image-hover-upload', function(e) {
 			e.preventDefault();
+			
+			// Check if wp.media is available
+			if (typeof wp === 'undefined' || !wp.media) {
+				alert('Медіа-бібліотека WordPress не завантажена. Перезавантажте сторінку.');
+				return;
+			}
+
 			const button = $(this);
 			const field = button.closest('.natura-image-field');
 			const input = field.find('.natura-image-hover-id');
@@ -92,34 +108,38 @@
 				removeBtn: removeBtn
 			};
 
-			// If media uploader exists, remove previous handlers
-			if (mediaUploader) {
-				mediaUploader.off('select');
-			} else {
-				mediaUploader = wp.media({
-					title: 'Оберіть зображення',
-					button: {
-						text: 'Використати зображення'
-					},
-					multiple: false
-				});
-			}
+			// Create new media uploader instance for each click to avoid conflicts
+			const uploader = wp.media({
+				title: 'Оберіть зображення',
+				button: {
+					text: 'Використати зображення'
+				},
+				library: {
+					type: 'image'
+				},
+				multiple: false
+			});
 
 			// Set current selection if image already exists
 			if (input.val()) {
-				mediaUploader.state().get('selection').reset();
-				mediaUploader.state().get('selection').add(wp.media.attachment(input.val()));
+				uploader.on('open', function() {
+					const selection = uploader.state().get('selection');
+					const attachment = wp.media.attachment(input.val());
+					attachment.fetch();
+					selection.reset([attachment]);
+				});
 			}
 
-			mediaUploader.on('select', function() {
-				const attachment = mediaUploader.state().get('selection').first().toJSON();
+			// Handle selection
+			uploader.on('select', function() {
+				const attachment = uploader.state().get('selection').first().toJSON();
 				currentField.input.val(attachment.id);
-				currentField.preview.html('<img src="' + attachment.url + '" alt="">');
+				currentField.preview.html('<img src="' + attachment.url + '" alt="" style="max-width: 100%; height: auto;">');
 				currentField.removeBtn.removeClass('is-hidden');
 				updateHiddenFields();
 			});
 
-			mediaUploader.open();
+			uploader.open();
 		});
 
 		// Remove image

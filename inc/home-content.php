@@ -525,15 +525,22 @@ function natura_url_to_attachment_id($url) {
  * Enqueue admin assets for home content page.
  */
 function natura_home_content_admin_assets() {
+	// Enqueue media uploader scripts
 	wp_enqueue_media();
+	
+	// Enqueue jQuery UI Sortable
 	wp_enqueue_script('jquery-ui-sortable');
+	
+	// Enqueue our custom script with proper dependencies
 	wp_enqueue_script(
 		'natura-home-content-admin',
 		get_template_directory_uri() . '/assets/js/admin-home-content.js',
-		array('jquery', 'jquery-ui-sortable'),
+		array('jquery', 'jquery-ui-sortable', 'media-upload', 'media-views'),
 		NATURA_THEME_VERSION,
 		true
 	);
+	
+	// Enqueue styles
 	wp_enqueue_style(
 		'natura-home-content-admin',
 		get_template_directory_uri() . '/assets/css/admin-home-content.css',
@@ -541,6 +548,7 @@ function natura_home_content_admin_assets() {
 		NATURA_THEME_VERSION
 	);
 
+	// Localize script
 	wp_localize_script('natura-home-content-admin', 'naturaHomeContent', array(
 		'ajaxUrl' => admin_url('admin-ajax.php'),
 		'nonce' => wp_create_nonce('natura_home_content_nonce'),
